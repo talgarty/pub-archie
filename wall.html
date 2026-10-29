@@ -486,7 +486,7 @@ function renderVideo(v) {
   if (!v) { el.removeAttribute('src'); return; }
   $('vi-title').textContent = v.title;
   // The public copy carries its video beside the page; the live wall asks the box for the current one.
-  const src = SNAP ? `video.mp4?t=${Date.parse(SNAP.at)}` : `/api/wall/video?v=${encodeURIComponent(v.name)}`;
+  const src = SNAP ? `video.mp4?v=${encodeURIComponent(v.name)}` : `/api/wall/video?v=${encodeURIComponent(v.name)}`;
   if (el.dataset.src !== src) { el.dataset.src = src; el.src = src; }
 }
 // The rotation runs on the wall clock, so every screen in the office shows the same scene at the same moment.
@@ -546,8 +546,9 @@ function render(w) {
   celebrate(w.mrs.merged);
 }
 // The public copy (viewer/lib/wall-public.js) carries its numbers and never calls the box.
-const SNAP = window.WALL_SNAPSHOT || null;
-const RELOAD_AT = SNAP ? Math.max(Date.now() + 60000, Date.parse(SNAP.at) + SNAP.every + 120000) : Date.now() + 4 * 3600 * 1000;
+let SNAP = window.WALL_SNAPSHOT || null;
+// Until snapshot.json answers, the public copy reloads two minutes after its next snapshot is due.
+let RELOAD_AT = SNAP ? Math.max(Date.now() + 60000, Date.parse(SNAP.at) + SNAP.every + 120000) : Date.now() + 4 * 3600 * 1000;
 async function poll() {
   if (SNAP) { lastOk = Date.parse(SNAP.at); render(SNAP.data); document.fonts.ready.then(() => renderThreads(SNAP.data.live)); return; }
   try {
@@ -573,7 +574,7 @@ function tick() {
   }
   const s = Math.round((now - lastOk) / 1000), stale = !lastOk || s > (SNAP ? 3 * SNAP.every / 1000 : 120);
   $('dot').classList.toggle('stale', stale);
-  $('fresh').textContent = !lastOk ? 'connecting' : stale ? `no data for ${Math.round(s / 60)} min` : SNAP ? `updated ${ilTime.format(new Date(lastOk))} · next ${ilTime.format(new Date(RELOAD_AT))} · Israel time` : 'live · Israel time';
+  $('fresh').textContent = !lastOk ? 'connecting' : stale ? `no data for ${Math.round(s / 60)} min` : SNAP ? `updated ${ilTime.format(new Date(lastOk))} · next ${ilTime.format(new Date(lastOk + SNAP.every))} · Israel time` : 'live · Israel time';
 }
 function celebrate(list) {
   const fresh = (list || []).filter((m) => !seenMerged.has(m.ref));
@@ -581,8 +582,22 @@ function celebrate(list) {
   try { localStorage.setItem('wall-merged', JSON.stringify([...seenMerged])); } catch { /* private mode */ }
   fresh.slice(0, 5).forEach((m, i) => setTimeout(() => party(m), i * 7000));
 }
-async function pollMerges() {
-  try { const r = await fetch(`merged.json?t=${Date.now()}`, { cache: 'no-store' }); if (r.ok) celebrate((await r.json()).merged); } catch { /* the next minute tries again */ }
+// The public copy asks GitHub for snapshot.json each minute. New numbers render in place, with no reload.
+// A new page id means a new design: the page fades to its background and reloads, so the TV never flashes.
+async function pollSnapshot() {
+  try {
+    const r = await fetch(`snapshot.json?t=${Date.now()}`, { cache: 'no-store' });
+    if (!r.ok) return;
+    const s = await r.json();
+    RELOAD_AT = Date.now() + 4 * 3600 * 1000; // it answers, so only the few-hour reload stays
+    if (s.page && SNAP.page && s.page !== SNAP.page) return quietReload();
+    if (s.at !== SNAP.at && Date.parse(s.at) > Date.parse(SNAP.at)) { SNAP = s; poll(); }
+  } catch { /* the next minute tries again */ }
+}
+function quietReload() {
+  document.body.style.transition = 'opacity .8s';
+  document.body.style.opacity = '0';
+  setTimeout(() => location.replace(`${location.pathname}?t=${Date.now()}`), 900);
 }
 function party(mr) {
   const toast = $('toast');
@@ -697,11 +712,10 @@ async function arcLife() {
   }
 }
 if (new URLSearchParams(location.search).get('arc') === '0' || matchMedia('(prefers-reduced-motion: reduce)').matches) { $('arc').remove(); $('arc-ink').remove(); } else document.fonts.ready.then(arcLife);
-poll(); if (!SNAP) setInterval(poll, 15000); else setInterval(pollMerges, 60000); setInterval(tick, 1000);
+poll(); if (!SNAP) setInterval(poll, 15000); else setInterval(pollSnapshot, 60000); setInterval(tick, 1000);
 // A TV runs for days: reload every few hours so a new deploy of this page reaches it.
-// The public copy reloads two minutes after the next snapshot is due, once GitHub Pages has it.
 // A fresh query string gets past the 10-minute cache GitHub Pages puts on the page.
-setTimeout(() => (SNAP ? location.replace(`${location.pathname}?t=${Date.now()}`) : location.reload()), RELOAD_AT - Date.now());
+setInterval(() => { if (Date.now() >= RELOAD_AT) (SNAP ? quietReload() : location.reload()); }, 15000);
 </script>
 </body>
 </html>
