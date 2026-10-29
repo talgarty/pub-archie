@@ -462,7 +462,7 @@ function renderVideo(v) {
   if (!v) { el.removeAttribute('src'); return; }
   $('vi-title').textContent = v.title;
   // The public copy carries its video beside the page; the live wall asks the box for the current one.
-  const src = SNAP ? `video.mp4?t=${Date.parse(SNAP.at)}` : `/api/wall/video?v=${encodeURIComponent(v.name)}`;
+  const src = SNAP ? `video.mp4?v=${encodeURIComponent(v.name)}` : `/api/wall/video?v=${encodeURIComponent(v.name)}`;
   if (el.dataset.src !== src) { el.dataset.src = src; el.src = src; }
 }
 // The rotation runs on the wall clock, so every screen in the office shows the same scene at the same moment.
