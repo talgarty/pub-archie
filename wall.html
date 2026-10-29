@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Archie · wall</title>
+<link rel="icon" href="/archie-favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+/* Pastel: lavender mesh, Bricolage Grotesque. */
+:root { --bg: #f6f3ff; --ink: #1e1b3a; --mute: #6a6690; --line: rgba(30,27,58,.1); --accent: #6d5dfc;
+  --coding: #6d5dfc; --verify: #00a6a6; --review: #f0569b; --question: #ff8a3d; --machine: #9a95c4;
+  --people: #00a6a6; --merged: #f0569b; --hours: #ff8a3d; --done: #00a6a6; --inqa: #6d5dfc; --indev: #ffb27a;
+  --pane: rgba(255,255,255,.6); --tile: rgba(255,255,255,.6); --hi: #fff; --soft: rgba(30,27,58,.07);
+  --font: 'Bricolage Grotesque', sans-serif; --r: 1.6vw; --track: .45vw; }
+
+@keyframes flow { to { background-position: -12vw 0; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pop { from { opacity: 0; transform: translateY(1vw); } }
+@keyframes grow { from { transform: scaleY(0); } }
+@keyframes scroll { to { transform: translateX(-50%); } }
+@keyframes breathe { 50% { opacity: .35; } }
+@keyframes sky { 50% { transform: translate(-6vw, 3vw) scale(1.2); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; }
+body { font-family: var(--font); font-size: 1.05vw; -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+.sky { position: fixed; inset: 0; pointer-events: none; }
+.sky i { position: absolute; width: 60vw; height: 60vw; border-radius: 50%; filter: blur(7vw); animation: sky 26s ease-in-out infinite; }
+.sky i:nth-child(1) { background: #d9d1ff; left: -15vw; top: -25vw; }
+.sky i:nth-child(2) { background: #c9f3ee; right: -20vw; top: 10vw; animation-delay: -9s; }
+.sky i:nth-child(3) { background: #ffdcec; left: 25vw; bottom: -40vw; animation-delay: -17s; }
+
+/* Three chapters read left to right: since the first ask, right now, what ships next. */
+.screen { position: relative; height: 100vh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding: 2vw 2.6vw 0; gap: 1.3vw; }
+header { display: flex; align-items: baseline; justify-content: space-between; font-size: 1.1vw; color: var(--mute); }
+header .me { font-size: 1.7vw; color: var(--ink); letter-spacing: -.01em; }
+header .me b { font-weight: inherit; color: var(--accent); }
+header .clock { font-size: 1.7vw; color: var(--ink); }
+header .live { display: inline-flex; align-items: center; gap: .5vw; margin-right: 1.4vw; }
+.dot { width: .6vw; height: .6vw; border-radius: 50%; background: var(--accent); animation: breathe 2s infinite; }
+.dot.stale { background: #d33; animation: none; }
+
+main { display: grid; grid-template-columns: 28vw minmax(0, 1fr) 27vw; gap: 2.4vw; min-height: 0; }
+.chap { font-size: .95vw; color: var(--mute); text-transform: uppercase; letter-spacing: .16em; display: flex; align-items: baseline; gap: 1vw; }
+.chap b { font-weight: 600; color: var(--ink); }
+.pane { background: var(--pane); border: 1px solid var(--line); backdrop-filter: blur(1vw); border-radius: 2vw; box-shadow: 0 1.5vw 4vw rgba(70,50,160,.1); padding: 1.5vw 1.7vw; min-height: 0; min-width: 0; }
+
+.now { display: grid; grid-template-rows: auto auto auto auto minmax(0, 1fr); justify-items: center; gap: .8vw; min-height: 0; min-width: 0; text-align: center; }
+.presence { position: relative; width: 8vw; height: 8vw; }
+.presence svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.presence .orbit { transform-origin: 50% 50%; animation: spin linear infinite; }
+.presence .n { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; font-size: 3vw; letter-spacing: -.05em; }
+.say { width: 100%; min-width: 0; }
+.say h1 { font-weight: 600; font-size: 2.3vw; line-height: 1.02; letter-spacing: -.03em; white-space: nowrap; }
+.say h1 em { font-style: normal; color: var(--accent); }
+.say .sub { margin-top: .6vw; font-size: 1.15vw; color: var(--mute); }
+
+.today { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1vw; width: 100%; }
+.big { background: var(--tile); border: 1px solid var(--line); border-radius: 1.3vw; padding: .7vw 1vw; text-align: left; min-width: 0; overflow: hidden; }
+.big .n { font-weight: 800; font-size: 2.4vw; line-height: .95; letter-spacing: -.04em; }
+.big:first-child .n { color: var(--accent); }
+.big .l { font-size: 1vw; margin-top: .35vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.big .s { font-size: .82vw; color: var(--mute); margin-top: .2vw; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.threads { display: flex; flex-direction: column; gap: 1vw; min-height: 0; width: 100%; overflow: hidden; padding-top: .4vw; text-align: left; }
+.th { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'who t' 'doing doing' 'step step' 'line line'; align-items: baseline; column-gap: 1.2vw; row-gap: .3vw; animation: pop .6s both; }
+.th .who { grid-area: who; font-size: 1.05vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.th .who b { font-weight: 600; margin-right: .5vw; }
+.th .who span { color: var(--mute); }
+.th .doing { grid-area: doing; font-size: 1vw; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.th .step { grid-area: step; font-size: .85vw; color: var(--mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.th .step b { color: var(--ink); font-weight: 600; margin-right: .5vw; }
+.th .line { grid-area: line; }
+.th .line { position: relative; height: var(--track); border-radius: var(--r); background: var(--line); }
+.th .line i { position: absolute; left: 0; top: 0; bottom: 0; min-width: 1vw; border-radius: var(--r);
+  background: linear-gradient(90deg, var(--k) 0 40%, color-mix(in srgb, var(--k) 25%, transparent) 50%, var(--k) 60% 100%) 0 0 / 12vw 100%; animation: flow 1.6s linear infinite; transition: width 1s; }
+.th .line b { position: absolute; top: 50%; transform: translate(-50%, -50%); width: calc(var(--track) * 2.2); height: calc(var(--track) * 2.2); border-radius: 50%; background: var(--k); box-shadow: 0 0 0 .35vw color-mix(in srgb, var(--k) 22%, transparent); }
+.th .t { grid-area: t; font-size: 1.05vw; text-align: right; white-space: nowrap; }
+.th .t small { color: var(--mute); font-size: .85vw; margin-right: .6vw; }
+.th .t small::before { content: ''; display: inline-block; width: .55vw; height: .55vw; border-radius: 50%; background: var(--k); margin-right: .35vw; vertical-align: .05vw; }
+.threads .more, .threads .empty { color: var(--mute); font-size: 1vw; }
+.threads .empty { padding: 2vw 0; font-size: 1.6vw; text-align: center; }
+
+.growth { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 1vw; }
+.growth .head .n { display: block; font-weight: 800; font-size: 5vw; line-height: .9; letter-spacing: -.045em; color: var(--accent); }
+.growth .head .l { display: block; font-size: 1.2vw; margin: .4vw 0 .5vw; }
+.chip { display: inline-block; font-weight: 600; font-size: 1vw; padding: .25vw .7vw; border-radius: 1vw; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--ink); white-space: nowrap; }
+.chip.down { background: var(--soft); }
+.chart { position: relative; min-height: 0; }
+.chart svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.growth path.bar { transform-box: fill-box; transform-origin: bottom; animation: grow 1s cubic-bezier(.2,.9,.3,1) both; }
+.chart text { font-family: var(--font); fill: var(--mute); }
+.chart text.v { fill: var(--ink); font-weight: 600; }
+.mult { display: grid; grid-template-columns: minmax(0, 1fr); gap: .2vw; border-top: 1px solid var(--line); padding-top: .4vw; }
+.mult .m { display: grid; grid-template-columns: minmax(0, 1fr) 8vw; grid-template-areas: 'l svg' 'n svg' 's s'; column-gap: 1vw; align-items: end; padding: .55vw 0; border-bottom: 1px solid var(--line); }
+.mult .m:last-child { border-bottom: 0; }
+.mult .m .l { grid-area: l; font-size: .9vw; color: var(--mute); }
+.mult .m .row { grid-area: n; display: flex; align-items: baseline; gap: .7vw; white-space: nowrap; }
+.mult .m .n { font-weight: 800; font-size: 2vw; letter-spacing: -.03em; line-height: 1.05; }
+.mult .m .chip { font-size: .8vw; padding: .12vw .5vw; }
+.mult .m .s { grid-area: s; font-size: .8vw; color: var(--mute); margin-top: .2vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mult .m svg { grid-area: svg; display: block; width: 100%; height: 2.8vw; }
+
+.releases { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); gap: .7vw; }
+.releases .stale { font-size: .85vw; color: #a1201a; text-transform: none; letter-spacing: 0; }
+.releases .key { display: flex; gap: 1.1vw; font-size: .8vw; color: var(--mute); }
+.releases .key i { display: inline-block; width: .65vw; height: .65vw; border-radius: 50%; margin-right: .35vw; vertical-align: -.05vw; }
+.track { position: relative; display: flex; flex-direction: column; gap: .7vw; min-height: 0; overflow: hidden; }
+.track::before { content: ''; position: absolute; left: .55vw; top: 1vw; bottom: 1vw; width: .22vw; border-radius: .2vw; background: linear-gradient(180deg, var(--done), var(--inqa) 70%, var(--indev)); opacity: .35; }
+.train { position: relative; padding-left: 2.2vw; animation: pop .6s both; }
+.train > b { position: absolute; top: 1vw; left: 0; width: 1.3vw; height: 1.3vw; border-radius: 50%; background: var(--bg); border: .28vw solid var(--done); }
+.train.ahead > b { border-color: var(--inqa); }
+.train.next > b { border-color: var(--indev); border-style: dashed; }
+.train.qa > b { background: var(--inqa); box-shadow: 0 0 0 .5vw color-mix(in srgb, var(--inqa) 22%, transparent); animation: breathe 2.4s infinite; }
+.card { background: var(--tile); border-radius: 1.1vw; padding: .6vw 1vw .7vw; }
+.train.shipped .card { background: transparent; padding-top: .35vw; padding-bottom: .35vw; }
+.train.shipped .bar, .train.shipped .split { display: none; }
+.train.qa .card { background: var(--hi); box-shadow: 0 1vw 3vw rgba(70,50,160,.16); padding: .9vw 1.1vw 1vw; }
+.train.qa .card .when .d { font-size: 2.6vw; }
+.train.next .card { background: transparent; border: .15vw dashed var(--line); }
+.card .what { display: flex; justify-content: space-between; gap: .6vw; font-size: .85vw; color: var(--mute); white-space: nowrap; }
+.card .what .chip { font-size: .78vw; padding: .1vw .5vw; }
+.card .what .chip.past { background: var(--soft); color: var(--mute); font-weight: 400; }
+.card .when { display: flex; align-items: baseline; justify-content: space-between; gap: .8vw; margin-top: .15vw; white-space: nowrap; }
+.card .when .d { font-weight: 800; font-size: 1.8vw; letter-spacing: -.03em; line-height: 1; }
+.card .tk { font-size: .95vw; }
+.card .tk b { font-weight: 800; font-size: 1.45vw; letter-spacing: -.02em; margin-right: .3vw; }
+.card .bar { display: flex; height: .5vw; border-radius: .3vw; overflow: hidden; margin-top: .45vw; background: var(--line); }
+.card .bar i { display: block; transition: width 1s; }
+.card .split { font-size: .8vw; color: var(--mute); margin-top: .3vw; white-space: nowrap; }
+.card .envs { display: flex; gap: .4vw; margin-top: .45vw; white-space: nowrap; }
+.card .envs:empty { display: none; }
+.env { font-size: .82vw; font-weight: 600; padding: .2vw .6vw; border-radius: 1vw; background: var(--ink); color: var(--bg); white-space: nowrap; }
+.env small { font-weight: 400; opacity: .7; margin-left: .35vw; }
+
+footer { overflow: hidden; white-space: nowrap; border-top: 1px solid var(--line); padding: 1vw 0 1.2vw; font-size: 1vw; color: var(--mute); }
+footer .lane { display: inline-block; animation: scroll var(--dur, 90s) linear infinite; }
+footer span { margin-right: 3vw; color: var(--ink); }
+footer span b { color: var(--k); font-weight: 600; margin-right: .5vw; }
+footer em { font-style: normal; margin-left: .6vw; opacity: .7; }
+
+.toast { position: fixed; left: 50%; top: 45%; z-index: 5; transform: translate(-50%, -50%) scale(.6); opacity: 0; padding: 2.4vw 4vw; text-align: center; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 2.6vw; box-shadow: 0 2vw 6vw rgba(70,50,160,.25); transition: all .6s cubic-bezier(.2,1.3,.4,1); }
+.toast.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.toast .big2 { font-weight: 600; font-size: 6vw; color: var(--accent); }
+.toast .ref { font-size: 1.4vw; }
+.toast .ti { max-width: 50vw; margin-top: .4vw; color: var(--mute); font-size: 1.2vw; }
+.toast .by { margin-top: .8vw; font-size: 1.3vw; font-weight: 600; }
+canvas#party { position: fixed; inset: 0; pointer-events: none; z-index: 4; }
+/* Scenes: the live board most of the time, and in between a short scene of something else, on the same clock on every screen. */
+main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s ease; }
+.screen > .off { opacity: 0; transform: scale(.985); pointer-events: none; visibility: hidden; transition: opacity .9s ease, transform .9s ease, visibility 0s .9s; }
+.scene { display: grid; min-height: 0; min-width: 0; }
+.scene .chap { font-size: 1.3vw; }
+.scene .title { font-weight: 800; font-size: 4.6vw; letter-spacing: -.045em; line-height: .95; }
+.scene .title em { font-style: normal; color: var(--accent); }
+.scenes { display: inline-flex; gap: .5vw; margin-right: 1.6vw; vertical-align: .15vw; }
+.scenes i { position: relative; display: block; width: 2.2vw; height: .35vw; border-radius: .3vw; background: var(--line); overflow: hidden; }
+.scenes i b { position: absolute; inset: 0; width: 0; background: var(--accent); }
+.scenes i.on b { width: var(--p, 0%); }
+.scenes i.done b { width: 100%; opacity: .45; }
+
+.shipped { grid-template-rows: auto minmax(0, 1fr); gap: 1.6vw; }
+.shipped .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: min-content; gap: 1.1vw; align-content: start; overflow: hidden; }
+.ship { background: var(--tile); border: 1px solid var(--line); border-radius: 1.3vw; padding: 1vw 1.2vw; min-width: 0; }
+.scene:not(.off) .ship { animation: pop .7s both; }
+.ship .top { display: flex; justify-content: space-between; gap: .6vw; font-size: .85vw; color: var(--mute); white-space: nowrap; }
+.ship .top b { font-weight: 600; color: var(--k); }
+.ship .ti { margin-top: .45vw; font-size: 1.25vw; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.shipped .more { color: var(--mute); font-size: 1.2vw; align-self: center; }
+
+.moments { grid-template-columns: 32vw minmax(0, 1fr); gap: 2.6vw; }
+.podium .chap { white-space: nowrap; }
+.podium { display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 1.2vw; }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); align-items: end; gap: 1vw; min-height: 0; }
+.step { display: grid; grid-template-rows: auto auto 1fr; justify-items: center; height: 100%; text-align: center; }
+.step .medal { font-size: 3.4vw; line-height: 1; }
+.step .name { font-weight: 800; font-size: 2vw; letter-spacing: -.02em; margin: .4vw 0 .6vw; }
+.step .block { align-self: end; width: 100%; border-radius: 1.2vw 1.2vw 0 0; background: linear-gradient(180deg, var(--k), color-mix(in srgb, var(--k) 25%, transparent)); display: grid; place-items: start center; padding-top: .8vw; font-weight: 800; font-size: 2.2vw; color: var(--bg); transform-origin: bottom; }
+.scene:not(.off) .step .block { animation: grow 1.2s cubic-bezier(.2,.9,.3,1) both; }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 1.2vw; min-height: 0; }
+.fact { background: var(--tile); border: 1px solid var(--line); border-radius: 1.5vw; padding: 1.2vw 1.5vw; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.scene:not(.off) .fact { animation: pop .7s both; }
+.fact .e { font-size: 2.4vw; line-height: 1; }
+.fact .n { font-weight: 800; font-size: 3vw; letter-spacing: -.04em; line-height: 1.05; margin-top: .5vw; color: var(--k, var(--ink)); }
+.fact .l { font-size: 1.15vw; color: var(--mute); margin-top: .3vw; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.showing { grid-template-rows: auto minmax(0, 1fr); gap: 1.2vw; justify-items: center; }
+.showing video { max-width: 100%; max-height: 100%; min-height: 0; border-radius: 1.6vw; box-shadow: 0 2vw 6vw rgba(0,0,0,.5); background: #000; }
+.gate { position: fixed; inset: 0; display: none; place-items: center; z-index: 9; background: var(--bg); text-align: center; font-size: 1.6vw; color: var(--mute); }
+.gate b { display: block; color: var(--ink); font-size: 2.6vw; margin-bottom: 1vw; }
+</style>
+</head>
+<body>
+<div class="sky"><i></i><i></i><i></i></div>
+<canvas id="party"></canvas>
+<div class="screen">
+  <header>
+    <div class="me"><b>Archie</b> at work for Learning Arc</div>
+    <div><span class="scenes" id="scenes"></span><span class="live"><i class="dot" id="dot"></i><span id="fresh">connecting</span></span><span class="clock" id="clock">--:--</span></div>
+  </header>
+  <main id="main">
+    <section class="pane growth" id="growth">
+      <div class="chap"><b>Growing</b><span id="g-since"></span></div>
+      <div class="head"><span class="n" id="g-asks" data-v="0">0</span><span class="l">asks in the last 7 days</span><span class="chip" id="g-asks-d"></span></div>
+      <div class="chart" id="g-chart"></div>
+      <div class="mult">
+        <div class="m" id="g-people"><div class="l">people asking</div><div class="row"><span class="n"></span><span class="chip"></span></div><svg></svg><div class="s"></div></div>
+        <div class="m" id="g-merged"><div class="l">MRs merged</div><div class="row"><span class="n"></span><span class="chip"></span></div><svg></svg><div class="s"></div></div>
+        <div class="m" id="g-hours"><div class="l">hours of work</div><div class="row"><span class="n"></span><span class="chip"></span></div><svg></svg><div class="s"></div></div>
+      </div>
+    </section>
+    <div class="now">
+      <div class="chap"><b>Right now</b></div>
+      <div class="presence"><svg id="rings" viewBox="0 0 200 200"></svg><div class="n" id="live-n">0</div></div>
+      <div class="say"><h1 id="say">Warming up.</h1><div class="sub" id="say-sub"></div></div>
+      <section class="today">
+        <div class="big" id="b-runs"><div class="n" data-v="0">0</div><div class="l">conversations</div><div class="s" id="b-runs-s"></div></div>
+        <div class="big" id="b-merged"><div class="n" data-v="0">0</div><div class="l">MRs merged</div><div class="s" id="b-merged-s"></div></div>
+        <div class="big" id="b-waiting"><div class="n" data-v="0">0</div><div class="l">MRs waiting</div><div class="s" id="b-waiting-s"></div></div>
+      </section>
+      <section class="threads" id="threads"></section>
+    </div>
+    <section class="pane releases" id="releases">
+      <div class="chap"><b>Releases</b><span class="stale" id="rel-stale"></span></div>
+      <div class="key"><span><i style="background:var(--done)"></i>passed or shipped</span><span><i style="background:var(--inqa)"></i>in QA</span><span><i style="background:var(--indev)"></i>in dev</span></div>
+      <div class="track" id="track"></div>
+    </section>
+  </main>
+  <section class="scene shipped off" id="sc-shipped">
+    <div><div class="chap"><b>Shipped this week</b><span id="sh-sub"></span></div><div class="title" id="sh-title"></div></div>
+    <div class="grid" id="sh-grid"></div>
+  </section>
+  <section class="scene moments off" id="sc-moments">
+    <div class="podium">
+      <div class="chap"><b>This week's moments</b><span>the last 7 days</span></div>
+      <div class="title">Who kept me<br><em>busiest</em></div>
+      <div class="steps" id="mo-steps"></div>
+    </div>
+    <div class="facts" id="mo-facts"></div>
+  </section>
+  <section class="scene showing off" id="sc-video">
+    <div class="chap"><b>Now showing</b><span id="vi-title"></span></div>
+    <video id="vi" muted loop playsinline preload="auto"></video>
+  </section>
+  <footer><div class="lane" id="lane"></div></footer>
+</div>
+<div class="toast" id="toast"><div class="big2">Merged</div><div class="ref"></div><div class="ti"></div><div class="by"></div></div>
+<div class="gate" id="gate"><div><b>Sign in once on this screen</b>Open archie.walkmernd.com, sign in, then come back to /wall.</div></div>
+<script>
+'use strict';
+const KINDS = { coding: 'coding', verify: 'testing', review: 'reviewing', question: 'answering', machine: 'on my own' };
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const ilTime = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+const ilSec = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+const ago = (h) => (h == null ? '?' : h < 1 ? 'now' : h < 48 ? `${h}h` : `${Math.round(h / 24)}d`);
+const dur = (ms) => { const s = Math.max(0, Math.floor(ms / 1000)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60; return h ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}:${String(s % 60).padStart(2, '0')}`; };
+const words = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+const say = (n) => words[n] || String(n);
+// A thread is full at 90 minutes; longer runs pin to the end.
+const SPAN = 90 * 60000;
+let lastOk = 0, seenMerged = null;
+
+function count(tile, v) {
+  const n = tile.querySelector('.n');
+  const from = Number(n.dataset.v) || 0;
+  n.dataset.v = v;
+  if (from === v) return;
+  const t0 = performance.now(), span = from ? 900 : 1600;
+  const step = (t) => { const k = Math.min(1, (t - t0) / span), e = 1 - Math.pow(1 - k, 3); n.textContent = Math.round(from + (v - from) * e).toLocaleString('en-US'); if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+// The presence: one ring per live run, in the colour of its kind, each turning at its own speed.
+function renderRings(rows) {
+  const svg = $('rings');
+  const shown = rows.slice(-6);
+  svg.innerHTML = `<circle cx="100" cy="100" r="96" fill="none" stroke="var(--line)" stroke-width="1"/>` + shown.map((r, i) => {
+    const rad = 92 - i * 8, c = 2 * Math.PI * rad, arc = c * (0.18 + ((i * 37) % 40) / 100);
+    return `<g class="orbit" style="animation-duration:${6 + i * 2.3}s;animation-direction:${i % 2 ? 'reverse' : 'normal'}"><circle cx="100" cy="100" r="${rad}" fill="none" stroke="var(--${r.kind})" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="${arc} ${c}"/></g>`;
+  }).join('');
+  $('live-n').textContent = rows.length;
+}
+function renderHero(w) {
+  const rows = w.live.rows, people = new Set(rows.map((r) => r.who).filter(Boolean)).size;
+  const things = `Working on <em>${say(rows.length)}</em> thing${rows.length > 1 ? 's' : ''}`;
+  $('say').innerHTML = !rows.length ? 'Quiet. Ask me something.'
+    : people ? `${things} for <em>${say(people)}</em> ${people === 1 ? 'person' : 'people'}.` : `${things} on my own.`;
+  // The sentence takes its look's size, and shrinks only when a long count would overflow.
+  const h1 = $('say'); h1.style.fontSize = '';
+  for (let f = parseFloat(getComputedStyle(h1).fontSize); h1.scrollWidth > h1.parentElement.clientWidth && f > 20; f -= 4) h1.style.fontSize = `${f}px`;
+  const busiest = Object.entries(rows.reduce((a, r) => ({ ...a, [r.kind]: (a[r.kind] || 0) + 1 }), {})).sort((a, b) => b[1] - a[1])[0];
+  $('say-sub').textContent = [busiest && `mostly ${KINDS[busiest[0]]}`, w.live.waiting ? `${w.live.waiting} more waiting for a seat` : 'nobody in line'].filter(Boolean).join(' · ');
+}
+function renderThreads(live) {
+  const rows = [...live.rows].sort((a, b) => Date.parse(a.since) - Date.parse(b.since)).slice(0, 7);
+  const was = new Set([...document.querySelectorAll('.th')].map((e) => e.dataset.id));
+  $('threads').innerHTML = rows.map((r) => `<div class="th" data-id="${esc(r.id)}" data-since="${esc(r.since)}" style="--k: var(--${r.kind});${was.has(r.id) ? 'animation:none' : ''}">
+    <div class="who"><b>${esc(r.who || 'Archie')}</b><span>${esc(r.what)}</span></div>
+    <div class="t"><small>${esc(KINDS[r.kind] || r.kind)}</small><span>0:00</span></div>
+    ${r.doing ? `<div class="doing">${esc(r.doing)}</div>` : ''}
+    <div class="step"><b>Now</b>${esc(r.step && !(r.step === 'Starting' && Date.now() - Date.parse(r.since) > 3 * 60000) ? r.step : 'Working on it')}</div>
+    <div class="line"><i></i><b></b></div></div>`).join('')
+    + (live.rows.length > rows.length ? '<div class="more"></div>' : '')
+    || '<div class="empty">Nothing running. The next ask starts a thread here.</div>';
+  // The longest-running threads stay; the newest drop until the rest fit above the ticker.
+  const box = $('threads'), more = box.querySelector('.more');
+  let hidden = live.rows.length - rows.length;
+  if (more) more.textContent = '';
+  const ths = [...box.querySelectorAll('.th')];
+  while (ths.length > 1 && box.scrollHeight > box.clientHeight) { ths.pop().remove(); hidden += 1; }
+  const moreText = (n) => { const names = [...new Set(live.rows.slice(live.rows.length - n).map((r) => r.who).filter(Boolean))]; return `and ${n} more${names.length ? ` for ${names.slice(0, 4).join(', ')}${names.length > 4 ? ` and ${names.length - 4} others` : ''}` : ''}`; };
+  if (hidden) { const m = more || box.appendChild(Object.assign(document.createElement('div'), { className: 'more' })); m.textContent = moreText(hidden); while (ths.length > 1 && box.scrollHeight > box.clientHeight) { ths.pop().remove(); m.textContent = moreText(++hidden); } }
+  tick();
+}
+function renderTicker(feed, merged) {
+  const lane = $('lane');
+  const done = feed.filter((f) => f.doing).map((f) => ({ at: f.at, k: f.kind, mark: f.verdict === 'PASS' ? '✔' : f.verdict === 'FAIL' ? '✖' : '●', who: f.machine ? (f.who ? `for ${f.who}` : 'on my own') : f.who, text: f.doing }));
+  const merges = merged.map((m) => ({ at: m.at, k: 'merged', mark: 'Merged', who: m.by ? `${m.by} merged` : '', text: `${m.title} · ${repoName(m.repo)}` }));
+  const all = [...done, ...merges].sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 30);
+  const key = all.map((f) => f.at + f.text).join();
+  if (lane.dataset.key === key) return;
+  lane.dataset.key = key;
+  const items = all.map((f) => `<span style="--k: var(--${f.k})"><b>${esc(f.mark)}</b>${f.who ? `${esc(f.who)} · ` : ''}${esc(f.text)}<em>${ilTime.format(new Date(f.at))}</em></span>`).join('');
+  lane.innerHTML = items + items;
+  lane.style.setProperty('--dur', `${Math.max(60, all.length * 9)}s`);
+}
+const fmt = (n) => Number(n || 0).toLocaleString('en-US');
+const REPOS = { 'learning-management-client': 'Management', 'learning-portal-client': 'Portal', 'learning-service': 'Learning service', 'wm-learning-player': 'Player', 'learning-player-client': 'Player', 'archie-core': 'Archie', 'archie-setup': 'Archie' };
+const repoName = (r) => REPOS[r] || String(r || '').replace(/^(?:wm-)?learning-/, '').replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());
+const dayMonth = (d) => { const t = new Date(`${d}T12:00:00Z`); return `${t.getUTCDate()} ${t.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`; };
+// The change on the 7 days before, as a percent, or as a count for small numbers like people.
+function delta(now, was, { count = false } = {}) {
+  if (!was) return { text: now ? 'new this week' : 'no change', down: false };
+  const d = now - was, down = d < 0;
+  const n = count ? `${d > 0 ? '+' : ''}${fmt(d)}` : `${d > 0 ? '+' : ''}${Math.round((d / was) * 100)}%`;
+  return { text: `${down ? '▼' : '▲'} ${n} vs last week`, down };
+}
+function setChip(el, d) { el.textContent = d.text; el.classList.toggle('down', d.down); }
+// One bar per Sunday-to-Saturday week since the first ask; this week is drawn faint and says "so far".
+function weekBars(weeks, key, color, { w = 760, h = 240, labels = true } = {}) {
+  // Text sizes follow the box, so a 4K TV reads the same as a 1080p one.
+  const f = Math.round(w / 34), max = Math.max(1, ...weeks.map((x) => x[key])), gap = labels ? Math.round(w / 70) : 4, top = labels ? f * 1.6 : 2, base = labels ? h - f * 1.4 : h;
+  const bw = (w - gap * (weeks.length - 1)) / weeks.length;
+  const whole = weeks.filter((x) => x.whole), peak = whole.reduce((p, x) => (x[key] > p[key] ? x : p), whole[0] || weeks[0]);
+  const bars = weeks.map((x, i) => {
+    const bh = Math.max(3, (x[key] / max) * (base - top)), X = i * (bw + gap), Y = base - bh, r = Math.min(6, bw / 2);
+    const fill = x.whole ? color : `color-mix(in srgb, ${color} 35%, transparent)`;
+    const label = labels && ((x === peak && !(i === weeks.length - 2 && !weeks[i + 1].whole)) || !x.whole || i === 0)
+      ? `<text class="v" x="${i === weeks.length - 1 ? X + bw : X + bw / 2}" y="${(x.whole || !i ? Y : Math.min(Y, base - Math.max(3, (weeks[i - 1][key] / max) * (base - top)))) - f * .45}" text-anchor="${i === weeks.length - 1 ? 'end' : 'middle'}" font-size="${f}">${fmt(x[key])}${x.whole ? '' : ' so far'}</text>` : '';
+    const tick = labels ? `<text x="${X + bw / 2}" y="${h - 4}" text-anchor="middle" font-size="${Math.round(f * .78)}">${dayMonth(x.start)}</text>` : '';
+    return `<path class="bar" d="M${X},${base} V${Y + r} Q${X},${Y} ${X + r},${Y} H${X + bw - r} Q${X + bw},${Y} ${X + bw},${Y + r} V${base} Z" fill="${fill}" style="animation-delay:${i * 60}ms"/>${label}${tick}`;
+  }).join('');
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${labels ? `<line x1="0" x2="${w}" y1="${base}" y2="${base}" stroke="var(--line)"/>` : ''}${bars}</svg>`;
+}
+function renderGrowth(g) {
+  $('growth').style.visibility = g ? 'visible' : 'hidden';
+  if (!g) return;
+  const key = JSON.stringify(g);
+  if ($('growth').dataset.key === key) return;
+  $('growth').dataset.key = key;
+  count({ querySelector: () => $('g-asks') }, g.last.asks);
+  setChip($('g-asks-d'), delta(g.last.asks, g.prev.asks));
+  const box = $('g-chart');
+  box.innerHTML = weekBars(g.weeks, 'asks', 'var(--accent)', { w: Math.round(box.clientWidth), h: Math.round(box.clientHeight) });
+  const since = dayMonth(g.since);
+  $('g-since').textContent = `since ${since}`;
+  const m = (id, n, d, key, color, sub) => {
+    const el = $(id);
+    el.querySelector('.n').textContent = fmt(n);
+    setChip(el.querySelector('.chip'), d);
+    el.querySelector('svg').outerHTML = weekBars(g.weeks, key, color, { w: 300, h: 60, labels: false });
+    el.querySelector('.s').textContent = sub;
+  };
+  m('g-people', g.last.people, delta(g.last.people, g.prev.people, { count: true }), 'people', 'var(--people)', `${g.peopleEver} since ${since} · ${g.last.newPeople} new`);
+  m('g-merged', g.last.merged, delta(g.last.merged, g.prev.merged), 'merged', 'var(--merged)', `${fmt(g.mergedEver)} since ${since}`);
+  m('g-hours', g.last.hours, delta(g.last.hours, g.prev.hours), 'hours', 'var(--hours)', `${fmt(g.asksEver)} asks since ${since}`);
+}
+const relDate = (d) => { const t = new Date(`${d}T12:00:00Z`); return `${t.getUTCDate()} ${t.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`; };
+const relKind = (name) => String(name).replace(/\s*-\s*\d{2}\.\d{2}\.\d{4}\s*$/, '');
+function relWhen(t) {
+  if (t.next) return { text: 'no date yet', past: true };
+  if (t.days === 0) return { text: 'today', past: false };
+  if (t.days > 0) return { text: t.days === 1 ? 'tomorrow' : `in ${t.days} days`, past: false };
+  return { text: t.days === -1 ? 'shipped yesterday' : `shipped ${-t.days} days ago`, past: true };
+}
+// The release train: the last releases out, the one in QA, and what waits on dev, each with its tickets and the environments running it.
+function renderReleases(r) {
+  $('releases').style.display = r && r.trains.length ? '' : 'none';
+  if (!r) return;
+  const old = r.failed || Date.now() - Date.parse(r.at) > 30 * 60000;
+  const asOf = `as of ${new Date(r.at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jerusalem' })}`;
+  $('rel-stale').textContent = !old ? '' : r.failed ? `${asOf}, Jira or GitLab did not answer since` : asOf;
+  const key = JSON.stringify(r.trains) + JSON.stringify(r.envs);
+  if ($('track').dataset.key === key) return;
+  $('track').dataset.key = key;
+  const envOf = new Map(r.envs.map((e) => [e.label, e]));
+  const shipped = r.trains.filter((t) => t.shipped && !t.next);
+  // Every shipped release a prod still runs stays (Prod EU can lag Prod US); older ones drop.
+  const inProd = shipped.filter((t) => t.on.some((l) => /^Prod/.test(l)));
+  const keep = inProd.length ? inProd : shipped.slice(-1);
+  const trains = r.trains.filter((t) => !shipped.includes(t) || keep.includes(t));
+  $('track').innerHTML = trains.map((t, i) => {
+    const k = t.tickets, pct = (n) => (k.total ? (n / k.total) * 100 : 0), w = relWhen(t);
+    // A shipped release nothing runs any more folds to one line, so the ones that matter get the room.
+    const cls = t.next ? 'next' : t.on.includes('QA') ? 'qa ahead' : t.shipped ? (t.on.length ? '' : 'shipped') : 'ahead';
+    // Prod US and Prod EU on the same build read as one pill.
+    const on = t.on.map((label) => envOf.get(label) || { label });
+    const both = on.length === 2 && on.every((e) => /^Prod/.test(e.label)) && on[0].service != null && on[0].service === on[1].service;
+    const pills = (both ? [{ ...on[0], label: 'Prod US + EU' }] : on).map((e) => `<span class="env">${esc(e.label)}${e.service ? `<small>${esc(e.service)}</small>` : ''}</span>`).join('');
+    const split = t.next ? 'merged to dev, no release yet' : t.shipped && !k.qa && !k.dev ? 'all shipped' : [k.done && `${fmt(k.done)} passed`, k.qa && `${fmt(k.qa)} in QA`, k.dev && `${fmt(k.dev)} in dev`].filter(Boolean).join(' · ');
+    return `<div class="train ${cls}" style="animation-delay:${i * 80}ms"><b></b><div class="card">
+      <div class="what"><span>${esc(t.next ? 'After this release' : relKind(t.name))}</span><span class="chip ${w.past ? 'past' : ''}">${w.text}</span></div>
+      <div class="when"><span class="d">${t.next ? 'Next' : relDate(t.date)}</span><span class="tk"><b>${fmt(k.total)}</b>ticket${k.total === 1 ? '' : 's'}</span></div>
+      <div class="bar"><i style="width:${pct(k.done)}%;background:var(--done)"></i><i style="width:${pct(k.qa)}%;background:var(--inqa)"></i><i style="width:${pct(k.dev)}%;background:var(--indev)"></i></div>
+      <div class="split">${esc(split)}</div>
+      <div class="envs">${pills}</div></div></div>`;
+  }).join('');
+}
+// ---------- scenes ----------
+const MEDALS = ['🥇', '🥈', '🥉'];
+const dayName = (t) => new Date(t).toLocaleDateString('en-US', { weekday: 'short', timeZone: 'Asia/Jerusalem' });
+const REPO_K = (repo) => (/client|portal|ui/.test(repo) ? 'review' : /archie/.test(repo) ? 'coding' : /service|db|jobs/.test(repo) ? 'verify' : 'question');
+function renderShipped(week) {
+  const list = week || [];
+  $('sh-title').innerHTML = `<em>${fmt(list.length)}</em> MR${list.length === 1 ? '' : 's'} merged`;
+  const people = [...new Set(list.map((m) => m.for).filter(Boolean))];
+  $('sh-sub').textContent = people.length ? `asked for by ${people.slice(0, 6).join(', ')}${people.length > 6 ? ` and ${people.length - 6} more` : ''}` : '';
+  const shown = list.slice(0, 16);
+  $('sh-grid').innerHTML = shown.map((m, i) => `<div class="ship" style="--k: var(--${REPO_K(m.repo)});animation-delay:${i * 70}ms">
+    <div class="top"><b>${esc(m.ref)}</b><span>${esc(dayName(m.at))}${m.for ? ` · for ${esc(m.for)}` : ''}</span></div>
+    <div class="ti">${esc(m.title)}</div></div>`).join('');
+  // Cards that do not fit drop from the oldest end, and the count of the rest takes the last place.
+  const grid = $('sh-grid'), cards = [...grid.children];
+  let hidden = list.length - shown.length;
+  while (cards.length > 1 && grid.scrollHeight > grid.clientHeight + 2) { cards.pop().remove(); hidden += 1; }
+  if (hidden > 0) { if (cards.length > 1) { cards.pop().remove(); hidden += 1; } grid.insertAdjacentHTML('beforeend', `<div class="more">and ${hidden} more</div>`); }
+}
+const clockAt = (t) => ilTime.format(new Date(t));
+const hh = (h) => `${String(h).padStart(2, '0')}:00`;
+function renderMoments(m) {
+  if (!m) return;
+  // The podium reads 2nd, 1st, 3rd, like a real one.
+  const top = m.top, max = Math.max(1, ...top.map((x) => x.n)), order = [1, 0, 2].filter((i) => top[i]);
+  const ks = ['accent', 'verify', 'review'];
+  $('mo-steps').innerHTML = order.map((i) => `<div class="step" style="--k: var(--${ks[i]})"><div class="medal">${MEDALS[i]}</div><div class="name">${esc(top[i].name)}</div>
+    <div class="block" style="height:${Math.round(35 + (top[i].n / max) * 65)}%;animation-delay:${i * 200}ms">${fmt(top[i].n)}</div></div>`).join('');
+  const facts = [
+    m.early && { e: '🌅', k: 'question', n: clockAt(m.early.at), l: `Early bird: ${m.early.who} asked first` },
+    m.late && { e: '🦉', k: 'accent', n: clockAt(m.late.at), l: `Night owl: ${m.late.who} asked latest` },
+    { e: '🔥', k: 'review', n: hh(m.busiestHour.hour), l: `Busiest hour, ${fmt(m.busiestHour.n)} asks. ${m.busiestDay.day} was the busiest day.` },
+    m.pass ? { e: '✅', k: 'verify', n: fmt(m.pass), l: 'tests I ran that passed' } : { e: '💬', k: 'verify', n: fmt(m.asks), l: `asks from ${fmt(m.people)} people` },
+    m.longest && { e: '⏳', k: 'hours', n: dur(m.longest.minutes * 60000), l: `Longest job: ${m.longest.doing}${m.longest.who ? `, for ${m.longest.who}` : ''}` },
+    { e: '👋', k: 'people', n: fmt(m.people), l: `people asked me something, ${fmt(m.asks)} asks in all` },
+  ].filter(Boolean);
+  $('mo-facts').innerHTML = facts.map((f, i) => `<div class="fact" style="--k: var(--${f.k});animation-delay:${200 + i * 90}ms"><div class="e">${f.e}</div><div class="n">${esc(f.n)}</div><div class="l" dir="auto">${esc(f.l)}</div></div>`).join('');
+}
+function renderVideo(v) {
+  const el = $('vi');
+  if (!v) { el.removeAttribute('src'); return; }
+  $('vi-title').textContent = v.title;
+  // The public copy carries its video beside the page; the live wall asks the box for the current one.
+  const src = SNAP ? `video.mp4?t=${Date.parse(SNAP.at)}` : `/api/wall/video?v=${encodeURIComponent(v.name)}`;
+  if (el.dataset.src !== src) { el.dataset.src = src; el.src = src; }
+}
+// The rotation runs on the wall clock, so every screen in the office shows the same scene at the same moment.
+// A scene with nothing to show drops out; ?scene=<name> pins one.
+const PIN = new URLSearchParams(location.search).get('scene');
+let WALL = null, shown = null;
+function plan(w) {
+  const has = { shipped: !!(w && w.mrs.week && w.mrs.week.length), moments: !!(w && w.moments), video: !!(w && w.video) };
+  const all = [['live', 60], ['shipped', 20], ['live', 60], ['moments', 25], ['live', 60], ['video', 45]].filter(([n]) => n === 'live' || has[n]);
+  return all.filter(([n], i) => !(n === 'live' && all[i - 1] && all[i - 1][0] === 'live'));
+}
+function rotate() {
+  const list = plan(WALL);
+  const total = list.reduce((n, x) => n + x[1], 0);
+  let t = (Date.now() / 1000) % total, i = 0;
+  while (t >= list[i][1]) { t -= list[i][1]; i += 1; }
+  const name = PIN || list[i][0];
+  if (name !== shown) {
+    shown = name;
+    $('main').classList.toggle('off', name !== 'live');
+    for (const n of ['shipped', 'moments', 'video']) $(`sc-${n}`).classList.toggle('off', name !== n);
+    // A scene that comes back plays its entrance again.
+    if (WALL && name === 'shipped') renderShipped(WALL.mrs.week);
+    if (WALL && name === 'moments') renderMoments(WALL.moments);
+    const vid = $('vi');
+    if (name === 'video' && vid.src) { vid.currentTime = 0; vid.play().catch(() => {}); } else vid.pause();
+  }
+  $('scenes').innerHTML = list.length < 2 || PIN ? '' : list.map(([n], k) => `<i class="${k === i ? 'on' : k < i ? 'done' : ''}" style="--p:${k === i ? Math.round((t / list[i][1]) * 100) : 0}%" title="${n}"><b></b></i>`).join('');
+}
+
+function render(w) {
+  WALL = w;
+  renderVideo(w.video);
+  if (shown === 'shipped') renderShipped(w.mrs.week);
+  if (shown === 'moments') renderMoments(w.moments);
+  renderReleases(w.releases);
+  renderGrowth(w.growth);
+  const t = w.today;
+  renderRings(w.live.rows); renderHero(w); renderThreads(w.live); renderTicker(t.feed, w.mrs.merged);
+  count($('b-runs'), t.conversations ?? t.runs); $('b-runs-s').innerHTML = `today<br>with ${t.people} ${t.people === 1 ? 'person' : 'people'}`;
+  const ms = w.mrs.merged, last = ms[0], product = ms.filter((m) => m.product !== false).length;
+  count($('b-merged'), ms.length); $('b-merged-s').innerHTML = last ? `${product} in the product<br>last${last.by ? ` by ${esc(last.by)}` : ''} ${ilTime.format(new Date(last.at))}` : 'none yet today';
+  count($('b-waiting'), w.mrs.waiting.length); $('b-waiting-s').innerHTML = `on a person${w.mrs.people[0] ? `<br>most on ${esc(w.mrs.people[0].name)}` : ''}`;
+  // A merge since the last poll gets the party. The first load only learns what was there.
+  // The public copy reloads for each new snapshot, so it keeps what it saw in localStorage, and a
+  // first visit there celebrates what merged in the last snapshot window.
+  if (!SNAP) {
+    if (seenMerged) { const fresh = w.mrs.merged.find((m) => !seenMerged.has(m.ref)); if (fresh) party(fresh); }
+    seenMerged = new Set(w.mrs.merged.map((m) => m.ref));
+    return;
+  }
+  if (!seenMerged) {
+    let kept = null;
+    try { kept = JSON.parse(localStorage.getItem('wall-merged')); } catch { /* first load */ }
+    seenMerged = new Set(Array.isArray(kept) ? kept : w.mrs.merged.filter((m) => Date.parse(m.at) <= Date.parse(SNAP.at) - SNAP.every).map((m) => m.ref));
+  }
+  celebrate(w.mrs.merged);
+}
+// The public copy (viewer/lib/wall-public.js) carries its numbers and never calls the box.
+const SNAP = window.WALL_SNAPSHOT || null;
+const RELOAD_AT = SNAP ? Math.max(Date.now() + 60000, Date.parse(SNAP.at) + SNAP.every + 120000) : Date.now() + 4 * 3600 * 1000;
+async function poll() {
+  if (SNAP) { lastOk = Date.parse(SNAP.at); render(SNAP.data); document.fonts.ready.then(() => renderThreads(SNAP.data.live)); return; }
+  try {
+    const r = await fetch(`/api/wall${location.search}`, { credentials: 'same-origin' });
+    if (r.status === 401 || r.status === 403) { $('gate').style.display = 'grid'; return; }
+    $('gate').style.display = 'none';
+    if (!r.ok) throw new Error(r.status);
+    const w = await r.json(); lastOk = Date.now();
+    render(w);
+    // The web font swaps in after the first fit and makes the rows taller, so fit them again.
+    document.fonts.ready.then(() => renderThreads(w.live));
+  } catch { /* the dot turns red below */ }
+}
+function tick() {
+  const now = Date.now();
+  rotate();
+  $('clock').textContent = ilSec.format(new Date(now));
+  for (const el of document.querySelectorAll('.th')) {
+    const ms = now - Date.parse(el.dataset.since), pct = Math.min(100, (ms / SPAN) * 100);
+    el.querySelector('.t span').textContent = dur(ms);
+    el.querySelector('.line i').style.width = `${pct}%`;
+    el.querySelector('.line b').style.left = `${pct}%`;
+  }
+  const s = Math.round((now - lastOk) / 1000), stale = !lastOk || s > (SNAP ? 3 * SNAP.every / 1000 : 120);
+  $('dot').classList.toggle('stale', stale);
+  $('fresh').textContent = !lastOk ? 'connecting' : stale ? `no data for ${Math.round(s / 60)} min` : SNAP ? `updated ${ilTime.format(new Date(lastOk))} · next ${ilTime.format(new Date(RELOAD_AT))} · Israel time` : 'live · Israel time';
+}
+function celebrate(list) {
+  const fresh = (list || []).filter((m) => !seenMerged.has(m.ref));
+  for (const m of list || []) seenMerged.add(m.ref);
+  try { localStorage.setItem('wall-merged', JSON.stringify([...seenMerged])); } catch { /* private mode */ }
+  fresh.slice(0, 5).forEach((m, i) => setTimeout(() => party(m), i * 7000));
+}
+async function pollMerges() {
+  try { const r = await fetch(`merged.json?t=${Date.now()}`, { cache: 'no-store' }); if (r.ok) celebrate((await r.json()).merged); } catch { /* the next minute tries again */ }
+}
+function party(mr) {
+  const toast = $('toast');
+  toast.querySelector('.ref').textContent = mr.repo ? `${repoName(mr.repo)} · ${mr.ref}` : mr.ref;
+  toast.querySelector('.ti').textContent = mr.title;
+  toast.querySelector('.by').textContent = mr.by ? `merged by ${mr.by}` : '';
+  toast.classList.add('on');
+  setTimeout(() => toast.classList.remove('on'), 6000);
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const c = $('party'), x = c.getContext('2d');
+  c.width = innerWidth; c.height = innerHeight;
+  const css = getComputedStyle(document.documentElement);
+  const colors = Object.keys(KINDS).map((k) => css.getPropertyValue(`--${k}`).trim());
+  const bits = Array.from({ length: 220 }, () => ({ x: c.width / 2, y: c.height * .45, vx: (Math.random() - .5) * 26, vy: -Math.random() * 22 - 6, r: Math.random() * 6 + 4, c: colors[Math.floor(Math.random() * colors.length)], a: Math.random() * 6, s: (Math.random() - .5) * .4 }));
+  const t0 = performance.now();
+  const frame = (t) => {
+    x.clearRect(0, 0, c.width, c.height);
+    for (const b of bits) { b.vy += .55; b.vx *= .99; b.x += b.vx; b.y += b.vy; b.a += b.s; x.save(); x.translate(b.x, b.y); x.rotate(b.a); x.fillStyle = b.c; x.fillRect(-b.r, -b.r / 2, b.r * 2, b.r); x.restore(); }
+    if (t - t0 < 4500) requestAnimationFrame(frame); else x.clearRect(0, 0, c.width, c.height);
+  };
+  requestAnimationFrame(frame);
+}
+if (new URLSearchParams(location.search).get('party')) setTimeout(() => party({ ref: 'archie-core !908', title: 'the wall gets one live presence' }), 2500);
+poll(); if (!SNAP) setInterval(poll, 15000); else setInterval(pollMerges, 60000); setInterval(tick, 1000);
+// A TV runs for days: reload every few hours so a new deploy of this page reaches it.
+// The public copy reloads two minutes after the next snapshot is due, once GitHub Pages has it.
+// A fresh query string gets past the 10-minute cache GitHub Pages puts on the page.
+setTimeout(() => (SNAP ? location.replace(`${location.pathname}?t=${Date.now()}`) : location.reload()), RELOAD_AT - Date.now());
+</script>
+</body>
+</html>
