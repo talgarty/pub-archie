@@ -6,7 +6,7 @@
 <title>Archie · wall</title>
 <link rel="icon" href="/archie-favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@700&display=swap" rel="stylesheet">
 <style>
 /* Pastel: lavender mesh, Bricolage Grotesque. */
 :root { --bg: #f6f3ff; --ink: #1e1b3a; --mute: #6a6690; --line: rgba(30,27,58,.1); --accent: #6d5dfc;
@@ -191,10 +191,34 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
 .showing video { max-width: 100%; max-height: 100%; min-height: 0; border-radius: 1.6vw; box-shadow: 0 2vw 6vw rgba(0,0,0,.5); background: #000; }
 .gate { position: fixed; inset: 0; display: none; place-items: center; z-index: 9; background: var(--bg); text-align: center; font-size: 1.6vw; color: var(--mute); }
 .gate b { display: block; color: var(--ink); font-size: 2.6vw; margin-bottom: 1vw; }
+/* Arc: the compass from my profile picture walks the wall, hops onto something on the showing scene,
+   circles it and writes a short note. It draws on its own layer and never touches the page's numbers. */
+.arc { position: fixed; left: 0; top: 0; z-index: 3; width: 5vw; pointer-events: none; transform-origin: 50% 100%; will-change: transform; }
+.arc .bob { transform-origin: 50% 100%; animation: bob 2.6s ease-in-out infinite; }
+.arc svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 .5vw .6vw rgba(70,50,160,.18)); }
+.arc .blink { transform-box: fill-box; transform-origin: center; animation: blink 4.6s infinite; }
+.arc-ink { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; overflow: visible; }
+.arc-ink path { fill: none; stroke-width: .28vw; stroke-linecap: round; stroke-linejoin: round; }
+.arc-ink text { font-family: 'Caveat', cursive; font-weight: 700; paint-order: stroke; stroke: var(--bg); stroke-width: .45vw; stroke-linejoin: round; }
+@keyframes bob { 50% { transform: translateY(-.35vw); } }
+@keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
 </style>
 </head>
 <body>
 <div class="sky"><i></i><i></i><i></i></div>
+<svg class="arc-ink" id="arc-ink" aria-hidden="true"></svg>
+<div class="arc" id="arc" aria-hidden="true"><div class="bob"><svg viewBox="-24 -192 188 200">
+  <path d="M64 -116 L12 -30" stroke="#2b2f8f" stroke-width="16" stroke-linecap="round"/>
+  <path d="M12 -30 L0 0" stroke="#6d5dfc" stroke-width="6" stroke-linecap="round"/>
+  <g><path d="M76 -116 L124 -38" stroke="#2b2f8f" stroke-width="16" stroke-linecap="round"/>
+    <path d="M116 -42 L132 -32 L140 0 Z" fill="#ffb547" stroke="#ffb547" stroke-width="4" stroke-linejoin="round"/>
+    <animateTransform id="arc-draw" attributeName="transform" type="rotate" values="0 70 -128; 9 70 -128; -4 70 -128; 0 70 -128" dur=".45s" repeatCount="3" begin="indefinite"/></g>
+  <rect x="62" y="-180" width="16" height="32" rx="8" fill="#2b2f8f"/>
+  <g transform="translate(70 -128)"><circle r="36" fill="#fff" stroke="#2b2f8f" stroke-width="6"/>
+    <g id="arc-look"><g class="blink"><ellipse cx="-13" cy="-3" rx="7" ry="10" fill="#151845"/><ellipse cx="13" cy="-3" rx="7" ry="10" fill="#151845"/>
+      <circle cx="-10.5" cy="-7" r="2.6" fill="#fff"/><circle cx="15.5" cy="-7" r="2.6" fill="#fff"/></g></g>
+    <circle cx="-23" cy="12" r="5" fill="#ff6b8a" opacity=".35"/><circle cx="23" cy="12" r="5" fill="#ff6b8a" opacity=".35"/></g>
+</svg></div></div>
 <canvas id="party"></canvas>
 <div class="screen">
   <header>
@@ -405,7 +429,7 @@ function renderReleases(r) {
   $('track').innerHTML = trains.map((t, i) => {
     const k = t.tickets, pct = (n) => (k.total ? (n / k.total) * 100 : 0), w = relWhen(t);
     // A shipped release nothing runs any more folds to one line, so the ones that matter get the room.
-    const cls = t.next ? 'next' : t.on.includes('QA') ? 'qa ahead' : t.shipped ? (t.on.length ? '' : 'shipped') : 'ahead';
+    const cls = t.next ? 'next' : t.on.includes('QA') ? 'qa ahead' : t.shipped ? (t.on.length ? 'live' : 'shipped') : 'ahead';
     // Prod US and Prod EU on the same build read as one pill.
     const on = t.on.map((label) => envOf.get(label) || { label });
     const both = on.length === 2 && on.every((e) => /^Prod/.test(e.label)) && on[0].service != null && on[0].service === on[1].service;
@@ -462,7 +486,7 @@ function renderVideo(v) {
   if (!v) { el.removeAttribute('src'); return; }
   $('vi-title').textContent = v.title;
   // The public copy carries its video beside the page; the live wall asks the box for the current one.
-  const src = SNAP ? `video.mp4?v=${encodeURIComponent(v.name)}` : `/api/wall/video?v=${encodeURIComponent(v.name)}`;
+  const src = SNAP ? `video.mp4?t=${Date.parse(SNAP.at)}` : `/api/wall/video?v=${encodeURIComponent(v.name)}`;
   if (el.dataset.src !== src) { el.dataset.src = src; el.src = src; }
 }
 // The rotation runs on the wall clock, so every screen in the office shows the same scene at the same moment.
@@ -582,6 +606,97 @@ function party(mr) {
   requestAnimationFrame(frame);
 }
 if (new URLSearchParams(location.search).get('party')) setTimeout(() => party({ ref: 'archie-core !908', title: 'the wall gets one live presence' }), 2500);
+// ---------- Arc ----------
+// Every few seconds Arc hops onto a tile of the scene on screen, circles it and writes a note. The
+// ink is its own layer and fades, so a TV running for days keeps nothing. ?arc=0 hides it.
+const ARC_NOTES = [
+  ['.big', ['counted twice', 'checked ✓', 'adds up']], ['.th', ['on it', 'almost there', 'looking good']],
+  ['.train.qa .card', ["QA's turn", 'on track']], ['.train.next .card', ['next up', 'coming soon']],
+  ['.train.shipped .card', ['shipped ✓', 'done']], ['.train.live .card', ['live ✓', 'shipped ✓']], ['#g-chart', ['up and to the right', 'nice bars']],
+  ['.mult .m', ['noted', 'checked ✓']], ['#say', ['well said', 'noted']], ['.ship', ['shipped ✓', 'merged!', 'my favourite']],
+  ['.podium .step', ['thank you!', 'busy week']], ['.fact', ['true story', 'checked ✓']], ['#vi', ['I made this', 'watch this']],
+];
+const ARC_INK = ['--review', '--accent', '--question', '--verify'];
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const SVGNS = 'http://www.w3.org/2000/svg';
+let arcAt = null, arcLast = null;
+function arcTargets() {
+  const root = !shown || shown === 'live' ? $('main') : $(`sc-${shown}`);
+  const out = [];
+  for (const [sel, notes] of ARC_NOTES) for (const el of root.querySelectorAll(sel)) {
+    const r = el.getBoundingClientRect();
+    if (el !== arcLast && r.width > 30 && r.height > 16 && r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth) out.push({ el, notes });
+  }
+  return out;
+}
+function arcHop(x, y) {
+  const arc = $('arc');
+  if (!arcAt) { arcAt = { x, y }; arc.style.transform = `translate(${x}px, ${y}px)`; return Promise.resolve(); }
+  const { x: x0, y: y0 } = arcAt, d = Math.hypot(x - x0, y - y0), h = Math.min(innerHeight * .3, 40 + d * .35), dir = Math.sign(x - x0) || 1, n = 24;
+  const frames = Array.from({ length: n + 1 }, (_, i) => { const t = i / n; return { transform: `translate(${x0 + (x - x0) * t}px, ${y0 + (y - y0) * t - h * 4 * t * (1 - t)}px) rotate(${dir * 14 * Math.sin(Math.PI * t)}deg)` }; });
+  arcAt = { x, y };
+  arc.style.transform = frames[n].transform;
+  return arc.animate(frames, { duration: 650 + d * .5, easing: 'ease-in-out' }).finished
+    .then(() => arc.querySelector('.bob').animate([{ transform: 'scale(1.1, .84)' }, { transform: 'scale(1)' }], { duration: 280, easing: 'ease-out' }).finished);
+}
+function arcLook(x, y) {
+  const arc = $('arc'), W = arc.offsetWidth, dx = x - (arcAt ? arcAt.x : 0) - W * .5, dy = y - (arcAt ? arcAt.y : 0), n = Math.hypot(dx, dy) || 1;
+  $('arc-look').setAttribute('transform', `translate(${(4 * dx / n).toFixed(1)} ${(4 * dy / n).toFixed(1)})`);
+}
+// A hand-drawn loop round a small tile, a wavy underline and a tick under a big one.
+function arcStroke(r) {
+  const big = r.height > innerHeight * .4 || r.width > innerWidth * .45, j = () => (Math.random() - .5) * 3, pts = [];
+  if (big) {
+    const y = r.bottom + 6, x0 = r.left + r.width * .1, x1 = r.right - r.width * .25;
+    for (let i = 0; i <= 40; i++) { const x = x0 + (x1 - x0) * (i / 40); pts.push([x, y + Math.sin(i / 2.2) * 4 + j()]); }
+    pts.push([x1 + 14, y + 10], [x1 + 44, y - 26]);
+  } else {
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2, rx = r.width / 2 + 14, ry = r.height / 2 + 12, a0 = -2.3 + Math.random() * .4;
+    for (let i = 0; i <= 72; i++) { const a = a0 + (i / 72) * Math.PI * 2.2, k = 1 + i * .0012; pts.push([cx + Math.cos(a) * rx * k + j(), cy + Math.sin(a) * ry * k + j()]); }
+  }
+  return `M${pts.map((p) => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' L')}`;
+}
+async function arcFix({ el, notes }, scene) {
+  const left = () => shown !== scene, ink = $('arc-ink'), r = el.getBoundingClientRect(), color = `var(${pick(ARC_INK)})`;
+  ink.setAttribute('viewBox', `0 0 ${innerWidth} ${innerHeight}`);
+  const g = document.createElementNS(SVGNS, 'g'), path = document.createElementNS(SVGNS, 'path'), text = document.createElementNS(SVGNS, 'text');
+  path.setAttribute('d', arcStroke(r)); path.setAttribute('pathLength', '1'); path.style.stroke = color; path.style.strokeDasharray = '1';
+  const fs = innerWidth * .02, above = r.top > fs * 2.2, note = pick(notes);
+  text.setAttribute('x', Math.max(arcAt.x - 4, fs * note.length * .5)); text.setAttribute('text-anchor', 'end'); text.setAttribute('y', above ? r.top - 8 : r.bottom + fs * 1.6);
+  text.setAttribute('font-size', fs); text.style.fill = color;
+  g.append(path, text); ink.append(g);
+  $('arc-draw').beginElement();
+  await path.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 1100, easing: 'ease-in-out', fill: 'forwards' }).finished;
+  for (const c of note) { if (left()) break; text.textContent += c; await wait(70); }
+  if (left()) { g.remove(); return; }
+  el.animate([{ transform: 'none' }, { transform: 'rotate(-1.2deg) scale(1.02)' }, { transform: 'rotate(1deg) scale(1.02)' }, { transform: 'none' }], { duration: 500 });
+  for (let i = 0; i < 5; i++) {
+    const s = document.createElementNS(SVGNS, 'path'), x = r.left + Math.random() * r.width, y = r.top + (Math.random() < .5 ? 0 : r.height), k = 6 + Math.random() * 6;
+    s.setAttribute('d', `M${x} ${y - k} L${x} ${y + k} M${x - k} ${y} L${x + k} ${y}`); s.style.stroke = color; s.style.transformOrigin = `${x}px ${y}px`;
+    g.append(s);
+    s.animate([{ opacity: 0, transform: 'scale(0)' }, { opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(.4) rotate(45deg)' }], { duration: 900, delay: i * 90, fill: 'both' });
+  }
+  (async () => { for (let t = 0; t < 3200 && !left(); t += 200) await wait(200); await g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: left() ? 300 : 900 }).finished; g.remove(); })();
+  await wait(1200);
+}
+async function arcLife() {
+  const arc = $('arc'), W = arc.offsetWidth, H = arc.offsetHeight;
+  await arcHop(innerWidth * .02, innerHeight - H - innerHeight * .06).catch(() => {});
+  for (;;) {
+    const t = pick(arcTargets()), scene = shown;
+    if (t) {
+      arcLast = t.el;
+      const r = t.el.getBoundingClientRect(), x = Math.min(Math.max(r.right - W * .8, 8), innerWidth - W - 8), y = Math.min(Math.max(r.top - H * .7, 8), innerHeight - H - 8);
+      arcLook(x + W / 2, y); await wait(250);
+      await arcHop(x, y).catch(() => {}); arcLook(r.left + r.width / 2, r.top + r.height / 2);
+      // The wall moved on mid-hop: the tile is gone, so draw nothing.
+      if (shown === scene) await arcFix(t, scene).catch(() => {}); // a TV runs for days: one bad draw must not end Arc
+    }
+    await wait(3000 + Math.random() * 2500);
+  }
+}
+if (new URLSearchParams(location.search).get('arc') === '0' || matchMedia('(prefers-reduced-motion: reduce)').matches) { $('arc').remove(); $('arc-ink').remove(); } else document.fonts.ready.then(arcLife);
 poll(); if (!SNAP) setInterval(poll, 15000); else setInterval(pollMerges, 60000); setInterval(tick, 1000);
 // A TV runs for days: reload every few hours so a new deploy of this page reaches it.
 // The public copy reloads two minutes after the next snapshot is due, once GitHub Pages has it.
