@@ -259,8 +259,8 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
   </section>
   <section class="scene moments off" id="sc-moments">
     <div class="podium">
-      <div class="chap"><b>This week's moments</b><span>the last 7 days</span></div>
-      <div class="title">Who kept me<br><em>busiest</em></div>
+      <div class="chap"><b id="mo-chap">This week's moments</b><span id="mo-span">the last 7 days</span></div>
+      <div class="title">Who kept me<br><em>busiest</em><span id="mo-when"></span></div>
       <div class="steps" id="mo-steps"></div>
     </div>
     <div class="facts" id="mo-facts"></div>
@@ -466,6 +466,11 @@ const clockAt = (t) => ilTime.format(new Date(t));
 const hh = (h) => `${String(h).padStart(2, '0')}:00`;
 function renderMoments(m) {
   if (!m) return;
+  // The box sends today's moments; an older snapshot without a span is still the week.
+  const day = m.span === 'today';
+  $('mo-chap').textContent = day ? "Today's moments" : "This week's moments";
+  $('mo-span').textContent = day ? `so far, ${clockAt((WALL && WALL.at) || Date.now())}` : 'the last 7 days';
+  $('mo-when').textContent = day ? ' today' : '';
   // The podium reads 2nd, 1st, 3rd, like a real one.
   const top = m.top, max = Math.max(1, ...top.map((x) => x.n)), order = [1, 0, 2].filter((i) => top[i]);
   const ks = ['accent', 'verify', 'review'];
@@ -474,7 +479,7 @@ function renderMoments(m) {
   const facts = [
     m.early && { e: '🌅', k: 'question', n: clockAt(m.early.at), l: `Early bird: ${m.early.who} asked first` },
     m.late && { e: '🦉', k: 'accent', n: clockAt(m.late.at), l: `Night owl: ${m.late.who} asked latest` },
-    { e: '🔥', k: 'review', n: hh(m.busiestHour.hour), l: `Busiest hour, ${fmt(m.busiestHour.n)} asks. ${m.busiestDay.day} was the busiest day.` },
+    { e: '🔥', k: 'review', n: hh(m.busiestHour.hour), l: `Busiest hour, ${fmt(m.busiestHour.n)} asks.${!day && m.busiestDay ? ` ${m.busiestDay.day} was the busiest day.` : ''}` },
     m.pass ? { e: '✅', k: 'verify', n: fmt(m.pass), l: 'tests I ran that passed' } : { e: '💬', k: 'verify', n: fmt(m.asks), l: `asks from ${fmt(m.people)} people` },
     m.longest && { e: '⏳', k: 'hours', n: dur(m.longest.minutes * 60000), l: `Longest job: ${m.longest.doing}${m.longest.who ? `, for ${m.longest.who}` : ''}` },
     { e: '👋', k: 'people', n: fmt(m.people), l: `people asked me something, ${fmt(m.asks)} asks in all` },
@@ -629,7 +634,7 @@ const ARC_NOTES = [
   ['.train.qa .card', ["QA's turn", 'on track']], ['.train.next .card', ['next up', 'coming soon']],
   ['.train.shipped .card', ['shipped ✓', 'done']], ['.train.live .card', ['live ✓', 'shipped ✓']], ['#g-chart', ['up and to the right', 'nice bars']],
   ['.mult .m', ['noted', 'checked ✓']], ['#say', ['well said', 'noted']], ['.ship', ['shipped ✓', 'merged!', 'my favourite']],
-  ['.podium .step', ['thank you!', 'busy week']], ['.fact', ['true story', 'checked ✓']], ['#vi', ['I made this', 'watch this']],
+  ['.podium .step', ['thank you!', 'busy day']], ['.fact', ['true story', 'checked ✓']], ['#vi', ['I made this', 'watch this']],
 ];
 const ARC_INK = ['--review', '--accent', '--question', '--verify'];
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
