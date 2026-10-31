@@ -123,11 +123,11 @@ main { display: grid; grid-template-columns: 28vw minmax(0, 1fr) 27vw; gap: 2.4v
 .mult .m svg { grid-area: svg; display: block; width: 100%; height: 2.8vw; }
 
 .releases { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; gap: .7vw; }
-.dcs { border-top: 1px solid var(--line); padding-top: .7vw; }
+.dcs { border-top: 1px solid var(--line); padding-top: .5vw; }
 .dcs .lbl { font-size: .8vw; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--mute); margin-bottom: .4vw; }
-.dcs table { width: 100%; border-collapse: collapse; font-size: .9vw; font-variant-numeric: tabular-nums; }
-.dcs th { text-align: left; font-weight: 500; color: var(--mute); font-size: .75vw; padding: .15vw 0; }
-.dcs td { padding: .3vw 0; border-top: 1px solid var(--line); white-space: nowrap; }
+.dcs table { width: 100%; border-collapse: collapse; font-size: .8vw; font-variant-numeric: tabular-nums; }
+.dcs th { text-align: left; font-weight: 500; color: var(--mute); font-size: .7vw; padding: 0; }
+.dcs td { padding: .12vw 0; border-top: 1px solid var(--line); white-space: nowrap; }
 .dcs td:first-child { font-weight: 600; }
 .dcs td i { display: inline-block; width: .6vw; height: .6vw; border-radius: 50%; margin-right: .4vw; background: var(--k); }
 .dcs td small { color: var(--mute); font-size: .78vw; }
@@ -468,12 +468,18 @@ function relWhen(t) {
   return { text: t.days === -1 ? 'shipped yesterday' : `shipped ${-t.days} days ago`, past: true };
 }
 // Versions by data center: what each environment runs today, the service and the client build.
-function renderDcs(envs, trains) {
+function renderDcs(envs, trains, dcs) {
   const box = $('dcs');
   if (!envs || !envs.length) { box.innerHTML = ''; return; }
   const color = (e) => (e.env === 'dev2' ? 'indev' : e.env === 'qa' ? 'inqa' : 'done');
   const rel = (e) => { const t = trains.find((x) => x.name === e.release); return e.release === 'next' ? 'next' : t && t.date ? relDate(t.date) : ''; };
-  box.innerHTML = `<div class="lbl">Versions by data center</div><table><tr><th>where</th><th>release</th><th>service</th><th>client</th></tr>${envs.map((e) => `<tr style="--k: var(--${color(e)})"><td><i></i>${esc(e.label)}</td><td><small>${esc(rel(e))}</small></td><td>${esc(e.service || '–')}</td><td>${esc(e.client || '–')}</td></tr>`).join('')}</table>`;
+  // The SAP data centers come from Datadog (r.dcs) and run only the service; a build older than Prod US says so.
+  const num = (v) => String(v || '').split('.').map(Number);
+  const older = (a, b) => { const x = num(a), y = num(b); for (let i = 0; i < Math.max(x.length, y.length); i += 1) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) < (y[i] || 0); return false; };
+  const prod = envs.find((e) => e.env === 'prod');
+  const sap = (dcs || []).map((d) => ({ env: 'dc', label: d.label, release: d.release, service: d.service, client: null, behind: prod && prod.service && older(d.service, prod.service) }));
+  const rows = [...envs.filter((e) => e.env === 'prod' || e.env === 'eu-prod'), ...sap, ...envs.filter((e) => e.env !== 'prod' && e.env !== 'eu-prod')];
+  box.innerHTML = `<div class="lbl">Versions by data center</div><table><tr><th>where</th><th>release</th><th>service</th><th>client</th></tr>${rows.map((e) => `<tr style="--k: var(--${e.behind ? 'merged' : color(e)})"><td><i></i>${esc(e.label)}</td><td><small>${esc(e.behind && !e.release ? 'behind prod' : rel(e))}</small></td><td>${esc(e.service || '–')}</td><td>${esc(e.client || '–')}</td></tr>`).join('')}</table>`;
 }
 // The release train: the last releases out, the one in QA, and what waits on dev, each with its tickets and the environments running it.
 function renderReleases(r) {
@@ -482,10 +488,10 @@ function renderReleases(r) {
   const old = r.failed || Date.now() - Date.parse(r.at) > 30 * 60000;
   const asOf = `as of ${new Date(r.at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jerusalem' })}`;
   $('rel-stale').textContent = !old ? '' : r.failed ? `${asOf}, Jira or GitLab did not answer since` : asOf;
-  const key = JSON.stringify(r.trains) + JSON.stringify(r.envs);
+  const key = JSON.stringify(r.trains) + JSON.stringify(r.envs) + JSON.stringify(r.dcs || null);
   if ($('track').dataset.key === key) return;
   $('track').dataset.key = key;
-  renderDcs(r.envs, r.trains);
+  renderDcs(r.envs, r.trains, r.dcs);
   const envOf = new Map(r.envs.map((e) => [e.label, e]));
   const shipped = r.trains.filter((t) => t.shipped && !t.next);
   // Every shipped release a prod still runs stays (Prod EU can lag Prod US); older ones drop.
