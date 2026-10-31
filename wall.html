@@ -7,6 +7,7 @@
 <link rel="icon" href="/archie-favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@700&display=swap" rel="stylesheet">
+<script>if (new URLSearchParams(location.search).get('theme') !== 'light') document.documentElement.classList.add('dark');</script>
 <style>
 /* Pastel: lavender mesh, Bricolage Grotesque. */
 :root { --bg: #f6f3ff; --ink: #1e1b3a; --mute: #6a6690; --line: rgba(30,27,58,.1); --accent: #6d5dfc;
@@ -14,6 +15,22 @@
   --people: #00a6a6; --merged: #f0569b; --hours: #ff8a3d; --done: #00a6a6; --inqa: #6d5dfc; --indev: #ffb27a;
   --pane: rgba(255,255,255,.6); --tile: rgba(255,255,255,.6); --hi: #fff; --soft: rgba(30,27,58,.07);
   --font: 'Bricolage Grotesque', sans-serif; --r: 1.6vw; --track: .45vw; }
+/* Dark: the same mesh at night, so a TV in a dim room glows instead of glaring. ?theme=light brings the pastel back. */
+:root.dark { color-scheme: dark; --bg: #0c0a1d; --ink: #efedff; --mute: #9b96c8; --line: rgba(255,255,255,.1); --accent: #8f82ff;
+  --coding: #8f82ff; --verify: #2fd6cc; --review: #ff6fae; --question: #ffa35f; --machine: #7d78a8;
+  --people: #2fd6cc; --merged: #ff6fae; --hours: #ffa35f; --done: #2fd6cc; --inqa: #8f82ff; --indev: #ffc08f;
+  --pane: rgba(255,255,255,.045); --tile: rgba(255,255,255,.06); --hi: #1e1a40; --soft: rgba(255,255,255,.08);
+  --shade: rgba(0,0,0,.45); --stale: #ff7a70; --arc: #c7c1ff; }
+.dark .sky i { opacity: .55; }
+.dark .sky i:nth-child(1) { background: #3b2a9c; }
+.dark .sky i:nth-child(2) { background: #0c5b5e; }
+.dark .sky i:nth-child(3) { background: #6b1d4f; }
+.dark .pane { box-shadow: 0 1.5vw 4vw var(--shade); }
+.dark .train.qa .card { box-shadow: 0 1vw 3vw var(--shade); }
+.dark .releases .stale { color: var(--stale); }
+.dark .arc svg { filter: drop-shadow(0 .5vw .8vw rgba(143,130,255,.35)); }
+.dark .arc [stroke="#2b2f8f"] { stroke: var(--arc); }
+.dark .arc [fill="#2b2f8f"] { fill: var(--arc); }
 
 @keyframes flow { to { background-position: -12vw 0; } }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -65,20 +82,21 @@ main { display: grid; grid-template-columns: 28vw minmax(0, 1fr) 27vw; gap: 2.4v
 .big .l { font-size: 1vw; margin-top: .35vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .big .s { font-size: .82vw; color: var(--mute); margin-top: .2vw; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.threads { display: flex; flex-direction: column; gap: 1vw; min-height: 0; width: 100%; overflow: hidden; padding-top: .4vw; text-align: left; }
-.th { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'who t' 'doing doing' 'step step' 'line line'; align-items: baseline; column-gap: 1.2vw; row-gap: .3vw; animation: pop .6s both; }
+.threads { display: flex; flex-direction: column; gap: .75vw; min-height: 0; width: 100%; overflow: hidden; padding-top: .4vw; text-align: left; }
+/* One line per job: who, ticket, a few title words, time against the usual; the bar under it fills toward the usual time. */
+.th { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'who t' 'line line'; align-items: baseline; column-gap: 1.2vw; row-gap: .35vw; animation: pop .6s both; }
 .th .who { grid-area: who; font-size: 1.05vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.th .who b { font-weight: 600; margin-right: .5vw; }
+.th .who b { font-weight: 600; margin-right: .6vw; }
+.th .who .k { color: var(--k); font-weight: 600; margin-right: .6vw; }
 .th .who span { color: var(--mute); }
-.th .doing { grid-area: doing; font-size: 1vw; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.th .step { grid-area: step; font-size: .85vw; color: var(--mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.th .step b { color: var(--ink); font-weight: 600; margin-right: .5vw; }
 .th .line { grid-area: line; }
-.th .line { position: relative; height: var(--track); border-radius: var(--r); background: var(--line); }
+.th .line { position: relative; height: calc(var(--track) * .7); border-radius: var(--r); background: var(--line); }
+.th.over .line i { background: var(--k); opacity: .55; animation: none; }
 .th .line i { position: absolute; left: 0; top: 0; bottom: 0; min-width: 1vw; border-radius: var(--r);
   background: linear-gradient(90deg, var(--k) 0 40%, color-mix(in srgb, var(--k) 25%, transparent) 50%, var(--k) 60% 100%) 0 0 / 12vw 100%; animation: flow 1.6s linear infinite; transition: width 1s; }
 .th .line b { position: absolute; top: 50%; transform: translate(-50%, -50%); width: calc(var(--track) * 2.2); height: calc(var(--track) * 2.2); border-radius: 50%; background: var(--k); box-shadow: 0 0 0 .35vw color-mix(in srgb, var(--k) 22%, transparent); }
-.th .t { grid-area: t; font-size: 1.05vw; text-align: right; white-space: nowrap; }
+.th .t { grid-area: t; font-size: 1.05vw; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.th .t em { font-style: normal; color: var(--mute); font-size: .85vw; margin-left: .4vw; }
 .th .t small { color: var(--mute); font-size: .85vw; margin-right: .6vw; }
 .th .t small::before { content: ''; display: inline-block; width: .55vw; height: .55vw; border-radius: 50%; background: var(--k); margin-right: .35vw; vertical-align: .05vw; }
 .threads .more, .threads .empty { color: var(--mute); font-size: 1vw; }
@@ -157,7 +175,7 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
 .scene .title { font-weight: 800; font-size: 4.6vw; letter-spacing: -.045em; line-height: .95; }
 .scene .title em { font-style: normal; color: var(--accent); }
 .scenes { display: inline-flex; gap: .5vw; margin-right: 1.6vw; vertical-align: .15vw; }
-.scenes i { position: relative; display: block; width: 2.2vw; height: .35vw; border-radius: .3vw; background: var(--line); overflow: hidden; }
+.scenes i { cursor: pointer; position: relative; display: block; width: 2.2vw; height: .35vw; border-radius: .3vw; background: var(--line); overflow: hidden; }
 .scenes i b { position: absolute; inset: 0; width: 0; background: var(--accent); }
 .scenes i.on b { width: var(--p, 0%); }
 .scenes i.done b { width: 100%; opacity: .45; }
@@ -318,14 +336,18 @@ function renderHero(w) {
   const busiest = Object.entries(rows.reduce((a, r) => ({ ...a, [r.kind]: (a[r.kind] || 0) + 1 }), {})).sort((a, b) => b[1] - a[1])[0];
   $('say-sub').textContent = [busiest && `mostly ${KINDS[busiest[0]]}`, w.live.waiting ? `${w.live.waiting} more waiting for a seat` : 'nobody in line'].filter(Boolean).join(' · ');
 }
+// A few words of what a job is: its ticket's title, else what Archie said it does, else what it is about.
+const gist = (r, n = 4) => {
+  const t = r.title || r.doing || (r.key ? '' : r.what) || '';
+  const w = t.replace(/^\[[^\]]*\]\s*/, '').split(/\s+/).filter(Boolean);
+  return w.length > n ? `${w.slice(0, n).join(' ')}…` : w.join(' ');
+};
 function renderThreads(live) {
-  const rows = [...live.rows].sort((a, b) => Date.parse(a.since) - Date.parse(b.since)).slice(0, 7);
+  const rows = [...live.rows].sort((a, b) => Date.parse(a.since) - Date.parse(b.since)).slice(0, 12);
   const was = new Set([...document.querySelectorAll('.th')].map((e) => e.dataset.id));
-  $('threads').innerHTML = rows.map((r) => `<div class="th" data-id="${esc(r.id)}" data-since="${esc(r.since)}" style="--k: var(--${r.kind});${was.has(r.id) ? 'animation:none' : ''}">
-    <div class="who"><b>${esc(r.who || 'Archie')}</b><span>${esc(r.what)}</span></div>
-    <div class="t"><small>${esc(KINDS[r.kind] || r.kind)}</small><span>0:00</span></div>
-    ${r.doing ? `<div class="doing">${esc(r.doing)}</div>` : ''}
-    <div class="step"><b>Now</b>${esc(r.step && !(r.step === 'Starting' && Date.now() - Date.parse(r.since) > 3 * 60000) ? r.step : 'Working on it')}</div>
+  $('threads').innerHTML = rows.map((r) => `<div class="th" data-id="${esc(r.id)}" data-since="${esc(r.since)}" data-usual="${r.typical || ''}" style="--k: var(--${r.kind});${was.has(r.id) ? 'animation:none' : ''}">
+    <div class="who"><b>${esc(r.who || 'Archie')}</b>${r.key ? `<span class="k">${esc(r.key)}</span>` : ''}<span>${esc(gist(r))}</span></div>
+    <div class="t"><span>0:00</span>${r.typical ? `<em>usually ${r.typical >= 60 ? `${Math.floor(r.typical / 60)}h ${String(r.typical % 60).padStart(2, '0')}m` : `${r.typical}m`}</em>` : ''}</div>
     <div class="line"><i></i><b></b></div></div>`).join('')
     + (live.rows.length > rows.length ? '<div class="more"></div>' : '')
     || '<div class="empty">Nothing running. The next ask starts a thread here.</div>';
@@ -503,10 +525,37 @@ function plan(w) {
   const all = [['live', 60], ['shipped', 20], ['live', 60], ['moments', 25], ['live', 60], ['video', 45]].filter(([n]) => n === 'live' || has[n]);
   return all.filter(([n], i) => !(n === 'live' && all[i - 1] && all[i - 1][0] === 'live'));
 }
+// A click moves this screen on: the right half goes to the next scene, the left half back one, and a
+// dot in the header jumps to its scene. The arrow keys do the same. The rotation carries on from there.
+let SKIP = 0;
+function at() {
+  const list = plan(WALL), total = list.reduce((n, x) => n + x[1], 0);
+  let t = ((Date.now() / 1000 + SKIP) % total + total) % total, i = 0;
+  while (t >= list[i][1]) { t -= list[i][1]; i += 1; }
+  return { list, total, t, i };
+}
+function go(k) {
+  const { list, total, t, i } = at();
+  const to = ((k % list.length) + list.length) % list.length;
+  const start = (j) => list.slice(0, j).reduce((n, x) => n + x[1], 0);
+  SKIP += ((start(to) - (start(i) + t)) % total + total) % total + 0.01;
+  rotate();
+}
+document.addEventListener('click', (e) => {
+  if (PIN) return;
+  const dot = e.target.closest('#scenes i');
+  if (dot) return go([...dot.parentNode.children].indexOf(dot));
+  go(at().i + (e.clientX < innerWidth / 2 ? -1 : 1));
+});
+document.addEventListener('keydown', (e) => {
+  if (PIN) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') go(at().i + 1);
+  if (e.key === 'ArrowLeft') go(at().i - 1);
+});
 function rotate() {
   const list = plan(WALL);
   const total = list.reduce((n, x) => n + x[1], 0);
-  let t = (Date.now() / 1000) % total, i = 0;
+  let t = ((Date.now() / 1000 + SKIP) % total + total) % total, i = 0;
   while (t >= list[i][1]) { t -= list[i][1]; i += 1; }
   const name = PIN || list[i][0];
   if (name !== shown) {
@@ -572,7 +621,8 @@ function tick() {
   rotate();
   $('clock').textContent = ilSec.format(new Date(now));
   for (const el of document.querySelectorAll('.th')) {
-    const ms = now - Date.parse(el.dataset.since), pct = Math.min(100, (ms / SPAN) * 100);
+    const usual = Number(el.dataset.usual) * 60000 || SPAN, ms = now - Date.parse(el.dataset.since), pct = Math.min(100, (ms / usual) * 100);
+    el.classList.toggle('over', ms > usual);
     el.querySelector('.t span').textContent = dur(ms);
     el.querySelector('.line i').style.width = `${pct}%`;
     el.querySelector('.line b').style.left = `${pct}%`;
