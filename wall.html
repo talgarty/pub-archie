@@ -122,7 +122,15 @@ main { display: grid; grid-template-columns: 28vw minmax(0, 1fr) 27vw; gap: 2.4v
 .mult .m .s { grid-area: s; font-size: .8vw; color: var(--mute); margin-top: .2vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mult .m svg { grid-area: svg; display: block; width: 100%; height: 2.8vw; }
 
-.releases { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); gap: .7vw; }
+.releases { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; gap: .7vw; }
+.dcs { border-top: 1px solid var(--line); padding-top: .7vw; }
+.dcs .lbl { font-size: .8vw; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--mute); margin-bottom: .4vw; }
+.dcs table { width: 100%; border-collapse: collapse; font-size: .9vw; font-variant-numeric: tabular-nums; }
+.dcs th { text-align: left; font-weight: 500; color: var(--mute); font-size: .75vw; padding: .15vw 0; }
+.dcs td { padding: .3vw 0; border-top: 1px solid var(--line); white-space: nowrap; }
+.dcs td:first-child { font-weight: 600; }
+.dcs td i { display: inline-block; width: .6vw; height: .6vw; border-radius: 50%; margin-right: .4vw; background: var(--k); }
+.dcs td small { color: var(--mute); font-size: .78vw; }
 .releases .stale { font-size: .85vw; color: #a1201a; text-transform: none; letter-spacing: 0; }
 .releases .key { display: flex; gap: 1.1vw; font-size: .8vw; color: var(--mute); }
 .releases .key i { display: inline-block; width: .65vw; height: .65vw; border-radius: 50%; margin-right: .35vw; vertical-align: -.05vw; }
@@ -180,37 +188,55 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
 .scenes i.on b { width: var(--p, 0%); }
 .scenes i.done b { width: 100%; opacity: .45; }
 
-.shipped { grid-template-rows: auto minmax(0, 1fr); gap: 1.6vw; }
-.shipped .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: min-content; gap: 1.1vw; align-content: start; overflow: hidden; }
-.ship { background: var(--tile); border: 1px solid var(--line); border-radius: 1.3vw; padding: 1vw 1.2vw; min-width: 0; }
-.scene:not(.off) .ship { animation: pop .7s both; }
-.ship .top { display: flex; justify-content: space-between; gap: .6vw; font-size: .85vw; color: var(--mute); white-space: nowrap; }
-.ship .top b { font-weight: 600; color: var(--k); }
-.ship .ti { margin-top: .45vw; font-size: 1.25vw; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.shipped .more { color: var(--mute); font-size: 1.2vw; align-self: center; }
-
-.moments { grid-template-columns: 32vw minmax(0, 1fr); gap: 2.6vw; }
-.podium .chap { white-space: nowrap; }
-.podium { display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 1.2vw; }
-.steps { display: grid; grid-template-columns: repeat(3, 1fr); align-items: end; gap: 1vw; min-height: 0; }
-.step { display: grid; grid-template-rows: auto auto 1fr; justify-items: center; height: 100%; text-align: center; }
-.step .medal { font-size: 3.4vw; line-height: 1; }
-.step .name { font-weight: 800; font-size: 2vw; letter-spacing: -.02em; margin: .4vw 0 .6vw; }
-.step .block { align-self: end; width: 100%; border-radius: 1.2vw 1.2vw 0 0; background: linear-gradient(180deg, var(--k), color-mix(in srgb, var(--k) 25%, transparent)); display: grid; place-items: start center; padding-top: .8vw; font-weight: 800; font-size: 2.2vw; color: var(--bg); transform-origin: bottom; }
-.scene:not(.off) .step .block { animation: grow 1.2s cubic-bezier(.2,.9,.3,1) both; }
-.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 1.2vw; min-height: 0; }
-.fact { background: var(--tile); border: 1px solid var(--line); border-radius: 1.5vw; padding: 1.2vw 1.5vw; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-.scene:not(.off) .fact { animation: pop .7s both; }
-.fact .e { font-size: 2.4vw; line-height: 1; }
-.fact .n { font-weight: 800; font-size: 3vw; letter-spacing: -.04em; line-height: 1.05; margin-top: .5vw; color: var(--k, var(--ink)); }
-.fact .l { font-size: 1.15vw; color: var(--mute); margin-top: .3vw; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
+.moments { grid-template-rows: auto minmax(0, 1fr); gap: 2vw; }
+.moments .head { display: flex; align-items: flex-end; justify-content: space-between; gap: 2vw; }
+.moments .title { font-weight: 800; font-size: 4.6vw; letter-spacing: -.04em; line-height: .95; }
+.moments .title em { font-style: normal; color: var(--accent); }
+.moments .tot { text-align: right; color: var(--mute); font-size: 1.3vw; line-height: 1.3; }
+.moments .tot b { display: block; color: var(--ink); font-weight: 800; font-size: 4.6vw; letter-spacing: -.04em; line-height: 1; }
+.moments .body { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 2vw; min-height: 0; }
+.moments .card2 { background: var(--tile); border: 1px solid var(--line); border-radius: 1.8vw; padding: 1.6vw 1.8vw; min-height: 0; min-width: 0; display: flex; flex-direction: column; gap: 1.2vw; }
+.moments .lbl { font-size: 1vw; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--mute); }
+.who-list { display: flex; flex-direction: column; justify-content: center; gap: 1.6vw; flex: 1; min-height: 0; }
+.who-row { display: grid; grid-template-columns: 3vw minmax(0, 1fr) auto; grid-template-areas: 'r n c' 'r b b'; column-gap: 1vw; row-gap: .6vw; align-items: baseline; }
+.scene:not(.off) .who-row { animation: pop .7s both; }
+.who-row .r { grid-area: r; font-weight: 800; font-size: 2.4vw; color: var(--k); align-self: center; }
+.who-row .n { grid-area: n; font-weight: 800; font-size: 2.6vw; letter-spacing: -.03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.who-row .c { grid-area: c; font-size: 1.3vw; color: var(--mute); white-space: nowrap; }
+.who-row .c b { color: var(--ink); font-size: 2.2vw; font-weight: 800; margin-right: .4vw; }
+.who-row .bar { grid-area: b; height: 1vw; border-radius: .6vw; background: var(--line); overflow: hidden; }
+.who-row .bar i { display: block; height: 100%; border-radius: .6vw; background: var(--k); transform-origin: left; }
+.scene:not(.off) .who-row .bar i { animation: widen 1.1s cubic-bezier(.2,.9,.3,1) both; }
+.who-list .rest { color: var(--mute); font-size: 1.3vw; padding-left: 4vw; }
+.who-list .none { color: var(--mute); font-size: 1.6vw; line-height: 1.35; }
+.hours { flex: 1; min-height: 0; }
+.hours svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.hours text { fill: var(--mute); font-family: inherit; }
+.hours .peak { fill: var(--ink); font-weight: 600; }
+.scene:not(.off) .hours .bar { animation: grow 1s cubic-bezier(.2,.9,.3,1) both; transform-box: fill-box; transform-origin: bottom; }
+.kinds { display: flex; flex-wrap: wrap; gap: .6vw 1.6vw; font-size: 1.15vw; color: var(--mute); }
+.kinds i { display: inline-block; width: .8vw; height: .8vw; border-radius: .25vw; margin-right: .45vw; vertical-align: -.05vw; background: var(--k); }
+.kinds b { color: var(--ink); margin-right: .3vw; }
+.dayfacts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2vw; }
+.dayfact { border-top: 1px solid var(--line); padding-top: .8vw; min-width: 0; }
+.scene:not(.off) .dayfact { animation: pop .7s both; }
+.dayfact .n { font-weight: 800; font-size: 2.4vw; letter-spacing: -.03em; color: var(--k, var(--ink)); white-space: nowrap; }
+.dayfact .l { font-size: 1.05vw; color: var(--mute); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+@keyframes widen { from { transform: scaleX(0); } }
+/* Right now with nothing running: a calm ring, and today's hours in the room the threads leave. */
+.presence.idle .n { font-size: 2.4vw; color: var(--verify); }
+.presence.idle svg circle { animation: breathe 4s ease-in-out infinite; transform-origin: 50% 50%; }
+.idle-day { display: flex; flex-direction: column; gap: .9vw; width: 100%; min-height: 0; flex: 1; padding: 1.2vw 1.4vw; background: var(--tile); border: 1px solid var(--line); border-radius: 1.4vw; }
+.idle-day .lbl { font-size: .85vw; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--mute); text-align: left; }
+.idle-day .hours { min-height: 8vw; }
+.idle-day .kinds { font-size: .95vw; }
+.idle-day .quiet { color: var(--mute); font-size: 1.3vw; padding: 2vw 0; text-align: center; }
 .showing { grid-template-rows: auto minmax(0, 1fr); gap: 1.2vw; justify-items: center; }
 .showing video { max-width: 100%; max-height: 100%; min-height: 0; border-radius: 1.6vw; box-shadow: 0 2vw 6vw rgba(0,0,0,.5); background: #000; }
 .gate { position: fixed; inset: 0; display: none; place-items: center; z-index: 9; background: var(--bg); text-align: center; font-size: 1.6vw; color: var(--mute); }
 .gate b { display: block; color: var(--ink); font-size: 2.6vw; margin-bottom: 1vw; }
 /* Arc: the compass from my profile picture walks the wall, hops onto something on the showing scene,
-   circles it and writes a short note. It draws on its own layer and never touches the page's numbers. */
+   circles it and writes a short note. Off unless the address carries ?arc=1. It draws on its own layer and never touches the page's numbers. */
 .arc { position: fixed; left: 0; top: 0; z-index: 3; width: 5vw; pointer-events: none; transform-origin: 50% 100%; will-change: transform; }
 .arc .bob { transform-origin: 50% 100%; animation: bob 2.6s ease-in-out infinite; }
 .arc svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 .5vw .6vw rgba(70,50,160,.18)); }
@@ -269,19 +295,18 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
       <div class="chap"><b>Releases</b><span class="stale" id="rel-stale"></span></div>
       <div class="key"><span><i style="background:var(--done)"></i>passed or shipped</span><span><i style="background:var(--inqa)"></i>in QA</span><span><i style="background:var(--indev)"></i>in dev</span></div>
       <div class="track" id="track"></div>
+      <div class="dcs" id="dcs"></div>
     </section>
   </main>
-  <section class="scene shipped off" id="sc-shipped">
-    <div><div class="chap"><b>Shipped this week</b><span id="sh-sub"></span></div><div class="title" id="sh-title"></div></div>
-    <div class="grid" id="sh-grid"></div>
-  </section>
   <section class="scene moments off" id="sc-moments">
-    <div class="podium">
-      <div class="chap"><b id="mo-chap">This week's moments</b><span id="mo-span">the last 7 days</span></div>
-      <div class="title">Who kept me<br><em>busiest</em><span id="mo-when"></span></div>
-      <div class="steps" id="mo-steps"></div>
+    <div class="head">
+      <div><div class="chap"><b>Today</b><span id="mo-span"></span></div><div class="title">Who kept me<br>busy <em>today</em></div></div>
+      <div class="tot"><b id="mo-asks">0</b><span id="mo-asks-l">asks so far</span></div>
     </div>
-    <div class="facts" id="mo-facts"></div>
+    <div class="body">
+      <div class="card2"><div class="lbl">Asked me most</div><div class="who-list" id="mo-who"></div></div>
+      <div class="card2"><div class="lbl">My day, hour by hour</div><div class="hours" id="mo-hours"></div><div class="kinds" id="mo-kinds"></div><div class="dayfacts" id="mo-facts"></div></div>
+    </div>
   </section>
   <section class="scene showing off" id="sc-video">
     <div class="chap"><b>Now showing</b><span id="vi-title"></span></div>
@@ -323,18 +348,26 @@ function renderRings(rows) {
     const rad = 92 - i * 8, c = 2 * Math.PI * rad, arc = c * (0.18 + ((i * 37) % 40) / 100);
     return `<g class="orbit" style="animation-duration:${6 + i * 2.3}s;animation-direction:${i % 2 ? 'reverse' : 'normal'}"><circle cx="100" cy="100" r="${rad}" fill="none" stroke="var(--${r.kind})" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="${arc} ${c}"/></g>`;
   }).join('');
-  $('live-n').textContent = rows.length;
+  $('live-n').textContent = rows.length ? rows.length : '✓';
+  svg.parentElement.classList.toggle('idle', !rows.length);
 }
 function renderHero(w) {
   const rows = w.live.rows, people = new Set(rows.map((r) => r.who).filter(Boolean)).size;
   const things = `Working on <em>${say(rows.length)}</em> thing${rows.length > 1 ? 's' : ''}`;
-  $('say').innerHTML = !rows.length ? 'Quiet. Ask me something.'
+  $('say').innerHTML = !rows.length ? (w.today && w.today.conversations ? 'All caught up.' : 'Quiet day so far.')
     : people ? `${things} for <em>${say(people)}</em> ${people === 1 ? 'person' : 'people'}.` : `${things} on my own.`;
   // The sentence takes its look's size, and shrinks only when a long count would overflow.
   const h1 = $('say'); h1.style.fontSize = '';
   for (let f = parseFloat(getComputedStyle(h1).fontSize); h1.scrollWidth > h1.parentElement.clientWidth && f > 20; f -= 4) h1.style.fontSize = `${f}px`;
   const busiest = Object.entries(rows.reduce((a, r) => ({ ...a, [r.kind]: (a[r.kind] || 0) + 1 }), {})).sort((a, b) => b[1] - a[1])[0];
-  $('say-sub').textContent = [busiest && `mostly ${KINDS[busiest[0]]}`, w.live.waiting ? `${w.live.waiting} more waiting for a seat` : 'nobody in line'].filter(Boolean).join(' · ');
+  $('say-sub').textContent = !rows.length && !w.live.waiting ? 'nothing running, nobody in line · ask me in Slack'
+    : [busiest && `mostly ${KINDS[busiest[0]]}`, w.live.waiting ? `${w.live.waiting} more waiting for a seat` : 'nobody in line'].filter(Boolean).join(' · ');
+}
+// With nothing running, the room the threads leave shows how today went, hour by hour.
+function idleDay(t) {
+  const asks = t && (t.conversations ?? t.runs);
+  if (!asks) return '<div class="idle-day"><div class="lbl">Today</div><div class="quiet">No asks yet today. The first one starts a thread here.</div></div>';
+  return `<div class="idle-day"><div class="lbl">Today so far · ${fmt(asks)} ask${asks === 1 ? '' : 's'}</div><div class="hours" data-idle="1"></div><div class="kinds">${kindsLine(t.kinds)}</div></div>`;
 }
 // A few words of what a job is: its ticket's title, else what Archie said it does, else what it is about.
 const gist = (r, n = 4) => {
@@ -342,7 +375,7 @@ const gist = (r, n = 4) => {
   const w = t.replace(/^\[[^\]]*\]\s*/, '').split(/\s+/).filter(Boolean);
   return w.length > n ? `${w.slice(0, n).join(' ')}…` : w.join(' ');
 };
-function renderThreads(live) {
+function renderThreads(live, today) {
   const rows = [...live.rows].sort((a, b) => Date.parse(a.since) - Date.parse(b.since)).slice(0, 12);
   const was = new Set([...document.querySelectorAll('.th')].map((e) => e.dataset.id));
   $('threads').innerHTML = rows.map((r) => `<div class="th" data-id="${esc(r.id)}" data-since="${esc(r.since)}" data-usual="${r.typical || ''}" style="--k: var(--${r.kind});${was.has(r.id) ? 'animation:none' : ''}">
@@ -350,7 +383,7 @@ function renderThreads(live) {
     <div class="t"><span>0:00</span>${r.typical ? `<em>usually ${r.typical >= 60 ? `${Math.floor(r.typical / 60)}h ${String(r.typical % 60).padStart(2, '0')}m` : `${r.typical}m`}</em>` : ''}</div>
     <div class="line"><i></i><b></b></div></div>`).join('')
     + (live.rows.length > rows.length ? '<div class="more"></div>' : '')
-    || '<div class="empty">Nothing running. The next ask starts a thread here.</div>';
+    || idleDay(today);
   // The longest-running threads stay; the newest drop until the rest fit above the ticker.
   const box = $('threads'), more = box.querySelector('.more');
   let hidden = live.rows.length - rows.length;
@@ -359,6 +392,8 @@ function renderThreads(live) {
   while (ths.length > 1 && box.scrollHeight > box.clientHeight) { ths.pop().remove(); hidden += 1; }
   const moreText = (n) => { const names = [...new Set(live.rows.slice(live.rows.length - n).map((r) => r.who).filter(Boolean))]; return `and ${n} more${names.length ? ` for ${names.slice(0, 4).join(', ')}${names.length > 4 ? ` and ${names.length - 4} others` : ''}` : ''}`; };
   if (hidden) { const m = more || box.appendChild(Object.assign(document.createElement('div'), { className: 'more' })); m.textContent = moreText(hidden); while (ths.length > 1 && box.scrollHeight > box.clientHeight) { ths.pop().remove(); m.textContent = moreText(++hidden); } }
+  const idle = box.querySelector('.hours[data-idle]');
+  if (idle && today && today.byHour) idle.innerHTML = hourBars(today.byHour, { w: Math.round(idle.clientWidth) || 600, h: Math.round(idle.clientHeight) || 160 });
   tick();
 }
 function renderTicker(feed, merged) {
@@ -389,10 +424,10 @@ function setChip(el, d) { el.textContent = d.text; el.classList.toggle('down', d
 function weekBars(weeks, key, color, { w = 760, h = 240, labels = true } = {}) {
   // Text sizes follow the box, so a 4K TV reads the same as a 1080p one.
   const f = Math.round(w / 34), max = Math.max(1, ...weeks.map((x) => x[key])), gap = labels ? Math.round(w / 70) : 4, top = labels ? f * 1.6 : 2, base = labels ? h - f * 1.4 : h;
-  const bw = (w - gap * (weeks.length - 1)) / weeks.length;
+  const bw = Math.min((w - gap * (weeks.length - 1)) / weeks.length, w / 8), x0 = w - (bw * weeks.length + gap * (weeks.length - 1));
   const whole = weeks.filter((x) => x.whole), peak = whole.reduce((p, x) => (x[key] > p[key] ? x : p), whole[0] || weeks[0]);
   const bars = weeks.map((x, i) => {
-    const bh = Math.max(3, (x[key] / max) * (base - top)), X = i * (bw + gap), Y = base - bh, r = Math.min(6, bw / 2);
+    const bh = Math.max(3, (x[key] / max) * (base - top)), X = x0 + i * (bw + gap), Y = base - bh, r = Math.min(6, bw / 2);
     const fill = x.whole ? color : `color-mix(in srgb, ${color} 35%, transparent)`;
     const label = labels && ((x === peak && !(i === weeks.length - 2 && !weeks[i + 1].whole)) || !x.whole || i === 0)
       ? `<text class="v" x="${i === weeks.length - 1 ? X + bw : X + bw / 2}" y="${(x.whole || !i ? Y : Math.min(Y, base - Math.max(3, (weeks[i - 1][key] / max) * (base - top)))) - f * .45}" text-anchor="${i === weeks.length - 1 ? 'end' : 'middle'}" font-size="${f}">${fmt(x[key])}${x.whole ? '' : ' so far'}</text>` : '';
@@ -432,6 +467,14 @@ function relWhen(t) {
   if (t.days > 0) return { text: t.days === 1 ? 'tomorrow' : `in ${t.days} days`, past: false };
   return { text: t.days === -1 ? 'shipped yesterday' : `shipped ${-t.days} days ago`, past: true };
 }
+// Versions by data center: what each environment runs today, the service and the client build.
+function renderDcs(envs, trains) {
+  const box = $('dcs');
+  if (!envs || !envs.length) { box.innerHTML = ''; return; }
+  const color = (e) => (e.env === 'dev2' ? 'indev' : e.env === 'qa' ? 'inqa' : 'done');
+  const rel = (e) => { const t = trains.find((x) => x.name === e.release); return e.release === 'next' ? 'next' : t && t.date ? relDate(t.date) : ''; };
+  box.innerHTML = `<div class="lbl">Versions by data center</div><table><tr><th>where</th><th>release</th><th>service</th><th>client</th></tr>${envs.map((e) => `<tr style="--k: var(--${color(e)})"><td><i></i>${esc(e.label)}</td><td><small>${esc(rel(e))}</small></td><td>${esc(e.service || '–')}</td><td>${esc(e.client || '–')}</td></tr>`).join('')}</table>`;
+}
 // The release train: the last releases out, the one in QA, and what waits on dev, each with its tickets and the environments running it.
 function renderReleases(r) {
   $('releases').style.display = r && r.trains.length ? '' : 'none';
@@ -442,6 +485,7 @@ function renderReleases(r) {
   const key = JSON.stringify(r.trains) + JSON.stringify(r.envs);
   if ($('track').dataset.key === key) return;
   $('track').dataset.key = key;
+  renderDcs(r.envs, r.trains);
   const envOf = new Map(r.envs.map((e) => [e.label, e]));
   const shipped = r.trains.filter((t) => t.shipped && !t.next);
   // Every shipped release a prod still runs stays (Prod EU can lag Prod US); older ones drop.
@@ -467,46 +511,65 @@ function renderReleases(r) {
 }
 // ---------- scenes ----------
 const MEDALS = ['🥇', '🥈', '🥉'];
-const dayName = (t) => new Date(t).toLocaleDateString('en-US', { weekday: 'short', timeZone: 'Asia/Jerusalem' });
-const REPO_K = (repo) => (/client|portal|ui/.test(repo) ? 'review' : /archie/.test(repo) ? 'coding' : /service|db|jobs/.test(repo) ? 'verify' : 'question');
-function renderShipped(week) {
-  const list = week || [];
-  $('sh-title').innerHTML = `<em>${fmt(list.length)}</em> MR${list.length === 1 ? '' : 's'} merged`;
-  const people = [...new Set(list.map((m) => m.for).filter(Boolean))];
-  $('sh-sub').textContent = people.length ? `asked for by ${people.slice(0, 6).join(', ')}${people.length > 6 ? ` and ${people.length - 6} more` : ''}` : '';
-  const shown = list.slice(0, 16);
-  $('sh-grid').innerHTML = shown.map((m, i) => `<div class="ship" style="--k: var(--${REPO_K(m.repo)});animation-delay:${i * 70}ms">
-    <div class="top"><b>${esc(m.ref)}</b><span>${esc(dayName(m.at))}${m.for ? ` · for ${esc(m.for)}` : ''}</span></div>
-    <div class="ti">${esc(m.title)}</div></div>`).join('');
-  // Cards that do not fit drop from the oldest end, and the count of the rest takes the last place.
-  const grid = $('sh-grid'), cards = [...grid.children];
-  let hidden = list.length - shown.length;
-  while (cards.length > 1 && grid.scrollHeight > grid.clientHeight + 2) { cards.pop().remove(); hidden += 1; }
-  if (hidden > 0) { if (cards.length > 1) { cards.pop().remove(); hidden += 1; } grid.insertAdjacentHTML('beforeend', `<div class="more">and ${hidden} more</div>`); }
-}
 const clockAt = (t) => ilTime.format(new Date(t));
 const hh = (h) => `${String(h).padStart(2, '0')}:00`;
-function renderMoments(m) {
-  if (!m) return;
-  // The box sends today's moments; an older snapshot without a span is still the week.
-  const day = m.span === 'today';
-  $('mo-chap').textContent = day ? "Today's moments" : "This week's moments";
-  $('mo-span').textContent = day ? `so far, ${clockAt((WALL && WALL.at) || Date.now())}` : 'the last 7 days';
-  $('mo-when').textContent = day ? ' today' : '';
-  // The podium reads 2nd, 1st, 3rd, like a real one.
-  const top = m.top, max = Math.max(1, ...top.map((x) => x.n)), order = [1, 0, 2].filter((i) => top[i]);
+// Only a snapshot that says it is today's names people here; an older one counted the week.
+const dayMoments = (w) => (w && w.moments && w.moments.span === 'today' ? w.moments : null);
+const KIND_ORDER = ['coding', 'verify', 'review', 'question', 'machine'];
+// Today's asks per Israel hour, stacked by kind, from the first busy hour (or 08:00) to now.
+function hourBars(byHour, { w = 900, h = 260 } = {}) {
+  const sum = (x) => KIND_ORDER.reduce((n, k) => n + (x[k] || 0), 0);
+  const nowH = Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', hourCycle: 'h23' }).format(new Date())) % 24;
+  const busy = byHour.map((x, i) => (sum(x) ? i : -1)).filter((i) => i >= 0);
+  const from = Math.min(8, busy.length ? busy[0] : 8), to = Math.max(nowH, busy.length ? busy[busy.length - 1] : nowH, from + 8);
+  const hrs = []; for (let i = from; i <= Math.min(23, to); i += 1) hrs.push(i);
+  const f = Math.round(w / 40), base = h - f * 1.5, top = f * 1.8, max = Math.max(1, ...hrs.map((i) => sum(byHour[i])));
+  const gap = Math.max(3, w / hrs.length * .22), bw = (w - gap * (hrs.length - 1)) / hrs.length;
+  const peak = hrs.reduce((p, i) => (sum(byHour[i]) > sum(byHour[p]) ? i : p), hrs[0]);
+  const out = hrs.map((hr, j) => {
+    const x = j * (bw + gap), total = sum(byHour[hr]);
+    let y = base, segs = '';
+    for (const k of KIND_ORDER) {
+      const n = byHour[hr][k] || 0; if (!n) continue;
+      const sh = (n / max) * (base - top); y -= sh;
+      segs += `<rect x="${x}" y="${y}" width="${bw}" height="${sh}" fill="var(--${k})"/>`;
+    }
+    const empty = total ? '' : `<rect x="${x}" y="${base - 3}" width="${bw}" height="3" rx="1.5" fill="var(--line)"/>`;
+    const lab = total && hr === peak ? `<text class="peak" x="${x + bw / 2}" y="${y - f * .5}" text-anchor="middle" font-size="${f}">${total}</text>` : '';
+    const tick = (hr % 2 === 0 || hrs.length < 10) ? `<text x="${x + bw / 2}" y="${h - 2}" text-anchor="middle" font-size="${Math.round(f * .8)}" class="${hr === nowH ? 'peak' : ''}">${String(hr).padStart(2, '0')}</text>` : '';
+    return `<g class="bar" style="animation-delay:${j * 40}ms">${segs}</g>${empty}${lab}${tick}`;
+  }).join('');
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><line x1="0" x2="${w}" y1="${base}" y2="${base}" stroke="var(--line)"/>${out}</svg>`;
+}
+const kindsLine = (kinds) => KIND_ORDER.filter((k) => kinds && kinds[k]).map((k) => `<span style="--k: var(--${k})"><i></i><b>${fmt(kinds[k])}</b>${KINDS[k]}</span>`).join('');
+function renderMoments(w) {
+  if (!w) return;
+  const t = w.today || {}, m = dayMoments(w), asks = m ? m.asks : (t.conversations ?? t.runs ?? 0);
+  $('mo-span').textContent = `so far, ${clockAt(w.at || Date.now())} Israel time`;
+  count({ querySelector: () => $('mo-asks') }, asks);
+  $('mo-asks-l').textContent = `ask${asks === 1 ? '' : 's'} from ${fmt(m ? m.people : t.people)} ${(m ? m.people : t.people) === 1 ? 'person' : 'people'}`;
+  // One row per person, longest bar first, the bar's length their share of the day.
   const ks = ['accent', 'verify', 'review'];
-  $('mo-steps').innerHTML = order.map((i) => `<div class="step" style="--k: var(--${ks[i]})"><div class="medal">${MEDALS[i]}</div><div class="name">${esc(top[i].name)}</div>
-    <div class="block" style="height:${Math.round(35 + (top[i].n / max) * 65)}%;animation-delay:${i * 200}ms">${fmt(top[i].n)}</div></div>`).join('');
+  if (m && m.top.length) {
+    const max = Math.max(1, ...m.top.map((x) => x.n)), rest = m.people - m.top.length;
+    $('mo-who').innerHTML = m.top.map((x, i) => `<div class="who-row" style="--k: var(--${ks[i]});animation-delay:${i * 150}ms"><div class="r">${i + 1}</div><div class="n">${esc(x.name)}</div>
+      <div class="c"><b>${fmt(x.n)}</b>${Math.round((x.n / m.asks) * 100)}%</div><div class="bar"><i style="width:${Math.max(4, (x.n / max) * 100)}%;animation-delay:${200 + i * 150}ms"></i></div></div>`).join('')
+      + (rest > 0 ? `<div class="rest">and ${rest} more ${rest === 1 ? 'person' : 'people'}</div>` : '');
+  } else {
+    $('mo-who').innerHTML = `<div class="none">${fmt(t.people)} ${t.people === 1 ? 'person' : 'people'} asked me something today. Their names show with the next update.</div>`;
+  }
+  $('mo-hours').innerHTML = t.byHour ? hourBars(t.byHour, { w: Math.round($('mo-hours').clientWidth) || 900, h: Math.round($('mo-hours').clientHeight) || 260 }) : '';
+  $('mo-kinds').innerHTML = kindsLine(t.kinds);
+  const perHour = (t.byHour || []).map((x) => KIND_ORDER.reduce((n, k) => n + (x[k] || 0), 0)), firstHour = perHour.findIndex((n) => n > 0);
+  const peak = m && m.busiestHour ? m.busiestHour : firstHour >= 0 ? { hour: perHour.indexOf(Math.max(...perHour)), n: Math.max(...perHour) } : null;
   const facts = [
-    m.early && { e: '🌅', k: 'question', n: clockAt(m.early.at), l: `Early bird: ${m.early.who} asked first` },
-    m.late && { e: '🦉', k: 'accent', n: clockAt(m.late.at), l: `Night owl: ${m.late.who} asked latest` },
-    { e: '🔥', k: 'review', n: hh(m.busiestHour.hour), l: `Busiest hour, ${fmt(m.busiestHour.n)} asks.${!day && m.busiestDay ? ` ${m.busiestDay.day} was the busiest day.` : ''}` },
-    m.pass ? { e: '✅', k: 'verify', n: fmt(m.pass), l: 'tests I ran that passed' } : { e: '💬', k: 'verify', n: fmt(m.asks), l: `asks from ${fmt(m.people)} people` },
-    m.longest && { e: '⏳', k: 'hours', n: dur(m.longest.minutes * 60000), l: `Longest job: ${m.longest.doing}${m.longest.who ? `, for ${m.longest.who}` : ''}` },
-    { e: '👋', k: 'people', n: fmt(m.people), l: `people asked me something, ${fmt(m.asks)} asks in all` },
+    m && m.early ? { k: 'question', n: clockAt(m.early.at), l: `first ask, from ${m.early.who}` } : firstHour >= 0 && { k: 'question', n: hh(firstHour), l: 'my first ask came in' },
+    peak && { k: 'review', n: hh(peak.hour), l: `busiest hour, ${fmt(peak.n)} ask${peak.n === 1 ? '' : 's'}` },
+    m && m.longest ? { k: 'hours', n: m.longest.minutes >= 60 ? `${Math.floor(m.longest.minutes / 60)}h ${String(m.longest.minutes % 60).padStart(2, '0')}m` : `${m.longest.minutes} min`, l: `longest job: ${m.longest.doing}` }
+      : m && m.late ? { k: 'accent', n: clockAt(m.late.at), l: `latest ask, from ${m.late.who}` }
+      : { k: 'verify', n: fmt(t.answered ?? asks), l: 'answered' },
   ].filter(Boolean);
-  $('mo-facts').innerHTML = facts.map((f, i) => `<div class="fact" style="--k: var(--${f.k});animation-delay:${200 + i * 90}ms"><div class="e">${f.e}</div><div class="n">${esc(f.n)}</div><div class="l" dir="auto">${esc(f.l)}</div></div>`).join('');
+  $('mo-facts').innerHTML = facts.map((f, i) => `<div class="dayfact" style="--k: var(--${f.k});animation-delay:${300 + i * 90}ms"><div class="n">${esc(f.n)}</div><div class="l" dir="auto">${esc(f.l)}</div></div>`).join('');
 }
 function renderVideo(v) {
   const el = $('vi');
@@ -521,9 +584,10 @@ function renderVideo(v) {
 const PIN = new URLSearchParams(location.search).get('scene');
 let WALL = null, shown = null;
 function plan(w) {
-  const has = { shipped: !!(w && w.mrs.week && w.mrs.week.length), moments: !!(w && w.moments), video: !!(w && w.video) };
-  const all = [['live', 60], ['shipped', 20], ['live', 60], ['moments', 25], ['live', 60], ['video', 45]].filter(([n]) => n === 'live' || has[n]);
-  return all.filter(([n], i) => !(n === 'live' && all[i - 1] && all[i - 1][0] === 'live'));
+  const has = { moments: !!(w && (dayMoments(w) || (w.today && w.today.conversations))), video: !!(w && w.video) };
+  const all = [['live', 60], ['moments', 30], ['live', 60], ['video', 45]].filter(([n]) => n === 'live' || has[n]);
+  const out = all.filter(([n], i) => !(n === 'live' && all[i - 1] && all[i - 1][0] === 'live'));
+  return out.length > 1 && out[out.length - 1][0] === 'live' ? out.slice(0, -1) : out;
 }
 // A click moves this screen on: the right half goes to the next scene, the left half back one, and a
 // dot in the header jumps to its scene. The arrow keys do the same. The rotation carries on from there.
@@ -561,10 +625,9 @@ function rotate() {
   if (name !== shown) {
     shown = name;
     $('main').classList.toggle('off', name !== 'live');
-    for (const n of ['shipped', 'moments', 'video']) $(`sc-${n}`).classList.toggle('off', name !== n);
+    for (const n of ['moments', 'video']) $(`sc-${n}`).classList.toggle('off', name !== n);
     // A scene that comes back plays its entrance again.
-    if (WALL && name === 'shipped') renderShipped(WALL.mrs.week);
-    if (WALL && name === 'moments') renderMoments(WALL.moments);
+    if (WALL && name === 'moments') renderMoments(WALL);
     const vid = $('vi');
     if (name === 'video' && vid.src) { vid.currentTime = 0; vid.play().catch(() => {}); } else vid.pause();
   }
@@ -574,12 +637,11 @@ function rotate() {
 function render(w) {
   WALL = w;
   renderVideo(w.video);
-  if (shown === 'shipped') renderShipped(w.mrs.week);
-  if (shown === 'moments') renderMoments(w.moments);
+  if (shown === 'moments') renderMoments(w);
   renderReleases(w.releases);
   renderGrowth(w.growth);
   const t = w.today;
-  renderRings(w.live.rows); renderHero(w); renderThreads(w.live); renderTicker(t.feed, w.mrs.merged);
+  renderRings(w.live.rows); renderHero(w); renderThreads(w.live, t); renderTicker(t.feed, w.mrs.merged);
   count($('b-runs'), t.conversations ?? t.runs); $('b-runs-s').innerHTML = `today<br>with ${t.people} ${t.people === 1 ? 'person' : 'people'}`;
   const ms = w.mrs.merged, last = ms[0], product = ms.filter((m) => m.product !== false).length;
   count($('b-merged'), ms.length); $('b-merged-s').innerHTML = last ? `${product} in the product<br>last${last.by ? ` by ${esc(last.by)}` : ''} ${ilTime.format(new Date(last.at))}` : 'none yet today';
@@ -604,7 +666,7 @@ let SNAP = window.WALL_SNAPSHOT || null;
 // Until snapshot.json answers, the public copy reloads two minutes after its next snapshot is due.
 let RELOAD_AT = SNAP ? Math.max(Date.now() + 60000, Date.parse(SNAP.at) + SNAP.every + 120000) : Date.now() + 4 * 3600 * 1000;
 async function poll() {
-  if (SNAP) { lastOk = Date.parse(SNAP.at); render(SNAP.data); document.fonts.ready.then(() => renderThreads(SNAP.data.live)); return; }
+  if (SNAP) { lastOk = Date.parse(SNAP.at); render(SNAP.data); document.fonts.ready.then(() => renderThreads(SNAP.data.live, SNAP.data.today)); return; }
   try {
     const r = await fetch(`/api/wall${location.search}`, { credentials: 'same-origin' });
     if (r.status === 401 || r.status === 403) { $('gate').style.display = 'grid'; return; }
@@ -613,7 +675,7 @@ async function poll() {
     const w = await r.json(); lastOk = Date.now();
     render(w);
     // The web font swaps in after the first fit and makes the rows taller, so fit them again.
-    document.fonts.ready.then(() => renderThreads(w.live));
+    document.fonts.ready.then(() => renderThreads(w.live, w.today));
   } catch { /* the dot turns red below */ }
 }
 function tick() {
@@ -678,13 +740,13 @@ function party(mr) {
 if (new URLSearchParams(location.search).get('party')) setTimeout(() => party({ ref: 'archie-core !908', title: 'the wall gets one live presence' }), 2500);
 // ---------- Arc ----------
 // Every few seconds Arc hops onto a tile of the scene on screen, circles it and writes a note. The
-// ink is its own layer and fades, so a TV running for days keeps nothing. ?arc=0 hides it.
+// ink is its own layer and fades, so a TV running for days keeps nothing. Only ?arc=1 shows it.
 const ARC_NOTES = [
   ['.big', ['counted twice', 'checked ✓', 'adds up']], ['.th', ['on it', 'almost there', 'looking good']],
   ['.train.qa .card', ["QA's turn", 'on track']], ['.train.next .card', ['next up', 'coming soon']],
   ['.train.shipped .card', ['shipped ✓', 'done']], ['.train.live .card', ['live ✓', 'shipped ✓']], ['#g-chart', ['up and to the right', 'nice bars']],
-  ['.mult .m', ['noted', 'checked ✓']], ['#say', ['well said', 'noted']], ['.ship', ['shipped ✓', 'merged!', 'my favourite']],
-  ['.podium .step', ['thank you!', 'busy day']], ['.fact', ['true story', 'checked ✓']], ['#vi', ['I made this', 'watch this']],
+  ['.mult .m', ['noted', 'checked ✓']], ['#say', ['well said', 'noted']],
+  ['.who-row', ['thank you!', 'busy day']], ['.dayfact', ['true story', 'checked ✓']], ['#vi', ['I made this', 'watch this']],
 ];
 const ARC_INK = ['--review', '--accent', '--question', '--verify'];
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
@@ -766,7 +828,7 @@ async function arcLife() {
     await wait(3000 + Math.random() * 2500);
   }
 }
-if (new URLSearchParams(location.search).get('arc') === '0' || matchMedia('(prefers-reduced-motion: reduce)').matches) { $('arc').remove(); $('arc-ink').remove(); } else document.fonts.ready.then(arcLife);
+if (new URLSearchParams(location.search).get('arc') !== '1' || matchMedia('(prefers-reduced-motion: reduce)').matches) { $('arc').remove(); $('arc-ink').remove(); } else document.fonts.ready.then(arcLife);
 poll(); if (!SNAP) setInterval(poll, 15000); else setInterval(pollSnapshot, 60000); setInterval(tick, 1000);
 // A TV runs for days: reload every few hours so a new deploy of this page reaches it.
 // A fresh query string gets past the 10-minute cache GitHub Pages puts on the page.
