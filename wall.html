@@ -301,6 +301,21 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
 .arc-ink text { font-family: 'Caveat', cursive; font-weight: 700; paint-order: stroke; stroke: var(--bg); stroke-width: .45vw; stroke-linejoin: round; }
 @keyframes bob { 50% { transform: translateY(-.35vw); } }
 @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+/* Focus boards (Aviv, 2026-11-01): one label, one big number, one bar, one sentence, readable from the back of the room. */
+.scene.board { align-content: center; }
+.focus { display: flex; flex-direction: column; gap: 2.4vw; padding: 0 2vw; }
+.fkick { font-size: 2.4vw; font-weight: 600; color: var(--mute); }
+.fbig { display: flex; align-items: baseline; gap: 2vw; }
+.fbig b { font-size: 15vw; font-weight: 800; line-height: .85; letter-spacing: -.05em; color: var(--k); }
+.fbig span { font-size: 4.4vw; font-weight: 700; letter-spacing: -.03em; }
+.fbar { display: flex; height: 2.2vw; border-radius: 1.1vw; overflow: hidden; background: rgba(255,255,255,.12); }
+.fbar i { background: var(--k); } .fbar i + i { margin-left: .3vw; }
+:root { --line2: rgba(255,255,255,.28); }
+.fsay { font-size: 4vw; font-weight: 700; letter-spacing: -.03em; line-height: 1.1; }
+.fsay em { font-style: normal; color: var(--k); }
+.fhead { font-size: 7vw; font-weight: 800; letter-spacing: -.045em; line-height: 1; }
+.fnote { font-size: 1.8vw; color: var(--mute); }
+body.focus-on header .live, body.focus-on header .scenes { display: none; }
 </style>
 </head>
 <body>
@@ -383,7 +398,7 @@ const KINDS = { coding: 'coding', verify: 'testing', review: 'reviewing', questi
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const ilTime = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-const ilSec = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+const ilSec = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 const ago = (h) => (h == null ? '?' : h < 1 ? 'now' : h < 48 ? `${h}h` : `${Math.round(h / 24)}d`);
 const dur = (ms) => { const s = Math.max(0, Math.floor(ms / 1000)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60; return h ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}:${String(s % 60).padStart(2, '0')}`; };
 const words = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
@@ -670,85 +685,43 @@ const runsWhere = (r) => {
   return [...prod.map((e) => ({ label: e.label, release: e.release, k: color(e) })), ...sap, ...rest.map((e) => ({ label: e.label, release: e.release, k: color(e) }))]
     .map((e) => `<tr style="--k:var(--${e.k})"><td><i></i>${esc(e.label)}</td><td>${esc(e.release ? rel(e.release) : 'an older build')}</td></tr>`).join('');
 };
+// Focus boards (Aviv, 2026-11-01): the three-panel boards were too busy to read from across the room, so each
+// screen says one thing: a label, one big number, one bar at most, and one sentence. The details stay with me.
+const bar = (parts) => `<div class="fbar">${parts.filter((p) => p.n > 0).map((p) => `<i style="width:${p.w}%;--k:var(--${p.k})"></i>`).join('')}</div>`;
+const focus = ({ kick, k = 'done', big, of, bars, say, note }) => `<div class="focus">
+  <div class="fkick">${esc(kick)}</div>
+  <div class="fbig" style="--k:var(--${k})"><b>${big}</b>${of ? `<span>${of}</span>` : ''}</div>
+  ${bars ? bar(bars) : ''}
+  ${say ? `<p class="fsay">${say}</p>` : ''}
+  ${note ? `<p class="fnote">${esc(note)}</p>` : ''}</div>`;
 function boardRelease(w) {
   const r = w.releases, t = qaTrain(r);
   if (!t) return null;
-  const k = t.tickets, done = Math.round(pc(k.done, k.total));
-  const last = (r.trains || []).filter((x) => x.shipped && !x.hotfix && x.tickets && x.tickets.total > 20).pop();
-  const next = (r.trains || []).find((x) => x.next);
-  return `<div class="kick">Release · ${esc(relDate(t.date))} · ${esc(relWhen(t).text)}</div>
-  <h1><em class="g">${fmt(k.done)}</em> of ${fmt(k.total)} tickets passed QA. ${fmt(k.qa)} are in QA now.</h1>
-  ${stk([{ n: k.done, w: pc(k.done, k.total), k: 'done', l: 'passed QA' }, { n: k.qa, w: pc(k.qa, k.total), k: 'inqa', l: 'in QA' }, { n: k.dev, w: pc(k.dev, k.total), k: 'indev', l: 'in dev' }])}
-  <div class="lg"><span style="--k:var(--done)">passed QA</span><span style="--k:var(--inqa)">in QA now</span><span style="--k:var(--indev)">${fmt(k.dev)} still in dev</span><span class="cmp">${done}% done${last ? ` · ${esc(relDate(last.date))} shipped ${fmt(last.tickets.total)} tickets` : ''}</span></div>
-  <div class="cols">
-    <div class="pn"><h2>Where each place runs today</h2><table>${runsWhere(r)}</table></div>
-    ${last ? `<div class="pn" style="flex:.8"><h2>Size against the last one</h2><div class="num g">${(k.total / last.tickets.total).toFixed(1)}×</div><p>${fmt(k.total)} tickets against ${fmt(last.tickets.total)} on ${esc(relDate(last.date))}.</p></div>` : ''}
-    ${next ? `<div class="pn" style="flex:.7"><h2>Up next</h2><div class="num">${fmt(next.tickets.total)}</div><p>tickets wait for the release after this one.</p></div>` : ''}
-  </div>`;
+  const k = t.tickets;
+  return focus({ kick: `The ${relDate(t.date)} release`, big: fmt(k.done), of: `of ${fmt(k.total)} tickets passed QA`,
+    bars: [{ n: k.done, w: pc(k.done, k.total), k: 'done' }, { n: k.qa, w: pc(k.qa, k.total), k: 'inqa' }, { n: k.dev, w: pc(k.dev, k.total), k: 'indev' }],
+    say: `<em style="--k:var(--inqa)">${fmt(k.qa)}</em> still in QA.` });
 }
 function boardQ4(b) {
   const q = b && b.q4;
   if (!q) return null;
-  const p = q.promised, lateMax = Math.max(q.lateTesting, q.lateDev, 1);
-  return `<div class="kick">Q4 commitments · the planning sheet</div>
-  <h1><em class="g">${fmt(q.done)}</em> of ${fmt(q.total)} Q4 commitments done. <em class="r">${fmt(q.late)}</em> past their end date.</h1>
-  ${stk([{ n: q.done, w: pc(q.done, q.total), k: 'done', l: 'done' }, { n: q.testing, w: pc(q.testing, q.total), k: 'inqa', l: 'in testing' }, { n: q.dev, w: pc(q.dev, q.total), k: 'indev', l: 'in dev' }, { n: q.hold, w: pc(q.hold, q.total), k: 'machine' }])}
-  <div class="lg"><span style="--k:var(--done)">done</span><span style="--k:var(--inqa)">in testing</span><span style="--k:var(--indev)">in development</span>${q.hold ? `<span style="--k:var(--machine)">${fmt(q.hold)} on hold</span>` : ''}${q.was ? `<span class="cmp">On ${esc(q.was.day)} only ${fmt(q.was.done)} were done.</span>` : ''}</div>
-  <div class="cols">
-    <div class="pn"><h2>Past end date, by stage</h2>
-      <div class="hb" style="--k:var(--inqa)"><span>in testing</span><i style="width:${pc(q.lateTesting, lateMax) * .5}%"></i><b>${fmt(q.lateTesting)}</b></div>
-      <div class="hb" style="--k:var(--indev)"><span>in dev</span><i style="width:${pc(q.lateDev, lateMax) * .5}%"></i><b>${fmt(q.lateDev)}</b></div>
-      <p class="mute">${q.lateTesting > q.lateDev ? 'Most late work is built and waits for testing.' : 'Most late work is still in development.'}</p></div>
-    ${p ? `<div class="pn"><h2>Promised to customers</h2><div class="num g">${fmt(p.done)}<small> of ${fmt(p.of)}</small></div><p>done. ${fmt(p.testing)} in testing, ${fmt(p.dev)} still in development.</p></div>` : ''}
-    <div class="pn" style="flex:1.5"><h2>Longest past due</h2><ul class="feed">${(q.oldest || []).map((x) => `<li><small>due ${esc(shortDay(x.due))} · ${esc(x.stage)}</small>${esc(x.title)}</li>`).join('')}</ul></div>
-  </div>${asOf(b.at)}`;
+  return focus({ kick: 'Q4 commitments', big: fmt(q.done), of: `of ${fmt(q.total)} done`,
+    bars: [{ n: q.done, w: pc(q.done, q.total), k: 'done' }, { n: q.testing + q.dev + q.hold, w: pc(q.testing + q.dev + q.hold, q.total), k: 'line2' }],
+    say: `<em style="--k:var(--merged)">${fmt(q.late)}</em> are past their end date.`, note: `read ${shortDay(b.at)}` });
 }
 function boardField(b) {
   const f = b && b.field;
   if (!f) return null;
-  const top = Math.max(...f.days.map((d) => d[1]), 1), speed = Math.max(f.within4h, f.withinDay, f.overDay, 1);
-  const open = f.open || [];
-  return `<div class="kick">Questions from the field · ${esc(f.channel)} · last 7 days</div>
-  <h1><em>${fmt(f.asked)}</em> questions from CSMs, SEs and Support. <em class="g">${fmt(f.answered)}</em> got an answer, half of them within ${esc(f.medianHours)} hours.</h1>
-  <div class="cols">
-    <div class="pn"><h2>Questions per day</h2><div class="days">${f.days.map(([d, n]) => `<div><b>${fmt(n)}</b><i style="height:${pc(n, top) * .8}%"></i><span>${esc(d)}</span></div>`).join('')}</div></div>
-    <div class="pn"><h2>How fast we answer</h2>
-      <div class="hb" style="--k:var(--done)"><span>within 4 hours</span><i style="width:${pc(f.within4h, speed) * .5}%"></i><b>${fmt(f.within4h)}</b></div>
-      <div class="hb" style="--k:var(--indev)"><span>4 to 24 hours</span><i style="width:${pc(f.withinDay, speed) * .5}%"></i><b>${fmt(f.withinDay)}</b></div>
-      <div class="hb" style="--k:var(--merged)"><span>over a day</span><i style="width:${pc(f.overDay, speed) * .5}%"></i><b>${fmt(f.overDay)}</b></div>
-      <p class="mute">Who asked: ${fmt(f.support)} support forms, ${fmt(f.field)} CSMs and SEs.</p></div>
-    <div class="pn ${open.length ? 'alert' : ''}"><h2>Still waiting</h2><div class="num ${open.length ? 'r' : 'g'}">${fmt(open.length)}</div>${open.slice(0, 2).map((o) => `<p>${esc(o.who)}, since ${esc(new Date(o.since).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jerusalem' }))}.</p>`).join('')}</div>
-  </div>${asOf(b.at)}`;
+  const open = (f.open || []).length;
+  return focus({ kick: 'Questions from the field, last 7 days', big: fmt(f.answered), of: `of ${fmt(f.asked)} answered`,
+    say: `Half within <em style="--k:var(--done)">${esc(f.medianHours)} hours</em>.${open ? ` <em style="--k:var(--merged)">${fmt(open)}</em> still ${open === 1 ? 'waits' : 'wait'}.` : ''}`, note: `read ${shortDay(b.at)}` });
 }
-// A card's scene: the card's own headline, then the numbers the box already sends about it.
+// A card's scene: its label, its headline and one line. No lists.
 const PILL = { broke: 'merged', release: 'done', landed: 'done', waits: 'indev', moving: 'inqa' };
 function cardBoard(w, c) {
-  const head = `<div class="pill" style="--k:var(--${c.level === 'yellow' ? 'indev' : c.level === 'red' ? 'merged' : PILL[c.kind] || 'accent'})">${esc(c.source)}</div><h1 class="xl">${esc(c.head)}</h1>${c.line ? `<p class="sub">${esc(c.line)}</p>` : ''}`;
-  const joke = c.joke ? `<div class="joke">${esc(c.joke)}</div>` : '';
-  if (c.kind === 'landed' && w.mrs.merged.length) {
-    const ms = w.mrs.merged.filter((m) => m.product !== false), by = new Map();
-    for (const m of ms) by.set(repoName(m.repo), (by.get(repoName(m.repo)) || 0) + 1);
-    const repos = [...by].sort((a, b) => b[1] - a[1]).slice(0, 5), top = Math.max(...repos.map((x) => x[1]), 1);
-    return `${head}<div class="cols"><div class="pn" style="flex:1.6"><h2>The last ones in</h2><ul class="feed">${ms.slice(0, 5).map((m) => `<li><small>${esc(repoName(m.repo))} · ${esc(m.ref.replace(/^.* /, ''))}${m.by ? ` · ${esc(m.by)}` : ''} · ${esc(ilTime.format(new Date(m.at)))}</small>${esc(m.title)}</li>`).join('')}</ul></div>
-      <div class="pn"><h2>By repo, today</h2>${repos.map(([n, k]) => `<div class="hb" style="--k:var(--done)"><span>${esc(n)}</span><i style="width:${pc(k, top) * .35}%"></i><b>${fmt(k)}</b></div>`).join('')}</div></div>${joke}`;
-  }
-  if (c.kind === 'waits' && w.mrs.waiting.length) {
-    const ws = w.mrs.waiting, band = (a, b) => ws.filter((m) => m.hours >= a && m.hours < b).length;
-    const bands = [['today', band(0, 24), 'done'], ['1 to 3 days', band(24, 72), 'inqa'], ['3 to 7 days', band(72, 168), 'indev'], ['over a week', band(168, 1e9), 'merged']], top = Math.max(...bands.map((x) => x[1]), 1);
-    const ready = ws.filter((m) => m.approved), old = [...ws].sort((a, b) => b.hours - a.hours).slice(0, 4);
-    return `${head}<div class="cols"><div class="pn"><h2>All ${fmt(ws.length)} open, by age</h2>${bands.map(([l, n, k]) => `<div class="hb" style="--k:var(--${k})"><span>${l}</span><i style="width:${pc(n, top) * .45}%"></i><b>${fmt(n)}</b></div>`).join('')}<p class="mute">${fmt(ready.length)} approved and ready to merge. ${fmt(ws.filter((m) => m.conflicts).length)} have conflicts.</p></div>
-      <div class="pn" style="flex:1.5"><h2>Waiting longest</h2><ul class="feed">${old.map((m) => `<li><small>${esc(m.ref)}${m.key ? ` · ${esc(m.key)}` : ''} · open ${esc(agoH(m.hours))}</small>${esc(m.title)}</li>`).join('')}</ul></div></div>${joke}`;
-  }
-  if (c.kind === 'moving' && (w.features || []).length) {
-    const fs = [...w.features].sort((a, b) => (b.moved || 0) - (a.moved || 0)).slice(0, 4);
-    return `${head}<div class="pn"><h2>Features moving most</h2>${fs.map((f) => `<div style="margin-bottom:.8vw"><div style="display:flex;justify-content:space-between;font-size:1.4vw;margin-bottom:.3vw"><span>${esc(f.title)}</span><b>${fmt(f.done)} of ${fmt(f.total)}</b></div>${stk([{ n: f.done, w: pc(f.done, f.total), k: 'done' }, { n: f.building, w: pc(f.building, f.total), k: 'inqa' }, { n: f.waiting, w: pc(f.waiting, f.total), k: 'indev' }, { n: f.blocked, w: pc(f.blocked, f.total), k: 'merged' }], 'thin')}</div>`).join('')}</div>${joke}`;
-  }
-  if (c.kind === 'release' && w.releases && (w.releases.envs || []).length) {
-    const t = qaTrain(w.releases);
-    return `${head}<div class="cols"><div class="pn"><h2>Where each place runs today</h2><table>${runsWhere(w.releases)}</table></div>
-      ${t ? `<div class="pn"><h2>Next in line, ${esc(relDate(t.date))}</h2><div class="num g">${Math.round(pc(t.tickets.done, t.tickets.total))}%</div><p>of ${fmt(t.tickets.total)} tickets passed QA.</p></div>` : ''}</div>${joke}`;
-  }
-  return `${head}${joke}`;
+  const k = c.level === 'yellow' ? 'indev' : c.level === 'red' ? 'merged' : PILL[c.kind] || 'accent';
+  return `<div class="focus"><div class="fkick" style="color:var(--${k})">${esc(c.source)}</div>
+  <div class="fhead">${esc(c.head)}</div>${c.line ? `<p class="fsay">${esc(c.line)}</p>` : ''}${c.joke ? `<p class="fnote">${esc(c.joke)}</p>` : ''}</div>`;
 }
 function boardSlides(w) {
   if (!w) return [];
@@ -860,6 +833,7 @@ function rotate() {
     const board = name.startsWith('board:') && boardSlides(WALL).find((x) => `board:${x.id}` === name);
     if (board) $('sc-board').innerHTML = board.html;
     $('sc-board').classList.toggle('off', !board);
+    document.body.classList.toggle('focus-on', !!board);
     document.querySelector('footer').style.visibility = calm || card || board ? 'hidden' : '';
     // A scene that comes back plays its entrance again.
     if (WALL && name === 'moments') renderMoments(WALL);
