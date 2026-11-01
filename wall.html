@@ -182,6 +182,12 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
 .scene .chap { font-size: 1.3vw; }
 .scene .title { font-weight: 800; font-size: 4.6vw; letter-spacing: -.045em; line-height: .95; }
 .scene .title em { font-style: normal; color: var(--accent); }
+/* Calm slides (Aviv, 2026-11-01): one number and one line each, in place of the board. */
+.scene.calm { align-content: center; gap: 2vw; padding: 0 4vw; }
+.calm .value { font-weight: 800; font-size: 16vw; line-height: .9; letter-spacing: -.05em; color: var(--accent); }
+.calm .head { font-weight: 800; font-size: 5.2vw; letter-spacing: -.045em; line-height: 1; }
+.calm .line { font-size: 2.4vw; color: var(--mute); }
+.scene.calm:not(.off) > * { animation: pop .7s both; }
 .scenes { display: inline-flex; gap: .5vw; margin-right: 1.6vw; vertical-align: .15vw; }
 .scenes i { cursor: pointer; position: relative; display: block; width: 2.2vw; height: .35vw; border-radius: .3vw; background: var(--line); overflow: hidden; }
 .scenes i b { position: absolute; inset: 0; width: 0; background: var(--accent); }
@@ -298,6 +304,7 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
       <div class="dcs" id="dcs"></div>
     </section>
   </main>
+  <section class="scene calm off" id="sc-calm"></section>
   <section class="scene moments off" id="sc-moments">
     <div class="head">
       <div><div class="chap"><b>Today</b><span id="mo-span"></span></div><div class="title">Who kept me<br>busy <em>today</em></div></div>
@@ -589,11 +596,27 @@ function renderVideo(v) {
 // A scene with nothing to show drops out; ?scene=<name> pins one.
 const PIN = new URLSearchParams(location.search).get('scene');
 let WALL = null, shown = null;
+// The board was too busy for a TV (Aviv, 2026-11-01), so the wall plays calm slides: one number and one
+// line each, and a slide with no data is not shown. ?scene=live still pins the board.
+function calmSlides(w) {
+  if (!w) return [];
+  const rows = w.live.rows, people = new Set(rows.map((r) => r.who).filter(Boolean)).size;
+  const merged = w.mrs.merged, product = merged.filter((m) => m.product !== false).length;
+  const qa = w.releases && (w.releases.trains || []).find((t) => (t.on || []).includes('QA') && t.tickets && t.tickets.total);
+  const g = w.growth;
+  return [
+    rows.length && { id: 'now', value: fmt(rows.length), title: `thing${rows.length > 1 ? 's' : ''} I'm working on`, line: people ? `for ${say(people)} ${people === 1 ? 'person' : 'people'}` : '' },
+    merged.length && { id: 'merged', value: fmt(merged.length), title: `MR${merged.length > 1 ? 's' : ''} merged today`, line: product ? `${fmt(product)} in the product` : '' },
+    qa && qa.tickets.done && { id: 'release', value: fmt(qa.tickets.done), title: `of ${fmt(qa.tickets.total)} tickets passed QA`, line: `the ${relDate(qa.date)} release` },
+    g && g.last && g.last.asks && { id: 'asks', value: fmt(g.last.asks), title: 'asks in the last 7 days', line: delta(g.last.asks, g.prev.asks).text },
+  ].filter(Boolean);
+}
+function renderCalm(x) {
+  $('sc-calm').innerHTML = `<div class="value">${esc(x.value)}</div><div class="head">${esc(x.title)}</div>${x.line ? `<div class="line">${esc(x.line)}</div>` : ''}`;
+}
 function plan(w) {
-  const has = { moments: !!(w && (dayMoments(w) || (w.today && w.today.conversations))), video: !!(w && w.video) };
-  const all = [['live', 60], ['moments', 30], ['live', 60], ['video', 45]].filter(([n]) => n === 'live' || has[n]);
-  const out = all.filter(([n], i) => !(n === 'live' && all[i - 1] && all[i - 1][0] === 'live'));
-  return out.length > 1 && out[out.length - 1][0] === 'live' ? out.slice(0, -1) : out;
+  const all = [...calmSlides(w).map((x) => [`calm:${x.id}`, 20]), ...(w && w.video ? [['video', 45]] : [])];
+  return all.length ? all : [['live', 60]];
 }
 // A click moves this screen on: the right half goes to the next scene, the left half back one, and a
 // dot in the header jumps to its scene. The arrow keys do the same. The rotation carries on from there.
@@ -632,6 +655,10 @@ function rotate() {
     shown = name;
     $('main').classList.toggle('off', name !== 'live');
     for (const n of ['moments', 'video']) $(`sc-${n}`).classList.toggle('off', name !== n);
+    const calm = name.startsWith('calm:') && calmSlides(WALL).find((x) => `calm:${x.id}` === name);
+    if (calm) renderCalm(calm);
+    $('sc-calm').classList.toggle('off', !calm);
+    document.querySelector('footer').style.visibility = calm ? 'hidden' : '';
     // A scene that comes back plays its entrance again.
     if (WALL && name === 'moments') renderMoments(WALL);
     const vid = $('vi');
