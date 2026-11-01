@@ -188,6 +188,14 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
 .calm .head { font-weight: 800; font-size: 5.2vw; letter-spacing: -.045em; line-height: 1; }
 .calm .line { font-size: 2.4vw; color: var(--mute); }
 .scene.calm:not(.off) > * { animation: pop .7s both; }
+/* Right now cards (archie-core viewer/lib/wall-cards.js): one fact in big type, a joke under it, one card at a time. */
+.scene.rightnow { grid-template-rows: auto minmax(0, 1fr); gap: 1.2vw; }
+.tv { align-self: center; justify-self: center; max-width: 80vw; padding: 3vw 3.6vw; border-radius: 2.4vw; background: var(--tile); border: 1px solid var(--line); border-left: 1vw solid var(--k, var(--accent)); }
+.scene:not(.off) .tv { animation: pop .7s both; }
+.tv .src { font-size: 1.4vw; color: var(--k, var(--accent)); font-weight: 600; letter-spacing: .02em; }
+.tv .head { margin-top: .8vw; font-weight: 800; font-size: 4.4vw; letter-spacing: -.04em; line-height: 1.02; }
+.tv .line { margin-top: 1.2vw; font-size: 2vw; color: var(--ink); line-height: 1.25; }
+.tv .joke { margin-top: 1.4vw; font-size: 1.8vw; color: var(--mute); font-style: italic; }
 .scenes { display: inline-flex; gap: .5vw; margin-right: 1.6vw; vertical-align: .15vw; }
 .scenes i { cursor: pointer; position: relative; display: block; width: 2.2vw; height: .35vw; border-radius: .3vw; background: var(--line); overflow: hidden; }
 .scenes i b { position: absolute; inset: 0; width: 0; background: var(--accent); }
@@ -305,6 +313,10 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
     </section>
   </main>
   <section class="scene calm off" id="sc-calm"></section>
+  <section class="scene rightnow off" id="sc-cards">
+    <div class="chap"><b>Right now</b><span id="cd-n"></span></div>
+    <div class="tv" id="cd"><div class="src"></div><div class="head" dir="auto"></div><div class="line" dir="auto"></div><div class="joke"></div></div>
+  </section>
   <section class="scene moments off" id="sc-moments">
     <div class="head">
       <div><div class="chap"><b>Today</b><span id="mo-span"></span></div><div class="title">Who kept me<br>busy <em>today</em></div></div>
@@ -614,9 +626,32 @@ function calmSlides(w) {
 function renderCalm(x) {
   $('sc-calm').innerHTML = `<div class="value">${esc(x.value)}</div><div class="head">${esc(x.title)}</div>${x.line ? `<div class="line">${esc(x.line)}</div>` : ''}`;
 }
+// Right now cards: in live hours the box bakes in the cards that matter now, best first, 12 seconds each.
+// One card plays after each calm slide, so the cards take turns; outside live hours there are none.
+const CARD_S = 12;
 function plan(w) {
-  const all = [...calmSlides(w).map((x) => [`calm:${x.id}`, 20]), ...(w && w.video ? [['video', 45]] : [])];
+  const cards = (w && w.cards) || [], calm = calmSlides(w).map((x) => [`calm:${x.id}`, 20]);
+  const all = [];
+  for (let k = 0; k < Math.max(calm.length, cards.length); k += 1) {
+    if (calm.length) all.push(calm[k % calm.length]);
+    if (cards.length) all.push([`card:${k % cards.length}`, CARD_S]);
+  }
+  if (w && w.video) all.push(['video', 45]);
   return all.length ? all : [['live', 60]];
+}
+const CARD_K = { broke: 'review', release: 'verify', landed: 'verify', waits: 'question', moving: 'coding' };
+function renderCard(k) {
+  const c = WALL && WALL.cards && WALL.cards[k];
+  if (!c) return;
+  const el = $('cd');
+  el.style.setProperty('--k', `var(--${c.level === 'yellow' ? 'question' : CARD_K[c.kind] || 'accent'})`);
+  el.querySelector('.src').textContent = `${c.level === 'red' ? '🔴 ' : c.level === 'yellow' ? '🟡 ' : ''}${c.source}`;
+  el.querySelector('.head').textContent = c.head;
+  el.querySelector('.line').textContent = c.line || '';
+  el.querySelector('.joke').textContent = c.joke || '';
+  $('cd-n').textContent = `${k + 1} of ${WALL.cards.length}`;
+  // The card plays its entrance again.
+  el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
 }
 // A click moves this screen on: the right half goes to the next scene, the left half back one, and a
 // dot in the header jumps to its scene. The arrow keys do the same. The rotation carries on from there.
@@ -658,7 +693,10 @@ function rotate() {
     const calm = name.startsWith('calm:') && calmSlides(WALL).find((x) => `calm:${x.id}` === name);
     if (calm) renderCalm(calm);
     $('sc-calm').classList.toggle('off', !calm);
-    document.querySelector('footer').style.visibility = calm ? 'hidden' : '';
+    const card = name.startsWith('card:');
+    if (card) renderCard(Number(name.slice(5)));
+    $('sc-cards').classList.toggle('off', !card);
+    document.querySelector('footer').style.visibility = calm || card ? 'hidden' : '';
     // A scene that comes back plays its entrance again.
     if (WALL && name === 'moments') renderMoments(WALL);
     const vid = $('vi');
@@ -779,7 +817,7 @@ const ARC_NOTES = [
   ['.train.qa .card', ["QA's turn", 'on track']], ['.train.next .card', ['next up', 'coming soon']],
   ['.train.shipped .card', ['shipped ✓', 'done']], ['.train.live .card', ['live ✓', 'shipped ✓']], ['#g-chart', ['up and to the right', 'nice bars']],
   ['.mult .m', ['noted', 'checked ✓']], ['#say', ['well said', 'noted']],
-  ['.who-row', ['thank you!', 'busy day']], ['.dayfact', ['true story', 'checked ✓']], ['#vi', ['I made this', 'watch this']],
+  ['.who-row', ['thank you!', 'busy day']], ['.dayfact', ['true story', 'checked ✓']], ['#vi', ['I made this', 'watch this']], ['#cd .head', ['heads up', 'noted']],
 ];
 const ARC_INK = ['--review', '--accent', '--question', '--verify'];
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
@@ -787,7 +825,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const SVGNS = 'http://www.w3.org/2000/svg';
 let arcAt = null, arcLast = null;
 function arcTargets() {
-  const root = !shown || shown === 'live' ? $('main') : $(`sc-${shown}`);
+  const root = !shown || shown === 'live' ? $('main') : shown.startsWith('card:') ? $('sc-cards') : shown.startsWith('calm:') ? $('sc-calm') : $(`sc-${shown}`);
   const out = [];
   for (const [sel, notes] of ARC_NOTES) for (const el of root.querySelectorAll(sel)) {
     const r = el.getBoundingClientRect();
