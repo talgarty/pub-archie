@@ -3,936 +3,453 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Archie · wall</title>
+<title>ArchieTV · Learning Arc</title>
 <link rel="icon" href="/archie-favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@700&display=swap" rel="stylesheet">
-<script>if (new URLSearchParams(location.search).get('theme') !== 'light') document.documentElement.classList.add('dark');</script>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
 <style>
-/* Pastel: lavender mesh, Bricolage Grotesque. */
-:root { --bg: #f6f3ff; --ink: #1e1b3a; --mute: #6a6690; --line: rgba(30,27,58,.1); --accent: #6d5dfc;
-  --coding: #6d5dfc; --verify: #00a6a6; --review: #f0569b; --question: #ff8a3d; --machine: #9a95c4;
-  --people: #00a6a6; --merged: #f0569b; --hours: #ff8a3d; --done: #00a6a6; --inqa: #6d5dfc; --indev: #ffb27a;
-  --pane: rgba(255,255,255,.6); --tile: rgba(255,255,255,.6); --hi: #fff; --soft: rgba(30,27,58,.07);
-  --font: 'Bricolage Grotesque', sans-serif; --r: 1.6vw; --track: .45vw; }
-/* Dark: the same mesh at night, so a TV in a dim room glows instead of glaring. ?theme=light brings the pastel back. */
-:root.dark { color-scheme: dark; --bg: #0c0a1d; --ink: #efedff; --mute: #9b96c8; --line: rgba(255,255,255,.1); --accent: #8f82ff;
-  --coding: #8f82ff; --verify: #2fd6cc; --review: #ff6fae; --question: #ffa35f; --machine: #7d78a8;
-  --people: #2fd6cc; --merged: #ff6fae; --hours: #ffa35f; --done: #2fd6cc; --inqa: #8f82ff; --indev: #ffc08f;
-  --pane: rgba(255,255,255,.045); --tile: rgba(255,255,255,.06); --hi: #1e1a40; --soft: rgba(255,255,255,.08);
-  --shade: rgba(0,0,0,.45); --stale: #ff7a70; --arc: #c7c1ff; }
-.dark .sky i { opacity: .55; }
-.dark .sky i:nth-child(1) { background: #3b2a9c; }
-.dark .sky i:nth-child(2) { background: #0c5b5e; }
-.dark .sky i:nth-child(3) { background: #6b1d4f; }
-.dark .pane { box-shadow: 0 1.5vw 4vw var(--shade); }
-.dark .train.qa .card { box-shadow: 0 1vw 3vw var(--shade); }
-.dark .releases .stale { color: var(--stale); }
-.dark .arc svg { filter: drop-shadow(0 .5vw .8vw rgba(143,130,255,.35)); }
-.dark .arc [stroke="#2b2f8f"] { stroke: var(--arc); }
-.dark .arc [fill="#2b2f8f"] { fill: var(--arc); }
-
-@keyframes flow { to { background-position: -12vw 0; } }
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes pop { from { opacity: 0; transform: translateY(1vw); } }
-@keyframes grow { from { transform: scaleY(0); } }
-@keyframes scroll { to { transform: translateX(-50%); } }
-@keyframes breathe { 50% { opacity: .35; } }
-@keyframes sky { 50% { transform: translate(-6vw, 3vw) scale(1.2); } }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
-
+/* ArchieTV (Aviv, 2026-11-01): one look for every screen. These tokens are the only colours and type on the TV:
+   a screen never sets its own. Colour names a kind of thing, never good or bad, and there is no red. */
+:root { color-scheme: dark;
+  --tv-bg: #0c0a1d; --tv-ink: #efedff; --tv-mute: #a19dcc; --tv-line: rgba(255,255,255,.11); --tv-tile: rgba(255,255,255,.065);
+  --violet: #8f82ff; --teal: #2fd6cc; --pink: #ff6fae; --orange: #ffa35f; --gold: #ffd36b;
+  --display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif; --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  /* type scale, in cqw of the 16:9 stage: nothing on the TV below --fs-min */
+  --fs-min: 1.85cqw; --fs-label: 1.95cqw; --fs-name: 2.3cqw; --fs-sub: 2.5cqw; --fs-item: 3.2cqw; --fs-head: 6.4cqw; --fs-kpi: 8.4cqw; --fs-hero: 15cqw; --fs-huge: 17cqw;
+  /* frame */
+  --pad-top: 4cqw; --pad-side: 5cqw; --pad-bottom: 4.4cqw; --r-tile: 1.6cqw; }
 * { box-sizing: border-box; margin: 0; }
-html, body { height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; }
-body { font-family: var(--font); font-size: 1.05vw; -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
-.sky { position: fixed; inset: 0; pointer-events: none; }
-.sky i { position: absolute; width: 60vw; height: 60vw; border-radius: 50%; filter: blur(7vw); animation: sky 26s ease-in-out infinite; }
-.sky i:nth-child(1) { background: #d9d1ff; left: -15vw; top: -25vw; }
-.sky i:nth-child(2) { background: #c9f3ee; right: -20vw; top: 10vw; animation-delay: -9s; }
-.sky i:nth-child(3) { background: #ffdcec; left: 25vw; bottom: -40vw; animation-delay: -17s; }
+html, body { height: 100%; background: var(--tv-bg); color: var(--tv-ink); overflow: hidden; }
+body { display: grid; place-items: center; font-family: var(--display); -webkit-font-smoothing: antialiased; }
 
-/* Three chapters read left to right: since the first ask, right now, what ships next. */
-.screen { position: relative; height: 100vh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding: 2vw 2.6vw 0; gap: 1.3vw; }
-header { display: flex; align-items: baseline; justify-content: space-between; font-size: 1.1vw; color: var(--mute); }
-header .me { font-size: 1.7vw; color: var(--ink); letter-spacing: -.01em; }
-header .me { display: inline-flex; align-items: center; gap: 1.1vw; }
-header .me .brand { display: inline-flex; align-items: center; font-size: 2.3vw; font-weight: 700; letter-spacing: -.02em; }
-header .me .brand b { font-weight: inherit; color: var(--accent); }
-header .me .brand i { font-style: normal; font-size: .62em; font-weight: 800; letter-spacing: .06em; margin-left: .45vw; padding: .15vw .55vw; border-radius: .45vw; background: var(--accent); color: var(--bg); }
-header .me .for { color: var(--mute); }
-header .clock { font-size: 1.7vw; color: var(--ink); }
-header .live { display: inline-flex; align-items: center; gap: .5vw; margin-right: 1.4vw; }
-.dot { width: .6vw; height: .6vw; border-radius: 50%; background: var(--accent); animation: breathe 2s infinite; }
-.dot.stale { background: #d33; animation: none; }
+/* ---- Aviv's mock, part 5 ---- */
+.tv { container-type: inline-size; aspect-ratio: 16 / 9; width: min(100vw, calc(100vh * 16 / 9)); background: var(--tv-bg); color: var(--tv-ink); overflow: hidden; position: relative; font-family: var(--display); font-variant-numeric: tabular-nums; }
+.tv::before { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 70% at 8% 0%, rgba(91,75,219,.38), transparent 70%), radial-gradient(50% 60% at 100% 100%, rgba(47,214,204,.14), transparent 70%); pointer-events: none; }
+.scr { position: absolute; inset: 0; padding: var(--pad-top) var(--pad-side) var(--pad-bottom); display: grid; grid-template-rows: auto 1fr; gap: 2.2cqw; }
+.kick { display: flex; justify-content: space-between; align-items: baseline; font-size: var(--fs-min); color: var(--tv-mute); text-transform: uppercase; letter-spacing: .14em; }
+.kick b { color: var(--tv-ink); font-weight: 600; }
+.big { font-size: var(--fs-head); font-weight: 800; line-height: .95; letter-spacing: -.045em; text-wrap: balance; }
+.big em { font-style: normal; color: var(--teal); }
+.sub { font-size: var(--fs-sub); color: var(--tv-mute); margin-top: 1.2cqw; line-height: 1.25; }
+.two { display: grid; grid-template-columns: 1fr 1.3fr; gap: 4cqw; align-items: center; min-height: 0; }
+.bar { height: 1.4cqw; border-radius: 1cqw; background: var(--tv-line); display: flex; overflow: hidden; margin-top: 2.4cqw; }
+.bar i { display: block; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: .8cqw 2.4cqw; font-size: var(--fs-label); color: var(--tv-mute); margin-top: 1.2cqw; }
+.legend span::before { content: ""; display: inline-block; width: 1.2cqw; height: 1.2cqw; border-radius: 50%; background: var(--k); margin-right: .7cqw; }
+.items { display: grid; gap: 2.6cqw; margin: 0; padding: 0; list-style: none; }
+.items li { display: grid; grid-template-columns: 1.5cqw minmax(0, 1fr); gap: 1.8cqw; align-items: start; font-size: var(--fs-item); line-height: 1.15; font-weight: 600; text-wrap: balance; }
+.items li::before { content: ""; width: 1.5cqw; height: 1.5cqw; border-radius: 50%; background: var(--k); margin-top: 1cqw; }
+.items li .who { display: block; color: var(--tv-mute); font-weight: 400; font-size: var(--fs-name); margin-top: .5cqw; }
+.items li.more { color: var(--teal); font-weight: 600; font-size: 2.6cqw; }
+.items li.more::before { content: "+"; background: none; width: auto; height: auto; font-size: 3cqw; line-height: 1; text-align: center; margin-top: 0; }
+.trains { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2cqw; align-content: center; }
+.tr { background: var(--tv-tile); border-radius: var(--r-tile); padding: 2.3cqw 2.4cqw; display: grid; gap: .7cqw; border-top: .6cqw solid var(--k); }
+.tr .env { font-size: 1.9cqw; color: var(--tv-mute); text-transform: uppercase; letter-spacing: .12em; }
+.tr .ver { font-size: 4.4cqw; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
+.tr .when { font-size: 1.9cqw; color: var(--tv-mute); }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.6cqw; align-content: center; }
+.kp { display: grid; gap: .6cqw; align-content: start; }
+.kp .n { font-size: var(--fs-kpi); font-weight: 800; letter-spacing: -.05em; line-height: .9; color: var(--k); }
+.kp .l { font-size: var(--fs-name); color: var(--tv-ink); line-height: 1.15; font-weight: 600; }
+.kp .s { font-size: var(--fs-min); color: var(--tv-mute); line-height: 1.2; }
+/* ---- Aviv's mock, part 6 ---- */
+.fans { display: grid; grid-template-columns: 1.35fr 1fr; gap: 4cqw; align-items: end; min-height: 0; }
+.pod { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6cqw; align-items: end; height: 100%; }
+.st { display: grid; justify-items: center; gap: .8cqw; text-align: center; }
+.st .md { font-size: 4cqw; line-height: 1; }
+.st .nm { font-size: 3cqw; font-weight: 800; }
+.st .blk { width: 100%; border-radius: 1.4cqw 1.4cqw 0 0; background: linear-gradient(180deg, var(--k), color-mix(in srgb, var(--k) 18%, transparent)); display: grid; place-items: start center; padding-top: 1.2cqw; font-size: 3.6cqw; font-weight: 800; color: var(--tv-bg); }
+.side { display: grid; gap: 1.5cqw; align-content: end; }
+.side .row { display: flex; justify-content: space-between; gap: 2cqw; font-size: 2.6cqw; border-bottom: 1px solid var(--tv-line); padding-bottom: 1cqw; }
+.side .row b { font-weight: 800; }
+.side .row span { color: var(--tv-mute); }
+.side .tot { font-size: 2.1cqw; color: var(--teal); }
+.growth { display: grid; grid-template-columns: .9fr 1.5fr; gap: 3.6cqw; align-items: center; min-height: 0; }
+.growth svg { width: 100%; height: auto; display: block; overflow: visible; }
+.ship { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2cqw 3.4cqw; align-content: center; }
+.grp { display: grid; gap: .6cqw; border-left: .5cqw solid var(--k); padding-left: 1.8cqw; }
+.grp .f { font-size: 2.9cqw; font-weight: 800; line-height: 1.1; }
+.grp .x { font-size: 2cqw; color: var(--tv-mute); }
+.party .scr { text-align: center; align-content: center; grid-template-rows: auto auto auto; gap: 2.4cqw; }
+.party .kick { justify-content: center; }
+.party::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(#ff6fae 0 0) 8% 14% / 1.4cqw .6cqw no-repeat, linear-gradient(#2fd6cc 0 0) 18% 80% / .7cqw 1.5cqw no-repeat, linear-gradient(#ffa35f 0 0) 30% 9% / 1.2cqw .6cqw no-repeat, linear-gradient(#8f82ff 0 0) 72% 12% / .6cqw 1.4cqw no-repeat, linear-gradient(#ff6fae 0 0) 88% 26% / 1.3cqw .6cqw no-repeat, linear-gradient(#2fd6cc 0 0) 93% 70% / 1.2cqw .6cqw no-repeat, linear-gradient(#ffd36b 0 0) 80% 88% / .6cqw 1.3cqw no-repeat, linear-gradient(#8f82ff 0 0) 6% 52% / .6cqw 1.3cqw no-repeat, linear-gradient(#ffd36b 0 0) 44% 91% / 1.3cqw .6cqw no-repeat, linear-gradient(#ff6fae 0 0) 62% 86% / .6cqw 1.2cqw no-repeat, linear-gradient(#2fd6cc 0 0) 52% 6% / .6cqw 1.2cqw no-repeat, linear-gradient(#ffd36b 0 0) 14% 30% / .6cqw 1.2cqw no-repeat; }
+.party .huge { font-size: var(--fs-huge); font-weight: 800; line-height: .82; letter-spacing: -.06em; color: var(--gold); }
+.party .title { font-size: 3.4cqw; line-height: 1.2; max-width: 74cqw; margin: 0 auto; color: var(--tv-mute); text-wrap: balance; }
+.party .title b { color: var(--tv-ink); }
+@keyframes rise { from { opacity: 0; transform: translateY(1.2cqw); } }
+.tv > .scr { animation: rise .7s both; }
+@media (prefers-reduced-motion: reduce) { .tv > .scr { animation: none; } }
 
-main { display: grid; grid-template-columns: 28vw minmax(0, 1fr) 27vw; gap: 2.4vw; min-height: 0; }
-.chap { font-size: .95vw; color: var(--mute); text-transform: uppercase; letter-spacing: .16em; display: flex; align-items: baseline; gap: 1vw; }
-.chap b { font-weight: 600; color: var(--ink); }
-.pane { background: var(--pane); border: 1px solid var(--line); backdrop-filter: blur(1vw); border-radius: 2vw; box-shadow: 0 1.5vw 4vw rgba(70,50,160,.1); padding: 1.5vw 1.7vw; min-height: 0; min-width: 0; }
-
-.now { display: grid; grid-template-rows: auto auto auto auto minmax(0, 1fr); justify-items: center; gap: .8vw; min-height: 0; min-width: 0; text-align: center; }
-.presence { position: relative; width: 8vw; height: 8vw; }
-.presence svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.presence .orbit { transform-origin: 50% 50%; animation: spin linear infinite; }
-.presence .n { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; font-size: 3vw; letter-spacing: -.05em; }
-.say { width: 100%; min-width: 0; }
-.say h1 { font-weight: 600; font-size: 2.3vw; line-height: 1.02; letter-spacing: -.03em; white-space: nowrap; }
-.say h1 em { font-style: normal; color: var(--accent); }
-.say .sub { margin-top: .6vw; font-size: 1.15vw; color: var(--mute); }
-
-.today { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1vw; width: 100%; }
-.big { background: var(--tile); border: 1px solid var(--line); border-radius: 1.3vw; padding: .7vw 1vw; text-align: left; min-width: 0; overflow: hidden; }
-.big .n { font-weight: 800; font-size: 2.4vw; line-height: .95; letter-spacing: -.04em; }
-.big:first-child .n { color: var(--accent); }
-.big .l { font-size: 1vw; margin-top: .35vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.big .s { font-size: .82vw; color: var(--mute); margin-top: .2vw; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.threads { display: flex; flex-direction: column; gap: .75vw; min-height: 0; width: 100%; overflow: hidden; padding-top: .4vw; text-align: left; }
-/* One line per job: who, ticket, a few title words, time against the usual; the bar under it fills toward the usual time. */
-.th { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'who t' 'line line'; align-items: baseline; column-gap: 1.2vw; row-gap: .35vw; animation: pop .6s both; }
-.th .who { grid-area: who; font-size: 1.05vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.th .who b { font-weight: 600; margin-right: .6vw; }
-.th .who .k { color: var(--k); font-weight: 600; margin-right: .6vw; }
-.th .who span { color: var(--mute); }
-.th .line { grid-area: line; }
-.th .line { position: relative; height: calc(var(--track) * .7); border-radius: var(--r); background: var(--line); }
-.th.over .line i { background: var(--k); opacity: .55; animation: none; }
-.th .line i { position: absolute; left: 0; top: 0; bottom: 0; min-width: 1vw; border-radius: var(--r);
-  background: linear-gradient(90deg, var(--k) 0 40%, color-mix(in srgb, var(--k) 25%, transparent) 50%, var(--k) 60% 100%) 0 0 / 12vw 100%; animation: flow 1.6s linear infinite; transition: width 1s; }
-.th .line b { position: absolute; top: 50%; transform: translate(-50%, -50%); width: calc(var(--track) * 2.2); height: calc(var(--track) * 2.2); border-radius: 50%; background: var(--k); box-shadow: 0 0 0 .35vw color-mix(in srgb, var(--k) 22%, transparent); }
-.th .t { grid-area: t; font-size: 1.05vw; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.th .t em { font-style: normal; color: var(--mute); font-size: .85vw; margin-left: .4vw; }
-.th .t small { color: var(--mute); font-size: .85vw; margin-right: .6vw; }
-.th .t small::before { content: ''; display: inline-block; width: .55vw; height: .55vw; border-radius: 50%; background: var(--k); margin-right: .35vw; vertical-align: .05vw; }
-.threads .more, .threads .empty { color: var(--mute); font-size: 1vw; }
-.threads .empty { padding: 2vw 0; font-size: 1.6vw; text-align: center; }
-
-.growth { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 1vw; }
-.growth .head .n { display: block; font-weight: 800; font-size: 5vw; line-height: .9; letter-spacing: -.045em; color: var(--accent); }
-.growth .head .l { display: block; font-size: 1.2vw; margin: .4vw 0 .5vw; }
-.chip { display: inline-block; font-weight: 600; font-size: 1vw; padding: .25vw .7vw; border-radius: 1vw; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--ink); white-space: nowrap; }
-.chip.down { background: var(--soft); }
-.chart { position: relative; min-height: 0; }
-.chart svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.growth path.bar { transform-box: fill-box; transform-origin: bottom; animation: grow 1s cubic-bezier(.2,.9,.3,1) both; }
-.chart text { font-family: var(--font); fill: var(--mute); }
-.chart text.v { fill: var(--ink); font-weight: 600; }
-.mult { display: grid; grid-template-columns: minmax(0, 1fr); gap: .2vw; border-top: 1px solid var(--line); padding-top: .4vw; }
-.mult .m { display: grid; grid-template-columns: minmax(0, 1fr) 8vw; grid-template-areas: 'l svg' 'n svg' 's s'; column-gap: 1vw; align-items: end; padding: .55vw 0; border-bottom: 1px solid var(--line); }
-.mult .m:last-child { border-bottom: 0; }
-.mult .m .l { grid-area: l; font-size: .9vw; color: var(--mute); }
-.mult .m .row { grid-area: n; display: flex; align-items: baseline; gap: .7vw; white-space: nowrap; }
-.mult .m .n { font-weight: 800; font-size: 2vw; letter-spacing: -.03em; line-height: 1.05; }
-.mult .m .chip { font-size: .8vw; padding: .12vw .5vw; }
-.mult .m .s { grid-area: s; font-size: .8vw; color: var(--mute); margin-top: .2vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.mult .m svg { grid-area: svg; display: block; width: 100%; height: 2.8vw; }
-
-.releases { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; gap: .7vw; }
-.dcs { border-top: 1px solid var(--line); padding-top: .5vw; }
-.dcs .lbl { font-size: .8vw; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--mute); margin-bottom: .4vw; }
-.dcs table { width: 100%; border-collapse: collapse; font-size: .8vw; font-variant-numeric: tabular-nums; }
-.dcs th { text-align: left; font-weight: 500; color: var(--mute); font-size: .7vw; padding: 0; }
-.dcs td { padding: .12vw 0; border-top: 1px solid var(--line); white-space: nowrap; }
-.dcs td:first-child { font-weight: 600; }
-.dcs td i { display: inline-block; width: .6vw; height: .6vw; border-radius: 50%; margin-right: .4vw; background: var(--k); }
-.dcs td small { color: var(--mute); font-size: .78vw; }
-.releases .stale { font-size: .85vw; color: #a1201a; text-transform: none; letter-spacing: 0; }
-.releases .key { display: flex; gap: 1.1vw; font-size: .8vw; color: var(--mute); }
-.releases .key i { display: inline-block; width: .65vw; height: .65vw; border-radius: 50%; margin-right: .35vw; vertical-align: -.05vw; }
-.track { position: relative; display: flex; flex-direction: column; gap: .7vw; min-height: 0; overflow: hidden; }
-.track::before { content: ''; position: absolute; left: .55vw; top: 1vw; bottom: 1vw; width: .22vw; border-radius: .2vw; background: linear-gradient(180deg, var(--done), var(--inqa) 70%, var(--indev)); opacity: .35; }
-.train { position: relative; padding-left: 2.2vw; animation: pop .6s both; }
-.train > b { position: absolute; top: 1vw; left: 0; width: 1.3vw; height: 1.3vw; border-radius: 50%; background: var(--bg); border: .28vw solid var(--done); }
-.train.ahead > b { border-color: var(--inqa); }
-.train.next > b { border-color: var(--indev); border-style: dashed; }
-.train.qa > b { background: var(--inqa); box-shadow: 0 0 0 .5vw color-mix(in srgb, var(--inqa) 22%, transparent); animation: breathe 2.4s infinite; }
-.card { background: var(--tile); border-radius: 1.1vw; padding: .6vw 1vw .7vw; }
-.train.shipped .card { background: transparent; padding-top: .35vw; padding-bottom: .35vw; }
-.train.shipped .bar, .train.shipped .split { display: none; }
-.train.qa .card { background: var(--hi); box-shadow: 0 1vw 3vw rgba(70,50,160,.16); padding: .9vw 1.1vw 1vw; }
-.train.qa .card .when .d { font-size: 2.6vw; }
-.train.next .card { background: transparent; border: .15vw dashed var(--line); }
-.card .what { display: flex; justify-content: space-between; gap: .6vw; font-size: .85vw; color: var(--mute); white-space: nowrap; }
-.card .what .chip { font-size: .78vw; padding: .1vw .5vw; }
-.card .what .chip.past { background: var(--soft); color: var(--mute); font-weight: 400; }
-.card .when { display: flex; align-items: baseline; justify-content: space-between; gap: .8vw; margin-top: .15vw; white-space: nowrap; }
-.card .when .d { font-weight: 800; font-size: 1.8vw; letter-spacing: -.03em; line-height: 1; }
-.card .tk { font-size: .95vw; }
-.card .tk b { font-weight: 800; font-size: 1.45vw; letter-spacing: -.02em; margin-right: .3vw; }
-.card .bar { display: flex; height: .5vw; border-radius: .3vw; overflow: hidden; margin-top: .45vw; background: var(--line); }
-.card .bar i { display: block; transition: width 1s; }
-.card .split { font-size: .8vw; color: var(--mute); margin-top: .3vw; white-space: nowrap; }
-.card .envs { display: flex; gap: .4vw; margin-top: .45vw; white-space: nowrap; }
-.card .envs:empty { display: none; }
-.env { font-size: .82vw; font-weight: 600; padding: .2vw .6vw; border-radius: 1vw; background: var(--ink); color: var(--bg); white-space: nowrap; }
-.env small { font-weight: 400; opacity: .7; margin-left: .35vw; }
-
-footer { overflow: hidden; white-space: nowrap; border-top: 1px solid var(--line); padding: 1vw 0 1.2vw; font-size: 1vw; color: var(--mute); }
-footer .lane { display: inline-block; animation: scroll var(--dur, 90s) linear infinite; }
-footer span { margin-right: 3vw; color: var(--ink); }
-footer span b { color: var(--k); font-weight: 600; margin-right: .5vw; }
-footer em { font-style: normal; margin-left: .6vw; opacity: .7; }
-
-.toast { position: fixed; left: 50%; top: 45%; z-index: 5; transform: translate(-50%, -50%) scale(.6); opacity: 0; padding: 2.4vw 4vw; text-align: center; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 2.6vw; box-shadow: 0 2vw 6vw rgba(70,50,160,.25); transition: all .6s cubic-bezier(.2,1.3,.4,1); }
-.toast.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-.toast .big2 { font-weight: 600; font-size: 6vw; color: var(--accent); }
-.toast .ref { font-size: 1.4vw; }
-.toast .ti { max-width: 50vw; margin-top: .4vw; color: var(--mute); font-size: 1.2vw; }
-.toast .by { margin-top: .8vw; font-size: 1.3vw; font-weight: 600; }
+/* ---- the frame's chrome: the ArchieTV mark and the loop's progress, in the bottom margin every screen shares ---- */
+.scr > * { min-width: 0; overflow-wrap: break-word; }
+.mark { position: absolute; z-index: 2; left: var(--pad-side); right: var(--pad-side); bottom: 1.2cqw; display: flex; justify-content: space-between; align-items: center; font-size: var(--fs-min); color: var(--tv-mute); pointer-events: none; }
+.mark .brand { display: inline-flex; align-items: center; font-weight: 700; letter-spacing: -.02em; color: var(--tv-ink); }
+.mark .brand b { font-weight: inherit; color: var(--violet); }
+.mark .brand i { font-style: normal; font-size: .62em; font-weight: 800; letter-spacing: .06em; margin-left: .45cqw; padding: .15cqw .55cqw; border-radius: .45cqw; background: var(--violet); color: var(--tv-bg); }
+.mark .for { margin-left: 1cqw; }
+.loop { display: inline-flex; gap: .5cqw; pointer-events: auto; }
+.loop i { cursor: pointer; position: relative; display: block; width: 2.2cqw; height: .35cqw; border-radius: .3cqw; background: var(--tv-line); overflow: hidden; }
+.loop i b { position: absolute; inset: 0; width: 0; background: var(--violet); }
+.loop i.on b { width: var(--p, 0%); }
+.loop i.done b { width: 100%; opacity: .45; }
+.tv video.clip { justify-self: center; align-self: center; max-width: 100%; max-height: 100%; min-height: 0; border-radius: 1.6cqw; background: #000; }
 canvas#party { position: fixed; inset: 0; pointer-events: none; z-index: 4; }
-/* Scenes: the live board most of the time, and in between a short scene of something else, on the same clock on every screen. */
-main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s ease; }
-.screen > .off { opacity: 0; transform: scale(.985); pointer-events: none; visibility: hidden; transition: opacity .9s ease, transform .9s ease, visibility 0s .9s; }
-.scene { display: grid; min-height: 0; min-width: 0; }
-.scene .chap { font-size: 1.3vw; }
-.scene .title { font-weight: 800; font-size: 4.6vw; letter-spacing: -.045em; line-height: .95; }
-.scene .title em { font-style: normal; color: var(--accent); }
-/* Boards (Aviv, 2026-11-01): fixed boards that each answer one question managers ask me, and the cards as fuller scenes between them. */
-.scene.board { align-content: start; gap: 1.5vw; padding: .6vw 0 0; }
-.board .kick { letter-spacing: .3em; font-weight: 600; color: var(--mute); font-size: 1.3vw; text-transform: uppercase; }
-.board h1 { font-weight: 800; font-size: 3.4vw; letter-spacing: -.035em; line-height: 1.04; }
-.board h1 em { font-style: normal; color: var(--accent); } .board h1 em.g { color: var(--done); } .board h1 em.r { color: var(--merged); }
-.board h1.xl { font-size: 4.8vw; }
-.board .sub { font-size: 1.7vw; color: var(--mute); margin-top: -.6vw; }
-.board h2 { font-size: 1.4vw; font-weight: 600; color: var(--mute); margin-bottom: 1.1vw; }
-.board .pn { background: var(--pane); border: 1px solid var(--line); border-radius: 1.4vw; padding: 1.6vw 1.8vw; flex: 1; min-width: 0; }
-.board .pn.alert { border-color: var(--merged); }
-.board .cols { display: flex; gap: 1.4vw; min-height: 0; }
-.board .stk { display: flex; height: 6vw; border-radius: 1.1vw; overflow: hidden; background: var(--line); }
-.board .stk.thin { height: 2.4vw; border-radius: .6vw; }
-.board .stk i { background: var(--k); display: flex; align-items: center; gap: .7vw; padding: 0 1.1vw; overflow: hidden; color: #0c0a1d; white-space: nowrap; transition: width 1s; }
-.board .stk b { font-size: 3vw; font-weight: 800; } .board .stk span { font-size: 1.4vw; font-weight: 600; }
-.board .stk.thin b { font-size: 1.8vw; } .board .stk.thin span { font-size: 1.1vw; }
-.board .lg { display: flex; gap: 1.8vw; font-size: 1.4vw; color: var(--mute); }
-.board .lg span::before { content: ''; display: inline-block; width: 1vw; height: 1vw; border-radius: .3vw; background: var(--k); margin-right: .6vw; vertical-align: -.1vw; }
-.board .lg .cmp { margin-left: auto; color: var(--ink); } .board .lg .cmp::before { display: none; }
-.board table { width: 100%; border-collapse: collapse; font-size: 1.6vw; }
-.board td { padding: .45vw 0; border-bottom: 1px solid var(--line); } .board td + td { text-align: right; color: var(--mute); } .board tr:last-child td { border: 0; }
-.board td i { display: inline-block; width: .8vw; height: .8vw; border-radius: 50%; margin-right: .6vw; background: var(--k); }
-.board .num { font-size: 7.4vw; font-weight: 800; color: var(--indev); line-height: 1; letter-spacing: -.04em; }
-.board .num.g { color: var(--done); } .board .num.r { color: var(--merged); } .board .num small { font-size: 2.2vw; color: var(--mute); font-weight: 600; letter-spacing: 0; }
-.board .pn p { font-size: 1.6vw; margin-top: .7vw; } .board .mute { color: var(--mute); }
-.board .hb { display: flex; align-items: center; gap: .8vw; font-size: 1.5vw; margin-bottom: 1.2vw; }
-.board .hb span { width: 11vw; flex: none; } .board .hb i { height: 2vw; border-radius: .4vw; background: var(--k, var(--merged)); min-width: .3vw; } .board .hb b { font-size: 1.7vw; }
-.board .feed { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.1vw; }
-.board .feed li { font-size: 1.5vw; line-height: 1.2; } .board .feed small { display: block; font-size: 1.1vw; color: var(--mute); margin-bottom: .2vw; }
-.board .days { display: flex; gap: .9vw; height: 18vw; align-items: flex-end; }
-.board .days div { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .4vw; height: 100%; justify-content: flex-end; }
-.board .days i { width: 100%; background: var(--inqa); border-radius: .4vw .4vw 0 0; display: block; }
-.board .days b { font-size: 1.5vw; } .board .days span { font-size: 1.2vw; color: var(--mute); }
-.board .pill { align-self: start; justify-self: start; background: var(--k); color: #0c0a1d; font-weight: 800; font-size: 1.4vw; letter-spacing: .12em; padding: .5vw 1.4vw; border-radius: 999px; text-transform: uppercase; }
-.board .joke { font-size: 1.5vw; color: var(--mute); font-style: italic; }
-.board .asof { font-size: 1.1vw; color: var(--mute); }
-.scene.board:not(.off) > * { animation: pop .7s both; }
-/* Calm slides (Aviv, 2026-11-01): one number and one line each, in place of the board. */
-.scene.calm { align-content: center; gap: 2vw; padding: 0 4vw; }
-.calm .value { font-weight: 800; font-size: 16vw; line-height: .9; letter-spacing: -.05em; color: var(--accent); }
-.calm .head { font-weight: 800; font-size: 5.2vw; letter-spacing: -.045em; line-height: 1; }
-.calm .line { font-size: 2.4vw; color: var(--mute); }
-.scene.calm:not(.off) > * { animation: pop .7s both; }
-/* Right now cards (archie-core viewer/lib/wall-cards.js): one fact in big type, a joke under it, one card at a time. */
-.scene.rightnow { grid-template-rows: auto minmax(0, 1fr); gap: 1.2vw; }
-.tv { align-self: center; justify-self: center; max-width: 80vw; padding: 3vw 3.6vw; border-radius: 2.4vw; background: var(--tile); border: 1px solid var(--line); border-left: 1vw solid var(--k, var(--accent)); }
-.scene:not(.off) .tv { animation: pop .7s both; }
-.tv .src { font-size: 1.4vw; color: var(--k, var(--accent)); font-weight: 600; letter-spacing: .02em; }
-.tv .head { margin-top: .8vw; font-weight: 800; font-size: 4.4vw; letter-spacing: -.04em; line-height: 1.02; }
-.tv .line { margin-top: 1.2vw; font-size: 2vw; color: var(--ink); line-height: 1.25; }
-.tv .joke { margin-top: 1.4vw; font-size: 1.8vw; color: var(--mute); font-style: italic; }
-.scenes { display: inline-flex; gap: .5vw; margin-right: 1.6vw; vertical-align: .15vw; }
-.scenes i { cursor: pointer; position: relative; display: block; width: 2.2vw; height: .35vw; border-radius: .3vw; background: var(--line); overflow: hidden; }
-.scenes i b { position: absolute; inset: 0; width: 0; background: var(--accent); }
-.scenes i.on b { width: var(--p, 0%); }
-.scenes i.done b { width: 100%; opacity: .45; }
-
-.moments { grid-template-rows: auto minmax(0, 1fr); gap: 2vw; }
-.moments .head { display: flex; align-items: flex-end; justify-content: space-between; gap: 2vw; }
-.moments .title { font-weight: 800; font-size: 4.6vw; letter-spacing: -.04em; line-height: .95; }
-.moments .title em { font-style: normal; color: var(--accent); }
-.moments .tot { text-align: right; color: var(--mute); font-size: 1.3vw; line-height: 1.3; }
-.moments .tot b { display: block; color: var(--ink); font-weight: 800; font-size: 4.6vw; letter-spacing: -.04em; line-height: 1; }
-.moments .body { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 2vw; min-height: 0; }
-.moments .card2 { background: var(--tile); border: 1px solid var(--line); border-radius: 1.8vw; padding: 1.6vw 1.8vw; min-height: 0; min-width: 0; display: flex; flex-direction: column; gap: 1.2vw; }
-.moments .lbl { font-size: 1vw; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--mute); }
-.who-list { display: flex; flex-direction: column; justify-content: center; gap: 1.6vw; flex: 1; min-height: 0; }
-.who-row { display: grid; grid-template-columns: 3vw minmax(0, 1fr) auto; grid-template-areas: 'r n c' 'r b b'; column-gap: 1vw; row-gap: .6vw; align-items: baseline; }
-.scene:not(.off) .who-row { animation: pop .7s both; }
-.who-row .r { grid-area: r; font-weight: 800; font-size: 2.4vw; color: var(--k); align-self: center; }
-.who-row .n { grid-area: n; font-weight: 800; font-size: 2.6vw; letter-spacing: -.03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.who-row .c { grid-area: c; font-size: 1.3vw; color: var(--mute); white-space: nowrap; }
-.who-row .c b { color: var(--ink); font-size: 2.2vw; font-weight: 800; margin-right: .4vw; }
-.who-row .bar { grid-area: b; height: 1vw; border-radius: .6vw; background: var(--line); overflow: hidden; }
-.who-row .bar i { display: block; height: 100%; border-radius: .6vw; background: var(--k); transform-origin: left; }
-.scene:not(.off) .who-row .bar i { animation: widen 1.1s cubic-bezier(.2,.9,.3,1) both; }
-.who-list .rest { color: var(--mute); font-size: 1.3vw; padding-left: 4vw; }
-.who-list .none { color: var(--mute); font-size: 1.6vw; line-height: 1.35; }
-.hours { flex: 1; min-height: 0; }
-.hours svg { width: 100%; height: 100%; display: block; overflow: visible; }
-.hours text { fill: var(--mute); font-family: inherit; }
-.hours .peak { fill: var(--ink); font-weight: 600; }
-.scene:not(.off) .hours .bar { animation: grow 1s cubic-bezier(.2,.9,.3,1) both; transform-box: fill-box; transform-origin: bottom; }
-.kinds { display: flex; flex-wrap: wrap; gap: .6vw 1.6vw; font-size: 1.15vw; color: var(--mute); }
-.kinds i { display: inline-block; width: .8vw; height: .8vw; border-radius: .25vw; margin-right: .45vw; vertical-align: -.05vw; background: var(--k); }
-.kinds b { color: var(--ink); margin-right: .3vw; }
-.dayfacts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2vw; }
-.dayfact { border-top: 1px solid var(--line); padding-top: .8vw; min-width: 0; }
-.scene:not(.off) .dayfact { animation: pop .7s both; }
-.dayfact .n { font-weight: 800; font-size: 2.4vw; letter-spacing: -.03em; color: var(--k, var(--ink)); white-space: nowrap; }
-.dayfact .l { font-size: 1.05vw; color: var(--mute); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-@keyframes widen { from { transform: scaleX(0); } }
-/* Right now with nothing running: a calm ring, and today's hours in the room the threads leave. */
-.presence.idle .n { font-size: 2.4vw; color: var(--verify); }
-.presence.idle svg circle { animation: breathe 4s ease-in-out infinite; transform-origin: 50% 50%; }
-.idle-day { display: flex; flex-direction: column; gap: .9vw; width: 100%; min-height: 0; flex: 1; padding: 1.2vw 1.4vw; background: var(--tile); border: 1px solid var(--line); border-radius: 1.4vw; }
-.idle-day .lbl { font-size: .85vw; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--mute); text-align: left; }
-.idle-day .hours { min-height: 8vw; }
-.idle-day .kinds { font-size: .95vw; }
-.idle-day .quiet { color: var(--mute); font-size: 1.3vw; padding: 2vw 0; text-align: center; }
-.showing { grid-template-rows: auto minmax(0, 1fr); gap: 1.2vw; justify-items: center; }
-.showing video { max-width: 100%; max-height: 100%; min-height: 0; border-radius: 1.6vw; box-shadow: 0 2vw 6vw rgba(0,0,0,.5); background: #000; }
-.gate { position: fixed; inset: 0; display: none; place-items: center; z-index: 9; background: var(--bg); text-align: center; font-size: 1.6vw; color: var(--mute); }
-.gate b { display: block; color: var(--ink); font-size: 2.6vw; margin-bottom: 1vw; }
-/* Arc: the compass from my profile picture walks the wall, hops onto something on the showing scene,
-   circles it and writes a short note. Off unless the address carries ?arc=1. It draws on its own layer and never touches the page's numbers. */
-.arc { position: fixed; left: 0; top: 0; z-index: 3; width: 5vw; pointer-events: none; transform-origin: 50% 100%; will-change: transform; }
-.arc .bob { transform-origin: 50% 100%; animation: bob 2.6s ease-in-out infinite; }
-.arc svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 .5vw .6vw rgba(70,50,160,.18)); }
-.arc .blink { transform-box: fill-box; transform-origin: center; animation: blink 4.6s infinite; }
-.arc-ink { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; overflow: visible; }
-.arc-ink path { fill: none; stroke-width: .28vw; stroke-linecap: round; stroke-linejoin: round; }
-.arc-ink text { font-family: 'Caveat', cursive; font-weight: 700; paint-order: stroke; stroke: var(--bg); stroke-width: .45vw; stroke-linejoin: round; }
-@keyframes bob { 50% { transform: translateY(-.35vw); } }
-@keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+.gate { position: fixed; inset: 0; display: none; place-items: center; z-index: 9; background: var(--tv-bg); text-align: center; font-size: 2.5vw; color: var(--tv-mute); }
+.gate b { display: block; color: var(--tv-ink); font-size: 3vw; margin-bottom: 1vw; }
 </style>
 </head>
 <body>
-<div class="sky"><i></i><i></i><i></i></div>
-<svg class="arc-ink" id="arc-ink" aria-hidden="true"></svg>
-<div class="arc" id="arc" aria-hidden="true"><div class="bob"><svg viewBox="-24 -192 188 200">
-  <path d="M64 -116 L12 -30" stroke="#2b2f8f" stroke-width="16" stroke-linecap="round"/>
-  <path d="M12 -30 L0 0" stroke="#6d5dfc" stroke-width="6" stroke-linecap="round"/>
-  <g><path d="M76 -116 L124 -38" stroke="#2b2f8f" stroke-width="16" stroke-linecap="round"/>
-    <path d="M116 -42 L132 -32 L140 0 Z" fill="#ffb547" stroke="#ffb547" stroke-width="4" stroke-linejoin="round"/>
-    <animateTransform id="arc-draw" attributeName="transform" type="rotate" values="0 70 -128; 9 70 -128; -4 70 -128; 0 70 -128" dur=".45s" repeatCount="3" begin="indefinite"/></g>
-  <rect x="62" y="-180" width="16" height="32" rx="8" fill="#2b2f8f"/>
-  <g transform="translate(70 -128)"><circle r="36" fill="#fff" stroke="#2b2f8f" stroke-width="6"/>
-    <g id="arc-look"><g class="blink"><ellipse cx="-13" cy="-3" rx="7" ry="10" fill="#151845"/><ellipse cx="13" cy="-3" rx="7" ry="10" fill="#151845"/>
-      <circle cx="-10.5" cy="-7" r="2.6" fill="#fff"/><circle cx="15.5" cy="-7" r="2.6" fill="#fff"/></g></g>
-    <circle cx="-23" cy="12" r="5" fill="#ff6b8a" opacity=".35"/><circle cx="23" cy="12" r="5" fill="#ff6b8a" opacity=".35"/></g>
-</svg></div></div>
 <canvas id="party"></canvas>
-<div class="screen">
-  <header>
-    <div class="me"><span class="brand"><b>Archie</b><i>TV</i></span><span class="for">for Learning Arc</span></div>
-    <div><span class="scenes" id="scenes"></span><span class="live"><i class="dot" id="dot"></i><span id="fresh">connecting</span></span><span class="clock" id="clock">--:--</span></div>
-  </header>
-  <main id="main">
-    <section class="pane growth" id="growth">
-      <div class="chap"><b>Growing</b><span id="g-since"></span></div>
-      <div class="head"><span class="n" id="g-asks" data-v="0">0</span><span class="l">asks in the last 7 days</span><span class="chip" id="g-asks-d"></span></div>
-      <div class="chart" id="g-chart"></div>
-      <div class="mult">
-        <div class="m" id="g-people"><div class="l">people asking</div><div class="row"><span class="n"></span><span class="chip"></span></div><svg></svg><div class="s"></div></div>
-        <div class="m" id="g-merged"><div class="l">MRs merged</div><div class="row"><span class="n"></span><span class="chip"></span></div><svg></svg><div class="s"></div></div>
-        <div class="m" id="g-hours"><div class="l">hours of work</div><div class="row"><span class="n"></span><span class="chip"></span></div><svg></svg><div class="s"></div></div>
-      </div>
-    </section>
-    <div class="now">
-      <div class="chap"><b>Right now</b></div>
-      <div class="presence"><svg id="rings" viewBox="0 0 200 200"></svg><div class="n" id="live-n">0</div></div>
-      <div class="say"><h1 id="say">Warming up.</h1><div class="sub" id="say-sub"></div></div>
-      <section class="today">
-        <div class="big" id="b-runs"><div class="n" data-v="0">0</div><div class="l">conversations</div><div class="s" id="b-runs-s"></div></div>
-        <div class="big" id="b-merged"><div class="n" data-v="0">0</div><div class="l">MRs merged</div><div class="s" id="b-merged-s"></div></div>
-        <div class="big" id="b-waiting"><div class="n" data-v="0">0</div><div class="l">MRs waiting</div><div class="s" id="b-waiting-s"></div></div>
-      </section>
-      <section class="threads" id="threads"></section>
-    </div>
-    <section class="pane releases" id="releases">
-      <div class="chap"><b>Releases</b><span class="stale" id="rel-stale"></span></div>
-      <div class="key"><span><i style="background:var(--done)"></i>passed or shipped</span><span><i style="background:var(--inqa)"></i>in QA</span><span><i style="background:var(--indev)"></i>in dev</span></div>
-      <div class="track" id="track"></div>
-      <div class="dcs" id="dcs"></div>
-    </section>
-  </main>
-  <section class="scene calm off" id="sc-calm"></section>
-  <section class="scene rightnow off" id="sc-cards">
-    <div class="chap"><b>Right now</b><span id="cd-n"></span></div>
-    <div class="tv" id="cd"><div class="src"></div><div class="head" dir="auto"></div><div class="line" dir="auto"></div><div class="joke"></div></div>
-  </section>
-  <section class="scene board off" id="sc-board"></section>
-  <section class="scene moments off" id="sc-moments">
-    <div class="head">
-      <div><div class="chap"><b>Today</b><span id="mo-span"></span></div><div class="title">Who kept me<br>busy <em>today</em></div></div>
-      <div class="tot"><b id="mo-asks">0</b><span id="mo-asks-l">asks so far</span></div>
-    </div>
-    <div class="body">
-      <div class="card2"><div class="lbl">Asked me most</div><div class="who-list" id="mo-who"></div></div>
-      <div class="card2"><div class="lbl">My day, hour by hour</div><div class="hours" id="mo-hours"></div><div class="kinds" id="mo-kinds"></div><div class="dayfacts" id="mo-facts"></div></div>
-    </div>
-  </section>
-  <section class="scene showing off" id="sc-video">
-    <div class="chap"><b>Now showing</b><span id="vi-title"></span></div>
-    <video id="vi" muted loop playsinline preload="auto"></video>
-  </section>
-  <footer><div class="lane" id="lane"></div></footer>
+<div class="tv" id="tv"><div class="scr" id="scr"></div>
+  <div class="mark"><span><span class="brand"><b>Archie</b><i>TV</i></span><span class="for">for Learning Arc</span></span><span class="loop" id="loop"></span></div>
 </div>
-<div class="toast" id="toast"><div class="big2">Merged</div><div class="ref"></div><div class="ti"></div><div class="by"></div></div>
 <div class="gate" id="gate"><div><b>Sign in once on this screen</b>Open archie.walkmernd.com, sign in, then come back to /wall.</div></div>
 <script>
 'use strict';
-const KINDS = { coding: 'coding', verify: 'testing', review: 'reviewing', question: 'answering', machine: 'on my own' };
 const $ = (id) => document.getElementById(id);
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-const ilTime = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-const ilSec = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
-const ago = (h) => (h == null ? '?' : h < 1 ? 'now' : h < 48 ? `${h}h` : `${Math.round(h / 24)}d`);
-const dur = (ms) => { const s = Math.max(0, Math.floor(ms / 1000)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60; return h ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}:${String(s % 60).padStart(2, '0')}`; };
-const words = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
-const say = (n) => words[n] || String(n);
-// A thread is full at 90 minutes; longer runs pin to the end.
-const SPAN = 90 * 60000;
-let lastOk = 0, seenMerged = null;
-
-function count(tile, v) {
-  const n = tile.querySelector('.n');
-  const from = Number(n.dataset.v) || 0;
-  n.dataset.v = v;
-  if (from === v) return;
-  const t0 = performance.now(), span = from ? 900 : 1600;
-  const step = (t) => { const k = Math.min(1, (t - t0) / span), e = 1 - Math.pow(1 - k, 3); n.textContent = Math.round(from + (v - from) * e).toLocaleString('en-US'); if (k < 1) requestAnimationFrame(step); };
-  requestAnimationFrame(step);
-}
-// The presence: one ring per live run, in the colour of its kind, each turning at its own speed.
-function renderRings(rows) {
-  const svg = $('rings');
-  const shown = rows.slice(-6);
-  svg.innerHTML = `<circle cx="100" cy="100" r="96" fill="none" stroke="var(--line)" stroke-width="1"/>` + shown.map((r, i) => {
-    const rad = 92 - i * 8, c = 2 * Math.PI * rad, arc = c * (0.18 + ((i * 37) % 40) / 100);
-    return `<g class="orbit" style="animation-duration:${6 + i * 2.3}s;animation-direction:${i % 2 ? 'reverse' : 'normal'}"><circle cx="100" cy="100" r="${rad}" fill="none" stroke="var(--${r.kind})" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="${arc} ${c}"/></g>`;
-  }).join('');
-  $('live-n').textContent = rows.length ? rows.length : '✓';
-  svg.parentElement.classList.toggle('idle', !rows.length);
-}
-function renderHero(w) {
-  const rows = w.live.rows, people = new Set(rows.map((r) => r.who).filter(Boolean)).size;
-  const things = `Working on <em>${say(rows.length)}</em> thing${rows.length > 1 ? 's' : ''}`;
-  $('say').innerHTML = !rows.length ? (w.today && w.today.conversations ? 'All caught up.' : 'Quiet day so far.')
-    : people ? `${things} for <em>${say(people)}</em> ${people === 1 ? 'person' : 'people'}.` : `${things} on my own.`;
-  // The sentence takes its look's size, and shrinks only when a long count would overflow.
-  const h1 = $('say'); h1.style.fontSize = '';
-  for (let f = parseFloat(getComputedStyle(h1).fontSize); h1.scrollWidth > h1.parentElement.clientWidth && f > 20; f -= 4) h1.style.fontSize = `${f}px`;
-  const busiest = Object.entries(rows.reduce((a, r) => ({ ...a, [r.kind]: (a[r.kind] || 0) + 1 }), {})).sort((a, b) => b[1] - a[1])[0];
-  $('say-sub').textContent = !rows.length && !w.live.waiting ? 'nothing running, nobody in line · ask me in Slack'
-    : [busiest && `mostly ${KINDS[busiest[0]]}`, w.live.waiting ? `${w.live.waiting} more waiting for a seat` : 'nobody in line'].filter(Boolean).join(' · ');
-}
-// With nothing running, the room the threads leave shows how today went, hour by hour.
-function idleDay(t) {
-  const asks = t && (t.conversations ?? t.runs);
-  if (!asks) return '<div class="idle-day"><div class="lbl">Today</div><div class="quiet">No asks yet today. The first one starts a thread here.</div></div>';
-  return `<div class="idle-day"><div class="lbl">Today so far · ${fmt(asks)} ask${asks === 1 ? '' : 's'}</div><div class="hours" data-idle="1"></div><div class="kinds">${kindsLine(t.kinds)}</div></div>`;
-}
-// A few words of what a job is: its ticket's title, else what Archie said it does, else what it is about.
-const gist = (r, n = 4) => {
-  const t = r.title || r.doing || (r.key ? '' : r.what) || '';
-  const w = t.replace(/^\[[^\]]*\]\s*/, '').split(/\s+/).filter(Boolean);
-  return w.length > n ? `${w.slice(0, n).join(' ')}…` : w.join(' ');
-};
-function renderThreads(live, today) {
-  const rows = [...live.rows].sort((a, b) => Date.parse(a.since) - Date.parse(b.since)).slice(0, 12);
-  const was = new Set([...document.querySelectorAll('.th')].map((e) => e.dataset.id));
-  $('threads').innerHTML = rows.map((r) => `<div class="th" data-id="${esc(r.id)}" data-since="${esc(r.since)}" data-usual="${r.typical || ''}" style="--k: var(--${r.kind});${was.has(r.id) ? 'animation:none' : ''}">
-    <div class="who"><b>${esc(r.who || 'Archie')}</b>${r.key ? `<span class="k">${esc(r.key)}</span>` : ''}<span>${esc(gist(r))}</span></div>
-    <div class="t"><span>0:00</span>${r.typical ? `<em>usually ${r.typical >= 60 ? `${Math.floor(r.typical / 60)}h ${String(r.typical % 60).padStart(2, '0')}m` : `${r.typical}m`}</em>` : ''}</div>
-    <div class="line"><i></i><b></b></div></div>`).join('')
-    + (live.rows.length > rows.length ? '<div class="more"></div>' : '')
-    || idleDay(today);
-  // The longest-running threads stay; the newest drop until the rest fit above the ticker.
-  const box = $('threads'), more = box.querySelector('.more');
-  let hidden = live.rows.length - rows.length;
-  if (more) more.textContent = '';
-  const ths = [...box.querySelectorAll('.th')];
-  while (ths.length > 1 && box.scrollHeight > box.clientHeight) { ths.pop().remove(); hidden += 1; }
-  const moreText = (n) => { const names = [...new Set(live.rows.slice(live.rows.length - n).map((r) => r.who).filter(Boolean))]; return `and ${n} more${names.length ? ` for ${names.slice(0, 4).join(', ')}${names.length > 4 ? ` and ${names.length - 4} others` : ''}` : ''}`; };
-  if (hidden) { const m = more || box.appendChild(Object.assign(document.createElement('div'), { className: 'more' })); m.textContent = moreText(hidden); while (ths.length > 1 && box.scrollHeight > box.clientHeight) { ths.pop().remove(); m.textContent = moreText(++hidden); } }
-  const idle = box.querySelector('.hours[data-idle]');
-  if (idle && today && today.byHour) idle.innerHTML = hourBars(today.byHour, { w: Math.round(idle.clientWidth) || 600, h: Math.round(idle.clientHeight) || 160 });
-  tick();
-}
-function renderTicker(feed, merged) {
-  const lane = $('lane');
-  const done = feed.filter((f) => f.doing).map((f) => ({ at: f.at, k: f.kind, mark: f.verdict === 'PASS' ? '✔' : f.verdict === 'FAIL' ? '✖' : '●', who: f.machine ? (f.who ? `for ${f.who}` : 'on my own') : f.who, text: f.doing }));
-  const merges = merged.map((m) => ({ at: m.at, k: 'merged', mark: 'Merged', who: m.by ? `${m.by} merged` : '', text: `${m.title} · ${repoName(m.repo)}` }));
-  const all = [...done, ...merges].sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 30);
-  const key = all.map((f) => f.at + f.text).join();
-  if (lane.dataset.key === key) return;
-  lane.dataset.key = key;
-  const items = all.map((f) => `<span style="--k: var(--${f.k})"><b>${esc(f.mark)}</b>${f.who ? `${esc(f.who)} · ` : ''}${esc(f.text)}<em>${ilTime.format(new Date(f.at))}</em></span>`).join('');
-  lane.innerHTML = items + items;
-  lane.style.setProperty('--dur', `${Math.max(60, all.length * 9)}s`);
-}
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const TZ = 'Asia/Jerusalem';
+const ilTime = new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+const ilDay = (t) => new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(t));
 const fmt = (n) => Number(n || 0).toLocaleString('en-US');
-const REPOS = { 'learning-management-client': 'Management', 'learning-portal-client': 'Portal', 'learning-service': 'Learning service', 'wm-learning-player': 'Player', 'learning-player-client': 'Player', 'archie-core': 'Archie', 'archie-setup': 'Archie' };
-const repoName = (r) => REPOS[r] || String(r || '').replace(/^(?:wm-)?learning-/, '').replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());
-const dayMonth = (d) => { const t = new Date(`${d}T12:00:00Z`); return `${t.getUTCDate()} ${t.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`; };
-// The change on the 7 days before, as a percent, or as a count for small numbers like people.
-function delta(now, was, { count = false } = {}) {
-  if (!was) return { text: now ? 'new this week' : 'no change', down: false };
-  const d = now - was, down = d < 0;
-  const n = count ? `${d > 0 ? '+' : ''}${fmt(d)}` : `${d > 0 ? '+' : ''}${Math.round((d / was) * 100)}%`;
-  return { text: `${down ? '▼' : '▲'} ${n} vs last week`, down };
-}
-function setChip(el, d) { el.textContent = d.text; el.classList.toggle('down', d.down); }
-// One bar per Sunday-to-Saturday week since the first ask; this week is drawn faint and says "so far".
-function weekBars(weeks, key, color, { w = 760, h = 240, labels = true } = {}) {
-  // Text sizes follow the box, so a 4K TV reads the same as a 1080p one.
-  const f = Math.round(w / 34), max = Math.max(1, ...weeks.map((x) => x[key])), gap = labels ? Math.round(w / 70) : 4, top = labels ? f * 1.6 : 2, base = labels ? h - f * 1.4 : h;
-  const bw = Math.min((w - gap * (weeks.length - 1)) / weeks.length, w / 8), x0 = w - (bw * weeks.length + gap * (weeks.length - 1));
-  const whole = weeks.filter((x) => x.whole), peak = whole.reduce((p, x) => (x[key] > p[key] ? x : p), whole[0] || weeks[0]);
-  const bars = weeks.map((x, i) => {
-    const bh = Math.max(3, (x[key] / max) * (base - top)), X = x0 + i * (bw + gap), Y = base - bh, r = Math.min(6, bw / 2);
-    const fill = x.whole ? color : `color-mix(in srgb, ${color} 35%, transparent)`;
-    const label = labels && ((x === peak && !(i === weeks.length - 2 && !weeks[i + 1].whole)) || !x.whole || i === 0)
-      ? `<text class="v" x="${i === weeks.length - 1 ? X + bw : X + bw / 2}" y="${(x.whole || !i ? Y : Math.min(Y, base - Math.max(3, (weeks[i - 1][key] / max) * (base - top)))) - f * .45}" text-anchor="${i === weeks.length - 1 ? 'end' : 'middle'}" font-size="${f}">${fmt(x[key])}${x.whole ? '' : ' so far'}</text>` : '';
-    const tick = labels ? `<text x="${X + bw / 2}" y="${h - 4}" text-anchor="middle" font-size="${Math.round(f * .78)}">${dayMonth(x.start)}</text>` : '';
-    return `<path class="bar" d="M${X},${base} V${Y + r} Q${X},${Y} ${X + r},${Y} H${X + bw - r} Q${X + bw},${Y} ${X + bw},${Y + r} V${base} Z" fill="${fill}" style="animation-delay:${i * 60}ms"/>${label}${tick}`;
-  }).join('');
-  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${labels ? `<line x1="0" x2="${w}" y1="${base}" y2="${base}" stroke="var(--line)"/>` : ''}${bars}</svg>`;
-}
-function renderGrowth(g) {
-  $('growth').style.visibility = g ? 'visible' : 'hidden';
-  if (!g) return;
-  const key = JSON.stringify(g);
-  if ($('growth').dataset.key === key) return;
-  $('growth').dataset.key = key;
-  count({ querySelector: () => $('g-asks') }, g.last.asks);
-  setChip($('g-asks-d'), delta(g.last.asks, g.prev.asks));
-  const box = $('g-chart');
-  box.innerHTML = weekBars(g.weeks, 'asks', 'var(--accent)', { w: Math.round(box.clientWidth), h: Math.round(box.clientHeight) });
-  const since = dayMonth(g.since);
-  $('g-since').textContent = `since ${since}`;
-  const m = (id, n, d, key, color, sub) => {
-    const el = $(id);
-    el.querySelector('.n').textContent = fmt(n);
-    setChip(el.querySelector('.chip'), d);
-    el.querySelector('svg').outerHTML = weekBars(g.weeks, key, color, { w: 300, h: 60, labels: false });
-    el.querySelector('.s').textContent = sub;
-  };
-  m('g-people', g.last.people, delta(g.last.people, g.prev.people, { count: true }), 'people', 'var(--people)', `${g.peopleEver} since ${since} · ${g.last.newPeople} new`);
-  m('g-merged', g.last.merged, delta(g.last.merged, g.prev.merged), 'merged', 'var(--merged)', `${fmt(g.mergedEver)} since ${since}`);
-  m('g-hours', g.last.hours, delta(g.last.hours, g.prev.hours), 'hours', 'var(--hours)', `${fmt(g.asksEver)} asks since ${since}`);
-}
-const relDate = (d) => { const t = new Date(`${d}T12:00:00Z`); return `${t.getUTCDate()} ${t.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`; };
-const relKind = (name) => String(name).replace(/\s*-\s*\d{2}\.\d{2}\.\d{4}\s*$/, '');
-function relWhen(t) {
-  if (t.next) return { text: 'no date yet', past: true };
-  if (t.days === 0) return { text: 'today', past: false };
-  if (t.days > 0) return { text: t.days === 1 ? 'tomorrow' : `in ${t.days} days`, past: false };
-  return { text: t.days === -1 ? 'shipped yesterday' : `shipped ${-t.days} days ago`, past: true };
-}
-// Versions by data center: what each environment runs today, the service and the client build.
-function renderDcs(envs, trains, dcs) {
-  const box = $('dcs');
-  if (!envs || !envs.length) { box.innerHTML = ''; return; }
-  const color = (e) => (e.env === 'dev2' ? 'indev' : e.env === 'qa' ? 'inqa' : 'done');
-  const rel = (e) => { const t = trains.find((x) => x.name === e.release); return e.release === 'next' ? 'next' : t && t.date ? relDate(t.date) : ''; };
-  // The SAP data centers come from Datadog (r.dcs) and run only the service; a build older than Prod US says so.
-  const num = (v) => String(v || '').split('.').map(Number);
-  const older = (a, b) => { const x = num(a), y = num(b); for (let i = 0; i < Math.max(x.length, y.length); i += 1) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) < (y[i] || 0); return false; };
-  const prod = envs.find((e) => e.env === 'prod');
-  const sap = (dcs || []).map((d) => ({ env: 'dc', label: d.label, release: d.release, service: d.service, client: null, behind: prod && prod.service && older(d.service, prod.service) }));
-  const rows = [...envs.filter((e) => e.env === 'prod' || e.env === 'eu-prod'), ...sap, ...envs.filter((e) => e.env !== 'prod' && e.env !== 'eu-prod')];
-  box.innerHTML = `<div class="lbl">Versions by data center</div><table><tr><th>where</th><th>release</th><th>service</th><th>client</th></tr>${rows.map((e) => `<tr style="--k: var(--${e.behind ? 'merged' : color(e)})"><td><i></i>${esc(e.label)}</td><td><small>${esc(e.behind && !e.release ? 'behind prod' : rel(e))}</small></td><td>${esc(e.service || '–')}</td><td>${esc(e.client || '–')}</td></tr>`).join('')}</table>`;
-}
-// The release train: the last releases out, the one in QA, and what waits on dev, each with its tickets and the environments running it.
-function renderReleases(r) {
-  $('releases').style.display = r && r.trains.length ? '' : 'none';
-  if (!r) return;
-  const old = r.failed || Date.now() - Date.parse(r.at) > 30 * 60000;
-  const asOf = `as of ${new Date(r.at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jerusalem' })}`;
-  $('rel-stale').textContent = !old ? '' : r.failed ? `${asOf}, Jira or GitLab did not answer since` : asOf;
-  const key = JSON.stringify(r.trains) + JSON.stringify(r.envs) + JSON.stringify(r.dcs || null);
-  if ($('track').dataset.key === key) return;
-  $('track').dataset.key = key;
-  renderDcs(r.envs, r.trains, r.dcs);
-  const envOf = new Map(r.envs.map((e) => [e.label, e]));
-  const shipped = r.trains.filter((t) => t.shipped && !t.next);
-  // Every shipped release a prod still runs stays (Prod EU can lag Prod US); older ones drop.
-  const inProd = shipped.filter((t) => t.on.some((l) => /^Prod/.test(l)));
-  const keep = inProd.length ? inProd : shipped.slice(-1);
-  const trains = r.trains.filter((t) => !shipped.includes(t) || keep.includes(t));
-  $('track').innerHTML = trains.map((t, i) => {
-    const k = t.tickets, pct = (n) => (k.total ? (n / k.total) * 100 : 0), w = relWhen(t);
-    // A shipped release nothing runs any more folds to one line, so the ones that matter get the room.
-    const cls = t.next ? 'next' : t.on.includes('QA') ? 'qa ahead' : t.shipped ? (t.on.length ? 'live' : 'shipped') : 'ahead';
-    // Prod US and Prod EU on the same build read as one pill.
-    const on = t.on.map((label) => envOf.get(label) || { label });
-    const both = on.length === 2 && on.every((e) => /^Prod/.test(e.label)) && on[0].service != null && on[0].service === on[1].service;
-    const pills = (both ? [{ ...on[0], label: 'Prod US + EU' }] : on).map((e) => `<span class="env">${esc(e.label)}${e.service ? `<small>${esc(e.service)}</small>` : ''}</span>`).join('');
-    const split = t.next ? 'merged to dev, no release yet' : t.shipped && !k.qa && !k.dev ? 'all shipped' : [k.done && `${fmt(k.done)} passed`, k.qa && `${fmt(k.qa)} in QA`, k.dev && `${fmt(k.dev)} in dev`].filter(Boolean).join(' · ');
-    return `<div class="train ${cls}" style="animation-delay:${i * 80}ms"><b></b><div class="card">
-      <div class="what"><span>${esc(t.next ? 'After this release' : relKind(t.name))}</span><span class="chip ${w.past ? 'past' : ''}">${w.text}</span></div>
-      <div class="when"><span class="d">${t.next ? 'Next' : relDate(t.date)}</span><span class="tk"><b>${fmt(k.total)}</b>ticket${k.total === 1 ? '' : 's'}</span></div>
-      <div class="bar"><i style="width:${pct(k.done)}%;background:var(--done)"></i><i style="width:${pct(k.qa)}%;background:var(--inqa)"></i><i style="width:${pct(k.dev)}%;background:var(--indev)"></i></div>
-      <div class="split">${esc(split)}</div>
-      <div class="envs">${pills}</div></div></div>`;
-  }).join('');
-}
-// ---------- scenes ----------
-const MEDALS = ['🥇', '🥈', '🥉'];
-const clockAt = (t) => ilTime.format(new Date(t));
-const hh = (h) => `${String(h).padStart(2, '0')}:00`;
-// Only a snapshot that says it is today's names people here; an older one counted the week.
-const dayMoments = (w) => (w && w.moments && w.moments.span === 'today' ? w.moments : null);
-const KIND_ORDER = ['coding', 'verify', 'review', 'question', 'machine'];
-// Today's asks per Israel hour, stacked by kind, from the first busy hour (or 08:00) to now.
-function hourBars(byHour, { w = 900, h = 260 } = {}) {
-  const sum = (x) => KIND_ORDER.reduce((n, k) => n + (x[k] || 0), 0);
-  const nowH = Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', hourCycle: 'h23' }).format(new Date())) % 24;
-  const busy = byHour.map((x, i) => (sum(x) ? i : -1)).filter((i) => i >= 0);
-  const from = Math.min(8, busy.length ? busy[0] : 8), to = Math.max(nowH, busy.length ? busy[busy.length - 1] : nowH, from + 8);
-  const hrs = []; for (let i = from; i <= Math.min(23, to); i += 1) hrs.push(i);
-  const f = Math.round(w / 40), base = h - f * 1.5, top = f * 1.8, max = Math.max(1, ...hrs.map((i) => sum(byHour[i])));
-  const gap = Math.max(3, w / hrs.length * .22), bw = (w - gap * (hrs.length - 1)) / hrs.length;
-  const peak = hrs.reduce((p, i) => (sum(byHour[i]) > sum(byHour[p]) ? i : p), hrs[0]);
-  const out = hrs.map((hr, j) => {
-    const x = j * (bw + gap), total = sum(byHour[hr]);
-    let y = base, segs = '';
-    for (const k of KIND_ORDER) {
-      const n = byHour[hr][k] || 0; if (!n) continue;
-      const sh = (n / max) * (base - top); y -= sh;
-      segs += `<rect x="${x}" y="${y}" width="${bw}" height="${sh}" fill="var(--${k})"/>`;
-    }
-    const empty = total ? '' : `<rect x="${x}" y="${base - 3}" width="${bw}" height="3" rx="1.5" fill="var(--line)"/>`;
-    const lab = total && hr === peak ? `<text class="peak" x="${x + bw / 2}" y="${y - f * .5}" text-anchor="middle" font-size="${f}">${total}</text>` : '';
-    const tick = (hr % 2 === 0 || hrs.length < 10) ? `<text x="${x + bw / 2}" y="${h - 2}" text-anchor="middle" font-size="${Math.round(f * .8)}" class="${hr === nowH ? 'peak' : ''}">${String(hr).padStart(2, '0')}</text>` : '';
-    return `<g class="bar" style="animation-delay:${j * 40}ms">${segs}</g>${empty}${lab}${tick}`;
-  }).join('');
-  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><line x1="0" x2="${w}" y1="${base}" y2="${base}" stroke="var(--line)"/>${out}</svg>`;
-}
-const kindsLine = (kinds) => KIND_ORDER.filter((k) => kinds && kinds[k]).map((k) => `<span style="--k: var(--${k})"><i></i><b>${fmt(kinds[k])}</b>${KINDS[k]}</span>`).join('');
-function renderMoments(w) {
-  if (!w) return;
-  const t = w.today || {}, m = dayMoments(w), asks = m ? m.asks : (t.conversations ?? t.runs ?? 0);
-  $('mo-span').textContent = `so far, ${clockAt(w.at || Date.now())} Israel time`;
-  count({ querySelector: () => $('mo-asks') }, asks);
-  $('mo-asks-l').textContent = `ask${asks === 1 ? '' : 's'} from ${fmt(m ? m.people : t.people)} ${(m ? m.people : t.people) === 1 ? 'person' : 'people'}`;
-  // One row per person, longest bar first, the bar's length their share of the day.
-  const ks = ['accent', 'verify', 'review'];
-  if (m && m.top.length) {
-    const max = Math.max(1, ...m.top.map((x) => x.n)), rest = m.people - m.top.length;
-    $('mo-who').innerHTML = m.top.map((x, i) => `<div class="who-row" style="--k: var(--${ks[i]});animation-delay:${i * 150}ms"><div class="r">${i + 1}</div><div class="n">${esc(x.name)}</div>
-      <div class="c"><b>${fmt(x.n)}</b>${Math.round((x.n / m.asks) * 100)}%</div><div class="bar"><i style="width:${Math.max(4, (x.n / max) * 100)}%;animation-delay:${200 + i * 150}ms"></i></div></div>`).join('')
-      + (rest > 0 ? `<div class="rest">and ${rest} more ${rest === 1 ? 'person' : 'people'}</div>` : '');
-  } else {
-    $('mo-who').innerHTML = `<div class="none">${fmt(t.people)} ${t.people === 1 ? 'person' : 'people'} asked me something today. Their names show with the next update.</div>`;
-  }
-  $('mo-hours').innerHTML = t.byHour ? hourBars(t.byHour, { w: Math.round($('mo-hours').clientWidth) || 900, h: Math.round($('mo-hours').clientHeight) || 260 }) : '';
-  $('mo-kinds').innerHTML = kindsLine(t.kinds);
-  const perHour = (t.byHour || []).map((x) => KIND_ORDER.reduce((n, k) => n + (x[k] || 0), 0)), firstHour = perHour.findIndex((n) => n > 0);
-  const peak = m && m.busiestHour ? m.busiestHour : firstHour >= 0 ? { hour: perHour.indexOf(Math.max(...perHour)), n: Math.max(...perHour) } : null;
-  const facts = [
-    m && m.early ? { k: 'question', n: clockAt(m.early.at), l: `first ask, from ${m.early.who}` } : firstHour >= 0 && { k: 'question', n: hh(firstHour), l: 'my first ask came in' },
-    peak && { k: 'review', n: hh(peak.hour), l: `busiest hour, ${fmt(peak.n)} ask${peak.n === 1 ? '' : 's'}` },
-    m && m.longest ? { k: 'hours', n: m.longest.minutes >= 60 ? `${Math.floor(m.longest.minutes / 60)}h ${String(m.longest.minutes % 60).padStart(2, '0')}m` : `${m.longest.minutes} min`, l: `longest job: ${m.longest.doing}` }
-      : m && m.late ? { k: 'accent', n: clockAt(m.late.at), l: `latest ask, from ${m.late.who}` }
-      : { k: 'verify', n: fmt(t.answered ?? asks), l: 'answered' },
-  ].filter(Boolean);
-  $('mo-facts').innerHTML = facts.map((f, i) => `<div class="dayfact" style="--k: var(--${f.k});animation-delay:${300 + i * 90}ms"><div class="n">${esc(f.n)}</div><div class="l" dir="auto">${esc(f.l)}</div></div>`).join('');
-}
-function renderVideo(v) {
-  const el = $('vi');
-  if (!v) { el.removeAttribute('src'); return; }
-  $('vi-title').textContent = v.title;
-  // The public copy carries its video beside the page; the live wall asks the box for the current one.
-  const src = SNAP ? `video.mp4?v=${encodeURIComponent(v.name)}` : `/api/wall/video?v=${encodeURIComponent(v.name)}`;
-  if (el.dataset.src !== src) { el.dataset.src = src; el.src = src; }
-}
-// ---------- boards ----------
-// Fixed boards (Aviv, 2026-11-01), each the answer to a question managers and PMs send me: the release, the Q4
-// commitments, and the field's questions. The release is live from the snapshot. Q4 and the field come from
-// boards.json beside this page, with the day they were read, and drop off the wall once that file expires.
-// The cards play between them as fuller scenes, each with the numbers behind its headline.
-let BOARDS = null;
-async function pollBoards() {
-  try { const r = await fetch(`boards.json?t=${Date.now()}`, { cache: 'no-store' }); if (r.ok) { BOARDS = await r.json(); shown = null; } } catch { /* no fixed boards from the file */ }
-}
-const freshBoards = () => (BOARDS && Date.parse(BOARDS.expires) > Date.now() ? BOARDS : null);
-const pc = (n, of) => (of ? (n / of) * 100 : 0);
-const shortDay = (iso) => relDate(String(iso).slice(0, 10));
-const asOf = (iso) => `<div class="asof">read ${esc(shortDay(iso))}</div>`;
-const stk = (parts, cls = '') => `<div class="stk ${cls}">${parts.filter((p) => p.n > 0).map((p) => `<i style="width:${p.w}%;--k:var(--${p.k})">${p.w > 9 ? `<b>${fmt(p.n)}</b>${p.w > 16 && p.l ? `<span>${esc(p.l)}</span>` : ''}` : ''}</i>`).join('')}</div>`;
-const agoH = (h) => (h < 24 ? `${Math.max(1, Math.round(h))} h` : `${Math.round(h / 24)} days`);
-const qaTrain = (r) => r && (r.trains || []).find((t) => (t.on || []).includes('QA') && t.tickets && t.tickets.total);
-const runsWhere = (r) => {
-  const rel = (name) => { if (name === 'next') return 'next release'; const t = (r.trains || []).find((x) => x.name === name); return t && t.date ? `${relDate(t.date)} release` : 'an older build'; };
-  const color = (e) => (e.env === 'dev2' ? 'indev' : e.env === 'qa' ? 'inqa' : 'done');
-  const prod = (r.envs || []).filter((e) => /prod/.test(e.env)), rest = (r.envs || []).filter((e) => !/prod/.test(e.env));
-  const sap = (r.dcs || []).map((d) => ({ label: d.label, release: d.release, k: 'machine' }));
-  return [...prod.map((e) => ({ label: e.label, release: e.release, k: color(e) })), ...sap, ...rest.map((e) => ({ label: e.label, release: e.release, k: color(e) }))]
-    .map((e) => `<tr style="--k:var(--${e.k})"><td><i></i>${esc(e.label)}</td><td>${esc(e.release ? rel(e.release) : 'an older build')}</td></tr>`).join('');
+const dayMonth = (d) => { const t = new Date(`${String(d).slice(0, 10)}T12:00:00Z`); return `${t.getUTCDate()} ${t.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`; };
+const monthName = (ym) => new Date(`${ym}-15T12:00:00Z`).toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' });
+const plural = (n, one, many = `${one}s`) => `${fmt(n)} ${n === 1 ? one : many}`;
+const names = (list) => (list.length <= 2 ? list.join(' and ') : `${list.slice(0, 2).join(', ')} and ${list.length - 2} more`);
+
+// ---------- the shared layouts (Aviv's mock, part 7: his renderScene, ported as renderTv) ----------
+// A scene is data in one layout; every string goes through esc(). A new kind of screen is a new layout here, never one-off HTML.
+const K = { teal: 'var(--teal)', violet: 'var(--violet)', pink: 'var(--pink)', orange: 'var(--orange)', gold: 'var(--gold)' };
+const ROT = ['teal', 'violet', 'pink', 'orange', 'gold'];
+const col = (c, i) => K[c] || K[ROT[i % ROT.length]];
+// frame: kicker row + body; celebrate has no frame row
+const kick = (s) => `<div class="kick"><span><b>${esc(s.kicker)}</b>${s.context ? ` · ${esc(s.context)}` : ''}</span><span>${s.dots ? dots(s.dots) : esc(s.asOf ? `as of ${s.asOf}` : s.window || '')}</span></div>`;
+const dots = ({ index, of }) => Array.from({ length: of }, (_, i) => `<i style="display:inline-block;width:${i + 1 === index ? 3 : 1.2}cqw;height:1.2cqw;border-radius:1cqw;background:${i + 1 === index ? 'var(--teal)' : 'var(--tv-line)'};margin-right:.8cqw"></i>`).join('');
+const list = (s) => `<ul class="items">${(s.items || []).map((t, i) => `<li style="--k:${col(t.color, i)}"><span>${esc(t.text)}${t.who ? `<span class="who">for ${esc(t.who)}</span>` : ''}</span></li>`).join('')}${s.more ? `<li class="more"><span>${esc(s.more)}</span></li>` : ''}</ul>`;
+const lede = (s) => `<div><div class="big">${esc(s.title)}${s.em ? ` <em>${esc(s.em)}</em>` : ''}</div>${s.line ? `<div class="sub">${esc(s.line)}</div>` : ''}</div>`;
+const R = {
+  video: (s) => `<video class="clip" src="${esc(s.src)}" muted loop playsinline autoplay></video>`,
+  kpis: (s) => `<div style="display:grid;gap:3cqw;align-content:center"><div class="big" style="font-size:4.6cqw">${esc(s.title)}</div><div class="kpis">${s.kpis.map((k, i) => `<div class="kp" style="--k:${col(k.color, i)}"><span class="n">${esc(k.value)}</span><span class="l">${esc(k.label)}</span>${k.note ? `<span class="s">${esc(k.note)}</span>` : ''}</div>`).join('')}</div></div>`,
+  bars: (s) => {
+    const max = Math.max(...s.series.map((p) => p.value)), W = 400, H = 200, n = s.series.length, gap = W / n, bw = gap * .68;
+    const g = s.series.map((p, i) => { const h = Math.max(3, p.value / max * H), x = i * gap + (gap - bw) / 2, hi = i >= n - (s.highlightLast || 0); return `<rect x="${x}" y="${H - h}" width="${bw}" height="${h}" rx="4" fill="${hi ? '#2fd6cc' : '#8f82ff'}" opacity="${hi ? 1 : .45 + .5 * p.value / max}"/><text x="${x + bw / 2}" y="${H - h - 7}" ${hi ? 'fill="#efedff" font-weight="700"' : ''}>${esc(p.value)}</text><text x="${x + bw / 2}" y="${H + 20}">${esc(p.label)}</text>`; }).join('');
+    return `<div class="growth"><div><div class="big">${esc(s.title)}</div>${s.line ? `<div class="sub">${esc(s.line)}</div>` : ''}</div><svg viewBox="0 -16 ${W} ${H + 46}"><g font-family="Bricolage Grotesque, sans-serif" font-size="13" fill="#a19dcc" text-anchor="middle"><line x1="0" y1="${H}" x2="${W}" y2="${H}" stroke="rgba(255,255,255,.15)"/>${g}</g></svg></div>`;
+  },
+  podium: (s) => {
+    const top = s.ranks.slice(0, 3), rest = s.ranks.slice(3, 6), max = top[0].value, md = ['🥇', '🥈', '🥉'], kc = ['teal', 'violet', 'pink'];
+    return `<div class="fans"><div class="pod">${[1, 0, 2].filter((i) => top[i]).map((i) => `<div class="st" style="--k:${K[kc[i]]}"><span class="md">${md[i]}</span><span class="nm">${esc(top[i].name)}</span><div class="blk" style="height:${10 + 14 * top[i].value / max}cqw">${esc(top[i].value)}</div></div>`).join('')}</div><div class="side">${rest.map((r, k) => `<div class="row"><span>${k + 4} · ${esc(r.name)}</span><b>${esc(r.value)}</b></div>`).join('')}${s.line ? `<div class="tot">${esc(s.line)}</div>` : ''}</div></div>`;
+  },
+  progress: (s) => {
+    const tot = s.parts.reduce((n, p) => n + p.value, 0);
+    return `<div class="two"><div><div class="big">${esc(s.title)}</div>${s.line ? `<div class="sub">${esc(s.line)}</div>` : ''}<div class="bar">${s.parts.map((p, i) => `<i style="width:${p.value / tot * 100}%;background:${col(p.color, i)}"></i>`).join('')}</div><div class="legend">${s.parts.map((p, i) => `<span style="--k:${col(p.color, i)}">${esc(p.value)} ${esc(p.label)}</span>`).join('')}</div></div>${list(s)}</div>`;
+  },
+  tiles: (s) => `<div class="trains" style="grid-template-columns:repeat(${s.tiles.length <= 4 ? s.tiles.length : 3}, 1fr)">${s.tiles.map((t, i) => `<div class="tr" style="--k:${col(t.color, i)}"><span class="env">${esc(t.label)}</span><span class="ver">${esc(t.value)}</span>${t.note ? `<span class="when">${esc(t.note)}</span>` : ''}</div>`).join('')}</div>`,
+  feed: (s) => `<div class="two"><div><div class="big" style="font-size:15cqw;line-height:.85"><em>${esc(s.value)}</em></div><div class="sub" style="font-size:2.9cqw">${esc(s.title)}</div></div>${list(s)}</div>`,
+  // title may hold one teal word: send {title:"Translate with", em:"AI"}
+  highlight: (s) => `<div class="two">${lede(s)}${list(s)}</div>`,
+  groups: (s) => `<div class="ship">${s.groups.slice(0, 6).map((g, i) => `<div class="grp" style="--k:${col(g.color, i)}"><span class="f">${esc(g.name)}</span>${g.note ? `<span class="x">${esc(g.note)}</span>` : ''}</div>`).join('')}</div>`,
+  celebrate: (s) => `<div class="kick" style="justify-content:center"><b>${esc(s.kicker)}</b></div>${s.value ? `<div class="huge">${esc(s.value)}</div>` : `<div class="big" style="font-size:9cqw">${esc(s.title)}${s.em ? ` <em>${esc(s.em)}</em>` : ''}</div>`}<div class="title">${s.value ? `<b>${esc(s.title)}</b> ` : ''}${esc(s.line || '')}</div>`,
+  // The four layouts Archie already publishes through lib/tv.js, drawn with the same pieces. Their items are strings.
+  number: (s) => R.feed({ value: s.value, title: [s.title, s.line].filter(Boolean).join(' · '), items: [] }),
+  list: (s) => R.highlight({ ...s, items: (s.items || []).slice(0, 3).map((t) => (typeof t === 'string' ? { text: t } : t)), more: s.more || ((s.items || []).length > 3 ? `And ${s.items.length - 3} more` : '') }),
+  banner: (s) => `<div style="align-self:center;max-width:78cqw">${lede(s)}</div>`,
+  moment: (s) => `<div style="align-self:center;max-width:70cqw"><div class="big" style="font-size:5.2cqw">${esc(s.title)}${s.em ? ` <em>${esc(s.em)}</em>` : ''}</div>${s.line ? `<div class="sub">${esc(s.line)}</div>` : ''}</div>`,
 };
-function boardRelease(w) {
-  const r = w.releases, t = qaTrain(r);
+/** One scene's markup: the frame (kicker row) and its layout's body. A celebration is centred and carries its own kicker. */
+function renderTv(s) {
+  const party = s.layout === 'celebrate';
+  return { party, html: party ? R.celebrate(s) : kick(s) + R[s.layout](s) };
+}
+
+// ---------- success first ----------
+// Aviv's rule 0, the client's own check: a scene whose visible text carries a failure word never reaches the TV.
+const FAILURE = /\b(errors?|fail(s|ed|ing|ures?)?|broken|broke|bugs?|incidents?|outages?|late|overdue|stuck|blocked|blocking|blockers?|waiting|down|red|crash(es|ed)?|(?<!drag[ -](and|&|n)[ -])drop(s|ped)?)\b/i;
+const okText = (t) => !FAILURE.test(String(t || ''));
+const visibleText = (s) => { const d = document.createElement('div'); d.innerHTML = renderTv(s).html; return d.textContent; };
+function passes(s) {
+  if (!s || !R[s.layout]) return false;
+  try { return okText(visibleText(s)); } catch { return false; } // a scene missing its data does not render, so it does not play
+}
+
+// ---------- the screens: each one is data in, a scene out, or null when its data is not there ----------
+// An MR title in plain words: no ticket keys in front, a capital first letter.
+const plain = (t) => String(t || '').replace(/^\s*\[[^\]]*\]\s*/, '').replace(/^(\s*[A-Z][A-Z\d]+-\d+[\s,:]*)+/, '').replace(/^./, (c) => c.toUpperCase()).trim();
+const noKeys = (t) => String(t || '').replace(/\b[A-Z][A-Z\d]+-\d+\b[\s,:]*/g, '').replace(/:\s*([a-z])/, (m, c) => `: ${c.toUpperCase()}`).trim();
+const keyOf = (m) => m.key || (String(m.title || '').match(/\b[A-Z][A-Z\d]+-\d+\b/) || [])[0] || null;
+const asOfAt = (w) => ilTime.format(new Date((w && w.at) || (SNAP && SNAP.at) || Date.now()));
+const thisMonth = (w) => ilDay((w && w.at) || Date.now()).slice(0, 7);
+const today = (w) => ilDay((w && w.at) || Date.now());
+const forOf = (w) => { const by = new Map(((w.mrs && w.mrs.week) || []).map((m) => [m.ref, m.for])); return (m) => m.for || by.get(m.ref) || null; };
+// Up to n list lines that pass the check, shortest-enough first so three fit, latest first among those.
+function pickLines(rows, n = 3, max = 64) {
+  const ok = rows.filter((r) => r.text && okText(r.text) && okText(r.who));
+  const short = ok.filter((r) => r.text.length <= max);
+  return [...short, ...ok.filter((r) => !short.includes(r))].slice(0, n);
+}
+
+function sceneToday(w) {
+  const ms = (w.mrs && w.mrs.merged) || [];
+  if (!ms.length) return null;
+  const who = forOf(w), people = new Set(ms.map(who).filter(Boolean)).size;
+  const rows = [...ms.filter((m) => m.product !== false), ...ms.filter((m) => m.product === false)].map((m) => ({ text: plain(m.title), who: who(m) || undefined }));
+  const items = pickLines(rows);
+  return { id: 'today', layout: 'feed', kicker: 'Today with Archie', asOf: asOfAt(w),
+    value: fmt(ms.length), title: people ? `MR${ms.length === 1 ? '' : 's'} merged today for ${plural(people, 'person', 'people')}` : `MR${ms.length === 1 ? '' : 's'} merged today`,
+    items, total: ms.length, moreWhat: 'today' };
+}
+const relName = (t) => `${dayMonth(t.date)} release`;
+const nextTrain = (r) => r && (r.trains || []).find((t) => !t.shipped && !t.next && t.tickets && t.tickets.total);
+// The next release, one theme per loop with "1 of N" dots; without themes, how much of it is done.
+function sceneHighlight(w, loop = 0) {
+  const r = w.releases, t = nextTrain(r);
   if (!t) return null;
-  const k = t.tickets, done = Math.round(pc(k.done, k.total));
-  const last = (r.trains || []).filter((x) => x.shipped && !x.hotfix && x.tickets && x.tickets.total > 20).pop();
-  const next = (r.trains || []).find((x) => x.next);
-  return `<div class="kick">Release · ${esc(relDate(t.date))} · ${esc(relWhen(t).text)}</div>
-  <h1><em class="g">${fmt(k.done)}</em> of ${fmt(k.total)} tickets passed QA. ${fmt(k.qa)} are in QA now.</h1>
-  ${stk([{ n: k.done, w: pc(k.done, k.total), k: 'done', l: 'passed QA' }, { n: k.qa, w: pc(k.qa, k.total), k: 'inqa', l: 'in QA' }, { n: k.dev, w: pc(k.dev, k.total), k: 'indev', l: 'in dev' }])}
-  <div class="lg"><span style="--k:var(--done)">passed QA</span><span style="--k:var(--inqa)">in QA now</span><span style="--k:var(--indev)">${fmt(k.dev)} still in dev</span><span class="cmp">${done}% done${last ? ` · ${esc(relDate(last.date))} shipped ${fmt(last.tickets.total)} tickets` : ''}</span></div>
-  <div class="cols">
-    <div class="pn"><h2>Where each place runs today</h2><table>${runsWhere(r)}</table></div>
-    ${last ? `<div class="pn" style="flex:.8"><h2>Size against the last one</h2><div class="num g">${(k.total / last.tickets.total).toFixed(1)}×</div><p>${fmt(k.total)} tickets against ${fmt(last.tickets.total)} on ${esc(relDate(last.date))}.</p></div>` : ''}
-    ${next ? `<div class="pn" style="flex:.7"><h2>Up next</h2><div class="num">${fmt(next.tickets.total)}</div><p>tickets wait for the release after this one.</p></div>` : ''}
-  </div>`;
-}
-function boardQ4(b) {
-  const q = b && b.q4;
-  if (!q) return null;
-  const p = q.promised, lateMax = Math.max(q.lateTesting, q.lateDev, 1);
-  return `<div class="kick">Q4 commitments · the planning sheet</div>
-  <h1><em class="g">${fmt(q.done)}</em> of ${fmt(q.total)} Q4 commitments done. <em class="r">${fmt(q.late)}</em> past their end date.</h1>
-  ${stk([{ n: q.done, w: pc(q.done, q.total), k: 'done', l: 'done' }, { n: q.testing, w: pc(q.testing, q.total), k: 'inqa', l: 'in testing' }, { n: q.dev, w: pc(q.dev, q.total), k: 'indev', l: 'in dev' }, { n: q.hold, w: pc(q.hold, q.total), k: 'machine' }])}
-  <div class="lg"><span style="--k:var(--done)">done</span><span style="--k:var(--inqa)">in testing</span><span style="--k:var(--indev)">in development</span>${q.hold ? `<span style="--k:var(--machine)">${fmt(q.hold)} on hold</span>` : ''}${q.was ? `<span class="cmp">On ${esc(q.was.day)} only ${fmt(q.was.done)} were done.</span>` : ''}</div>
-  <div class="cols">
-    <div class="pn"><h2>Past end date, by stage</h2>
-      <div class="hb" style="--k:var(--inqa)"><span>in testing</span><i style="width:${pc(q.lateTesting, lateMax) * .5}%"></i><b>${fmt(q.lateTesting)}</b></div>
-      <div class="hb" style="--k:var(--indev)"><span>in dev</span><i style="width:${pc(q.lateDev, lateMax) * .5}%"></i><b>${fmt(q.lateDev)}</b></div>
-      <p class="mute">${q.lateTesting > q.lateDev ? 'Most late work is built and waits for testing.' : 'Most late work is still in development.'}</p></div>
-    ${p ? `<div class="pn"><h2>Promised to customers</h2><div class="num g">${fmt(p.done)}<small> of ${fmt(p.of)}</small></div><p>done. ${fmt(p.testing)} in testing, ${fmt(p.dev)} still in development.</p></div>` : ''}
-    <div class="pn" style="flex:1.5"><h2>Longest past due</h2><ul class="feed">${(q.oldest || []).map((x) => `<li><small>due ${esc(shortDay(x.due))} · ${esc(x.stage)}</small>${esc(x.title)}</li>`).join('')}</ul></div>
-  </div>${asOf(b.at)}`;
-}
-function boardField(b) {
-  const f = b && b.field;
-  if (!f) return null;
-  const top = Math.max(...f.days.map((d) => d[1]), 1), speed = Math.max(f.within4h, f.withinDay, f.overDay, 1);
-  const open = f.open || [];
-  return `<div class="kick">Questions from the field · ${esc(f.channel)} · last 7 days</div>
-  <h1><em>${fmt(f.asked)}</em> questions from CSMs, SEs and Support. <em class="g">${fmt(f.answered)}</em> got an answer, half of them within ${esc(f.medianHours)} hours.</h1>
-  <div class="cols">
-    <div class="pn"><h2>Questions per day</h2><div class="days">${f.days.map(([d, n]) => `<div><b>${fmt(n)}</b><i style="height:${pc(n, top) * .8}%"></i><span>${esc(d)}</span></div>`).join('')}</div></div>
-    <div class="pn"><h2>How fast we answer</h2>
-      <div class="hb" style="--k:var(--done)"><span>within 4 hours</span><i style="width:${pc(f.within4h, speed) * .5}%"></i><b>${fmt(f.within4h)}</b></div>
-      <div class="hb" style="--k:var(--indev)"><span>4 to 24 hours</span><i style="width:${pc(f.withinDay, speed) * .5}%"></i><b>${fmt(f.withinDay)}</b></div>
-      <div class="hb" style="--k:var(--merged)"><span>over a day</span><i style="width:${pc(f.overDay, speed) * .5}%"></i><b>${fmt(f.overDay)}</b></div>
-      <p class="mute">Who asked: ${fmt(f.support)} support forms, ${fmt(f.field)} CSMs and SEs.</p></div>
-    <div class="pn ${open.length ? 'alert' : ''}"><h2>Still waiting</h2><div class="num ${open.length ? 'r' : 'g'}">${fmt(open.length)}</div>${open.slice(0, 2).map((o) => `<p>${esc(o.who)}, since ${esc(new Date(o.since).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jerusalem' }))}.</p>`).join('')}</div>
-  </div>${asOf(b.at)}`;
-}
-// A card's scene: the card's own headline, then the numbers the box already sends about it.
-const PILL = { broke: 'merged', release: 'done', landed: 'done', waits: 'indev', moving: 'inqa' };
-function cardBoard(w, c) {
-  const head = `<div class="pill" style="--k:var(--${c.level === 'yellow' ? 'indev' : c.level === 'red' ? 'merged' : PILL[c.kind] || 'accent'})">${esc(c.source)}</div><h1 class="xl">${esc(c.head)}</h1>${c.line ? `<p class="sub">${esc(c.line)}</p>` : ''}`;
-  const joke = c.joke ? `<div class="joke">${esc(c.joke)}</div>` : '';
-  if (c.kind === 'landed' && w.mrs.merged.length) {
-    const ms = w.mrs.merged.filter((m) => m.product !== false), by = new Map();
-    for (const m of ms) by.set(repoName(m.repo), (by.get(repoName(m.repo)) || 0) + 1);
-    const repos = [...by].sort((a, b) => b[1] - a[1]).slice(0, 5), top = Math.max(...repos.map((x) => x[1]), 1);
-    return `${head}<div class="cols"><div class="pn" style="flex:1.6"><h2>The last ones in</h2><ul class="feed">${ms.slice(0, 5).map((m) => `<li><small>${esc(repoName(m.repo))} · ${esc(m.ref.replace(/^.* /, ''))}${m.by ? ` · ${esc(m.by)}` : ''} · ${esc(ilTime.format(new Date(m.at)))}</small>${esc(m.title)}</li>`).join('')}</ul></div>
-      <div class="pn"><h2>By repo, today</h2>${repos.map(([n, k]) => `<div class="hb" style="--k:var(--done)"><span>${esc(n)}</span><i style="width:${pc(k, top) * .35}%"></i><b>${fmt(k)}</b></div>`).join('')}</div></div>${joke}`;
+  const themes = (t.themes || []).filter((x) => x && x.theme && okText(x.theme) && (x.items || []).some(okText));
+  if (themes.length) {
+    const k = ((loop % themes.length) + themes.length) % themes.length, th = themes[k], items = (th.items || []).filter(okText);
+    const words = String(th.theme).trim().split(/\s+/), em = words.length > 1 ? words.pop() : '';
+    return { id: 'highlight', layout: 'highlight', kicker: 'Release highlight', context: relName(t), dots: themes.length > 1 ? { index: k + 1, of: themes.length } : null,
+      title: words.join(' '), em, line: `${plural(th.n || items.length, 'ticket')} in the ${relName(t)}`,
+      items: items.slice(0, 3).map((x) => ({ text: x })), total: th.n || items.length, moreWhat: `for ${th.theme.toLowerCase()}` };
   }
-  if (c.kind === 'waits' && w.mrs.waiting.length) {
-    const ws = w.mrs.waiting, band = (a, b) => ws.filter((m) => m.hours >= a && m.hours < b).length;
-    const bands = [['today', band(0, 24), 'done'], ['1 to 3 days', band(24, 72), 'inqa'], ['3 to 7 days', band(72, 168), 'indev'], ['over a week', band(168, 1e9), 'merged']], top = Math.max(...bands.map((x) => x[1]), 1);
-    const ready = ws.filter((m) => m.approved), old = [...ws].sort((a, b) => b.hours - a.hours).slice(0, 4);
-    return `${head}<div class="cols"><div class="pn"><h2>All ${fmt(ws.length)} open, by age</h2>${bands.map(([l, n, k]) => `<div class="hb" style="--k:var(--${k})"><span>${l}</span><i style="width:${pc(n, top) * .45}%"></i><b>${fmt(n)}</b></div>`).join('')}<p class="mute">${fmt(ready.length)} approved and ready to merge. ${fmt(ws.filter((m) => m.conflicts).length)} have conflicts.</p></div>
-      <div class="pn" style="flex:1.5"><h2>Waiting longest</h2><ul class="feed">${old.map((m) => `<li><small>${esc(m.ref)}${m.key ? ` · ${esc(m.key)}` : ''} · open ${esc(agoH(m.hours))}</small>${esc(m.title)}</li>`).join('')}</ul></div></div>${joke}`;
-  }
-  if (c.kind === 'moving' && (w.features || []).length) {
-    const fs = [...w.features].sort((a, b) => (b.moved || 0) - (a.moved || 0)).slice(0, 4);
-    return `${head}<div class="pn"><h2>Features moving most</h2>${fs.map((f) => `<div style="margin-bottom:.8vw"><div style="display:flex;justify-content:space-between;font-size:1.4vw;margin-bottom:.3vw"><span>${esc(f.title)}</span><b>${fmt(f.done)} of ${fmt(f.total)}</b></div>${stk([{ n: f.done, w: pc(f.done, f.total), k: 'done' }, { n: f.building, w: pc(f.building, f.total), k: 'inqa' }, { n: f.waiting, w: pc(f.waiting, f.total), k: 'indev' }, { n: f.blocked, w: pc(f.blocked, f.total), k: 'merged' }], 'thin')}</div>`).join('')}</div>${joke}`;
-  }
-  if (c.kind === 'release' && w.releases && (w.releases.envs || []).length) {
-    const t = qaTrain(w.releases);
-    return `${head}<div class="cols"><div class="pn"><h2>Where each place runs today</h2><table>${runsWhere(w.releases)}</table></div>
-      ${t ? `<div class="pn"><h2>Next in line, ${esc(relDate(t.date))}</h2><div class="num g">${Math.round(pc(t.tickets.done, t.tickets.total))}%</div><p>of ${fmt(t.tickets.total)} tickets passed QA.</p></div>` : ''}</div>${joke}`;
-  }
-  return `${head}${joke}`;
+  const k = t.tickets, after = (r.trains || []).find((x) => !x.shipped && !x.next && x.date > t.date);
+  return { id: 'highlight', layout: 'progress', kicker: 'Next release', context: dayMonth(t.date), asOf: ilTime.format(new Date(r.at || w.at || Date.now())),
+    title: `${fmt(k.done)} of ${fmt(k.total)} tickets done`, line: `The ${relName(t)}`,
+    parts: [{ label: 'done', value: k.done, color: 'teal' }, { label: 'in testing', value: k.qa, color: 'violet' }, { label: 'in development', value: k.dev, color: 'orange' }].filter((p) => p.value > 0),
+    items: [{ text: `${Math.round((k.done / k.total) * 100)}% of the release is done`, color: 'teal' }, k.qa && { text: `${plural(k.qa, 'ticket')} in testing now`, color: 'violet' }, after && { text: `Then the ${relName(after)}`, color: 'orange' }].filter(Boolean) };
 }
-function boardSlides(w) {
-  if (!w) return [];
-  const b = freshBoards();
-  const fixed = [['release', boardRelease(w)], ['q4', boardQ4(b)], ['field', boardField(b)]].filter((x) => x[1]).map(([id, html]) => ({ id, html, s: 25 }));
-  const cards = (w.cards || []).map((c, k) => ({ id: `card${k}`, html: cardBoard(w, c), s: 15 }));
-  // A card plays after each fixed board, so the live news never waits a whole loop.
-  const out = [];
-  fixed.forEach((x, i) => { out.push(x); if (cards[i]) out.push(cards[i]); });
-  return [...out, ...cards.slice(fixed.length)];
+// What reached customers this month, or last month when this one has none yet.
+function sceneLive(w) {
+  const r = w.releases;
+  if (!r || !(r.trains || []).length) return null;
+  const shipped = r.trains.filter((t) => t.shipped && !t.next && t.date && t.tickets && t.tickets.total);
+  const month = thisMonth(w), prev = (() => { const [y, m] = month.split('-').map(Number); return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, '0')}`; })();
+  let ym = month, trains = shipped.filter((t) => t.date.startsWith(month));
+  if (!trains.length) { ym = prev; trains = shipped.filter((t) => t.date.startsWith(prev)); }
+  if (!trains.length) return null;
+  const total = trains.reduce((n, t) => n + t.tickets.total, 0);
+  const wins = trains.flatMap((t) => (t.themes || []).flatMap((x) => x.items || [])).filter(okText);
+  const items = wins.length ? wins.slice(0, 3).map((x) => ({ text: x }))
+    : [...trains].sort((a, b) => b.tickets.total - a.tickets.total).slice(0, 3).map((t) => ({ text: `${plural(t.tickets.total, 'ticket')} on ${dayMonth(t.date)}${t.hotfix ? ', a hotfix' : ''}` }));
+  const shown = wins.length ? Math.min(3, wins.length) : 0;
+  return { id: 'live', layout: 'highlight', kicker: 'Live for customers', context: monthName(ym), asOf: ilTime.format(new Date(r.at || w.at || Date.now())),
+    title: `New in ${monthName(ym)}:`, em: `${fmt(total)} tickets`, line: `in ${plural(trains.length, 'release')} on Prod`,
+    items, more: wins.length && total > shown ? `And ${fmt(total - shown)} more tickets live` : '' };
 }
-// The rotation runs on the wall clock, so every screen in the office shows the same scene at the same moment.
-// A scene with nothing to show drops out; ?scene=<name> pins one.
-const PIN = new URLSearchParams(location.search).get('scene');
-let WALL = null, shown = null;
-// The board was too busy for a TV (Aviv, 2026-11-01), so the wall plays calm slides: one number and one
-// line each, and a slide with no data is not shown. ?scene=live still pins the board.
-function calmSlides(w) {
-  if (!w) return [];
-  const rows = w.live.rows, people = new Set(rows.map((r) => r.who).filter(Boolean)).size;
-  const merged = w.mrs.merged, product = merged.filter((m) => m.product !== false).length;
-  const qa = w.releases && (w.releases.trains || []).find((t) => (t.on || []).includes('QA') && t.tickets && t.tickets.total);
-  const g = w.growth;
-  return [
-    rows.length && { id: 'now', value: fmt(rows.length), title: `thing${rows.length > 1 ? 's' : ''} I'm working on`, line: people ? `for ${say(people)} ${people === 1 ? 'person' : 'people'}` : '' },
-    merged.length && { id: 'merged', value: fmt(merged.length), title: `MR${merged.length > 1 ? 's' : ''} merged today`, line: product ? `${fmt(product)} in the product` : '' },
-    qa && qa.tickets.done && { id: 'release', value: fmt(qa.tickets.done), title: `of ${fmt(qa.tickets.total)} tickets passed QA`, line: `the ${relDate(qa.date)} release` },
-    g && g.last && g.last.asks && { id: 'asks', value: fmt(g.last.asks), title: 'asks in the last 7 days', line: delta(g.last.asks, g.prev.asks).text },
-  ].filter(Boolean);
-}
-function renderCalm(x) {
-  $('sc-calm').innerHTML = `<div class="value">${esc(x.value)}</div><div class="head">${esc(x.title)}</div>${x.line ? `<div class="line">${esc(x.line)}</div>` : ''}`;
-}
-// Right now cards: in live hours the box bakes in the cards that matter now, best first, 12 seconds each.
-// One card plays after each calm slide, so the cards take turns; outside live hours there are none.
-const CARD_S = 12;
-function plan(w) {
-  // The boards lead (Aviv, 2026-11-01), each card a full scene between them; without a board the calm slides and the short cards take turns.
-  const boards = boardSlides(w).map((x) => [`board:${x.id}`, x.s]);
-  const all = [];
-  if (boards.length) all.push(...boards);
-  else {
-    const cards = (w && w.cards) || [], calm = calmSlides(w).map((x) => [`calm:${x.id}`, 20]);
-    for (let k = 0; k < Math.max(calm.length, cards.length); k += 1) {
-      if (calm.length) all.push(calm[k % calm.length]);
-      if (cards.length) all.push([`card:${k % cards.length}`, CARD_S]);
+// The team's merges this week, grouped by ticket: the box's groups when it sends them, else grouped here.
+function sceneShipped(w) {
+  const feat = new Map((w.features || []).map((f) => [String(f.effort).toUpperCase(), f.title]));
+  let groups = [], total = 0;
+  if ((w.mrs && w.mrs.byTicket || []).length) {
+    groups = w.mrs.byTicket.map((g) => ({ name: plain(g.title), n: g.n, people: g.people || [] }));
+    total = w.mrs.byTicketTotal || groups.length;
+  } else {
+    const week = (w.mrs && w.mrs.week) || [], by = new Map();
+    const withKey = week.filter(keyOf), rows = withKey.length >= 3 ? withKey : week;
+    for (const m of rows) {
+      const k = withKey.length >= 3 ? keyOf(m) : plain(m.title).toLowerCase();
+      const g = by.get(k) || { name: feat.get(k) || plain(m.title), n: 0, people: [] };
+      g.n += 1; if (m.for && !g.people.includes(m.for)) g.people.push(m.for);
+      by.set(k, g);
     }
+    groups = [...by.values()].sort((a, b) => b.n - a.n);
+    total = groups.length;
   }
-  if (w && w.video) all.push(['video', 45]);
-  return all.length ? all : [['live', 60]];
+  groups = groups.filter((g) => g.name && okText(g.name));
+  if (groups.length < 2) return null;
+  return { id: 'shipped', layout: 'groups', kicker: 'Shipped this week', context: `by feature · ${plural(total, 'ticket')}`, window: 'last 7 days',
+    groups: groups.slice(0, 6).map((g) => ({ name: g.name, note: [plural(g.n, 'MR'), g.people.length ? `for ${names(g.people)}` : ''].filter(Boolean).join(' · ') })) };
 }
-const CARD_K = { broke: 'review', release: 'verify', landed: 'verify', waits: 'question', moving: 'coding' };
-function renderCard(k) {
-  const c = WALL && WALL.cards && WALL.cards[k];
-  if (!c) return;
-  const el = $('cd');
-  el.style.setProperty('--k', `var(--${c.level === 'yellow' ? 'question' : CARD_K[c.kind] || 'accent'})`);
-  el.querySelector('.src').textContent = `${c.level === 'red' ? '🔴 ' : c.level === 'yellow' ? '🟡 ' : ''}${c.source}`;
-  el.querySelector('.head').textContent = c.head;
-  el.querySelector('.line').textContent = c.line || '';
-  el.querySelector('.joke').textContent = c.joke || '';
-  $('cd-n').textContent = `${k + 1} of ${WALL.cards.length}`;
-  // The card plays its entrance again.
-  el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+function sceneNumbers(w) {
+  const l = w.growth && w.growth.last;
+  if (!l || !l.merged) return null;
+  // A KPI column holds three digits at the mock's size, so a bigger number reads as 3.4k.
+  const short = (n) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '')}k` : fmt(n));
+  const kpis = [{ value: short(l.merged), label: 'MRs merged' }, l.asks && { value: short(l.asks), label: 'asks answered' }, l.people && { value: short(l.people), label: 'people asked' }, l.hours && { value: short(l.hours), label: 'hours of work' }].filter(Boolean);
+  return { id: 'numbers', layout: 'kpis', kicker: 'Archie by the numbers', window: 'last 7 days', title: 'Seven days with Archie', kpis };
 }
-// A click moves this screen on: the right half goes to the next scene, the left half back one, and a
-// dot in the header jumps to its scene. The arrow keys do the same. The rotation carries on from there.
-let SKIP = 0;
+function sceneGrowth(w) {
+  const weeks = ((w.growth && w.growth.weeks) || []).filter((x) => x.whole).slice(-8);
+  if (weeks.length < 3 || !weeks.some((x) => x.merged)) return null;
+  const a = weeks[0].merged, b = weeks[weeks.length - 1].merged;
+  return { id: 'growth', layout: 'bars', kicker: 'Growth', context: 'MRs merged per week', window: `last ${weeks.length} weeks`,
+    title: 'MRs merged each week', line: b > a ? `From ${fmt(a)} to ${fmt(b)} a week` : '', highlightLast: 2, series: weeks.map((x) => ({ label: dayMonth(x.start), value: x.merged })) };
+}
+// The people Archie merged most for: the box's 30-day ranks, else this week's, counted here.
+function sceneFans(w) {
+  let ranks, line, win;
+  const fans = (w.wins || {}).fans;
+  if (fans && (fans.ranks || []).length >= 3) {
+    ranks = fans.ranks; win = `last ${fans.days || 30} days`;
+    line = `${plural(fans.total, 'MR')} for ${plural(fans.people, 'person', 'people')} in ${fans.days || 30} days`;
+  } else {
+    const by = new Map();
+    for (const m of (w.mrs && w.mrs.week) || []) if (m.for) by.set(m.for, (by.get(m.for) || 0) + 1);
+    ranks = [...by].map(([name, n]) => ({ name, n })).sort((x, y) => y.n - x.n);
+    if (ranks.length < 3) return null;
+    win = 'this week';
+    line = `${plural([...by.values()].reduce((n, v) => n + v, 0), 'MR')} for ${plural(by.size, 'person', 'people')} this week`;
+  }
+  return { id: 'fans', layout: 'podium', kicker: 'Biggest fans', context: 'MRs Archie merged for them', window: win, line, ranks: ranks.slice(0, 6).map((r) => ({ name: r.name, value: r.n ?? r.value })) };
+}
+// Celebrations jump into the loop with confetti: firsts, a record day, milestones, a release that reached Prod today, and Archie's "now" scenes.
+const MERGED_MARKS = (n) => { const out = [350, 400, 500]; for (let m = 750; m <= n + 250; m += 250) out.push(m); return out; };
+function celebrations(w) {
+  const out = [], day = today(w), ms = (w.mrs && w.mrs.merged) || [], who = forOf(w);
+  const wn = w.wins || {};
+  for (const f of wn.firsts || []) {
+    if (!f || !f.name) continue;
+    const mr = ms.find((m) => who(m) === f.name);
+    out.push({ id: `first-${f.name}`, layout: 'celebrate', priority: 'now', kicker: '👋 First MR with Archie', title: 'Welcome,', em: f.name, line: mr ? `Merged today: ${plain(mr.title)}` : 'Their first MR with Archie merged today' });
+  }
+  const rec = wn.records;
+  if (rec && rec.best && rec.best.day === day && rec.best.n) {
+    out.push({ id: 'record', layout: 'celebrate', priority: 'now', kicker: '🏆 A new record', value: fmt(rec.best.n), title: 'MRs merged in one day.', line: rec.prev && rec.prev.n ? `The best day before was ${fmt(rec.prev.n)} on ${dayMonth(rec.prev.day)}.` : '' });
+  }
+  const g = w.growth;
+  if (g && g.mergedEver) {
+    const before = g.mergedEver - ms.length, hit = MERGED_MARKS(g.mergedEver).filter((m) => before < m && g.mergedEver >= m).pop();
+    if (hit) out.push({ id: `merged-${hit}`, layout: 'celebrate', priority: 'now', kicker: '🎉 Milestone', value: fmt(hit), title: 'MRs merged with Archie.', line: `${fmt(g.mergedEver)} so far, since ${dayMonth(g.since)}.` });
+  }
+  if (g && g.peopleEver && g.last && g.last.newPeople) {
+    const before = g.peopleEver - g.last.newPeople, hit = [25, 50, 75, 100, 150, 200].filter((m) => before < m && g.peopleEver >= m).pop();
+    if (hit) out.push({ id: `people-${hit}`, layout: 'celebrate', priority: 'now', kicker: '🎉 Milestone', value: fmt(hit), title: 'people work with Archie.', line: `${plural(g.last.newPeople, 'new person', 'new people')} this week.` });
+  }
+  const r = w.releases;
+  for (const t of (r && r.trains) || []) {
+    const prods = (t.on || []).filter((l) => /^Prod/.test(l));
+    if (t.shipped && t.date === day && prods.length) out.push({ id: `prod-${t.date}`, layout: 'celebrate', priority: 'now', kicker: '🚀 Live for customers', title: `The ${dayMonth(t.date)} release is`, em: 'live', line: `${plural(t.tickets ? t.tickets.total : 0, 'ticket')} reached ${prods.join(' and ')} today.` });
+  }
+  for (const s of tvScenes(w)) if (s.priority === 'now') out.push(s);
+  return out.filter(passes);
+}
+const tvScenes = (w) => ((w.tv && w.tv.scenes) || []).filter((s) => s && R[s.layout] && (!s.expiresAt || Date.parse(s.expiresAt) > Date.now()))
+  .map((s) => ({ kicker: 'Archie', asOf: w.tv.at ? ilTime.format(new Date(w.tv.at)) : '', ...s }));
+// Cards (viewer/lib/wall-cards.js) on the same layouts: no joke line, and no HealthLens or review-queue cards on the TV.
+const cardScenes = (w) => (w.cards || []).filter((c) => c && c.head && !['broke', 'waits'].includes(c.kind) && !['red', 'yellow'].includes(c.level))
+  .map((c, k) => ({ id: `card${k}`, layout: 'banner', kicker: c.source || 'Archie', asOf: c.at ? ilTime.format(new Date(c.at)) : asOfAt(w), title: noKeys(c.head), line: c.line ? noKeys(c.line) : '' }));
+
+// The loop: Today 20 s, then 12 s each; celebrations right after Today, then the cards and Archie's own scenes.
+// Now showing: the clip a teammate put in wall-videos; the public copy carries it beside the page, the box serves its own.
+function sceneVideo(w) {
+  const v = w.video;
+  if (!v || !v.name) return null;
+  return { id: 'video', layout: 'video', kicker: 'Now showing', context: v.title || '', window: 'from the team', src: SNAP ? `video.mp4?v=${encodeURIComponent(v.name)}` : `/api/wall/video?v=${encodeURIComponent(v.name)}` };
+}
+const SCREENS = [['today', 20, sceneToday], ['highlight', 12, sceneHighlight], ['live', 12, sceneLive], ['shipped', 12, sceneShipped], ['numbers', 12, sceneNumbers], ['growth', 12, sceneGrowth], ['fans', 12, sceneFans], ['video', 15, sceneVideo]];
+function plan(w) {
+  if (!w) return [];
+  const out = [];
+  for (const [name, s, make] of SCREENS) { const sc = make(w, 0); if (sc && passes(sc)) out.push({ name, s, make }); }
+  const lead = out.length && out[0].name === 'today' ? 1 : 0;
+  celebrations(w).forEach((sc, k) => out.splice(lead + k, 0, { name: k ? `celebrate:${k}` : 'celebrate', s: 10, make: () => sc }));
+  cardScenes(w).filter(passes).forEach((sc, k) => out.push({ name: `card:${k}`, s: 12, make: () => sc }));
+  tvScenes(w).filter((sc) => sc.priority !== 'now' && passes(sc)).forEach((sc, k) => out.push({ name: `tv:${k}`, s: sc.seconds || 12, make: () => sc }));
+  return out;
+}
+
+// ---------- drawing a scene ----------
+const moreLine = (s, shown) => (s.more != null && !s.total ? s.more : s.total > shown ? `And ${fmt(s.total - shown)} more${s.moreWhat ? ` ${s.moreWhat}` : ''}` : '');
+// Text wraps, never cuts: a screen whose words do not fit shows one list line fewer and counts it in "And N more".
+function draw(sc) {
+  const s = { ...sc, items: sc.items ? [...sc.items] : sc.items, groups: sc.groups ? [...sc.groups] : sc.groups };
+  const scr = $('scr'), tv = $('tv');
+  for (;;) {
+    if (s.items && s.total) s.more = moreLine(s, s.items.length);
+    const { party, html } = renderTv(s);
+    tv.classList.toggle('party', party);
+    scr.innerHTML = html;
+    scr.style.animation = 'none'; void scr.offsetWidth; scr.style.animation = '';
+    // Overflow is content past the frame's padding, or past its column: a number or a word running into its neighbour.
+    const box = scr.getBoundingClientRect(), padB = parseFloat(getComputedStyle(scr).paddingBottom), padR = parseFloat(getComputedStyle(scr).paddingRight);
+    const over = [...scr.querySelectorAll('*')].some((el) => { const r = el.getBoundingClientRect(); return r.bottom > box.bottom - padB + 1 || r.right > box.right - padR + 1 || el.scrollWidth > el.clientWidth + 1 && el.clientWidth > 0 && getComputedStyle(el).display !== 'inline'; });
+    if (!over) break;
+    if (s.items && s.items.length > 1) {
+      s.items.pop();
+      // A dropped line is counted, so "And N more" stays the real number.
+      if (!s.total) { const m = /^And (\d[\d,]*) (.*)$/.exec(s.more || ''); s.more = m ? `And ${fmt(Number(m[1].replace(/,/g, '')) + 1)} ${m[2]}` : 'And 1 more'; }
+    }
+    else if (s.groups && s.groups.length > 2) s.groups.splice(s.groups.length - 2);
+    else break;
+  }
+  const clip = scr.querySelector('video.clip'); if (clip) clip.play().catch(() => {});
+  if (sc.layout === 'celebrate' || sc.priority === 'now') burst();
+}
+function burst() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || new URLSearchParams(location.search).get('still')) return;
+  const c = $('party'), x = c.getContext('2d');
+  c.width = innerWidth; c.height = innerHeight;
+  const css = getComputedStyle(document.documentElement), colors = ROT.map((k) => css.getPropertyValue(`--${k}`).trim());
+  const bits = Array.from({ length: 220 }, () => ({ x: c.width / 2, y: c.height * .45, vx: (Math.random() - .5) * 26, vy: -Math.random() * 22 - 6, r: Math.random() * 6 + 4, c: colors[Math.floor(Math.random() * colors.length)], a: Math.random() * 6, s: (Math.random() - .5) * .4 }));
+  const t0 = performance.now();
+  const frame = (t) => {
+    x.clearRect(0, 0, c.width, c.height);
+    for (const b of bits) { b.vy += .55; b.vx *= .99; b.x += b.vx; b.y += b.vy; b.a += b.s; x.save(); x.translate(b.x, b.y); x.rotate(b.a); x.fillStyle = b.c; x.fillRect(-b.r, -b.r / 2, b.r * 2, b.r); x.restore(); }
+    if (t - t0 < 4500) requestAnimationFrame(frame); else x.clearRect(0, 0, c.width, c.height);
+  };
+  requestAnimationFrame(frame);
+}
+
+// ---------- the rotation ----------
+// It runs on the wall clock, so every screen in the office shows the same scene at the same moment. ?scene=<name> pins one.
+const PIN = new URLSearchParams(location.search).get('scene');
+let WALL = null, PLAN = [], shown = null, SKIP = 0;
 function at() {
-  const list = plan(WALL), total = list.reduce((n, x) => n + x[1], 0);
-  let t = ((Date.now() / 1000 + SKIP) % total + total) % total, i = 0;
-  while (t >= list[i][1]) { t -= list[i][1]; i += 1; }
-  return { list, total, t, i };
+  const list = PLAN, total = list.reduce((n, x) => n + x.s, 0) || 1;
+  const now = Date.now() / 1000 + SKIP, loop = Math.floor(now / total);
+  let t = ((now % total) + total) % total, i = 0;
+  while (i < list.length - 1 && t >= list[i].s) { t -= list[i].s; i += 1; }
+  return { list, total, t, i, loop };
+}
+function rotate() {
+  if (!WALL || !PLAN.length) return;
+  const { list, t, i, loop } = at();
+  const entry = (PIN && list.find((x) => x.name === PIN)) || list[i];
+  const key = `${entry.name}:${entry.name === 'highlight' ? loop : ''}:${WALL.at || ''}`;
+  if (key !== shown) {
+    shown = key;
+    const sc = entry.make(WALL, loop);
+    draw(sc && passes(sc) ? sc : entry.make(WALL, 0));
+  }
+  $('loop').innerHTML = list.length < 2 || PIN ? '' : list.map((x, k) => `<i class="${k === i ? 'on' : k < i ? 'done' : ''}" style="--p:${k === i ? Math.round((t / x.s) * 100) : 0}%" title="${esc(x.name)}"><b></b></i>`).join('');
 }
 function go(k) {
   const { list, total, t, i } = at();
-  const to = ((k % list.length) + list.length) % list.length;
-  const start = (j) => list.slice(0, j).reduce((n, x) => n + x[1], 0);
+  const to = ((k % list.length) + list.length) % list.length, start = (j) => list.slice(0, j).reduce((n, x) => n + x.s, 0);
   SKIP += ((start(to) - (start(i) + t)) % total + total) % total + 0.01;
   rotate();
 }
 document.addEventListener('click', (e) => {
-  if (PIN) return;
-  const dot = e.target.closest('#scenes i');
+  if (PIN || !PLAN.length) return;
+  const dot = e.target.closest('#loop i');
   if (dot) return go([...dot.parentNode.children].indexOf(dot));
   go(at().i + (e.clientX < innerWidth / 2 ? -1 : 1));
 });
 document.addEventListener('keydown', (e) => {
-  if (PIN) return;
+  if (PIN || !PLAN.length) return;
   if (e.key === 'ArrowRight' || e.key === ' ') go(at().i + 1);
   if (e.key === 'ArrowLeft') go(at().i - 1);
 });
-function rotate() {
-  const list = plan(WALL);
-  const total = list.reduce((n, x) => n + x[1], 0);
-  let t = ((Date.now() / 1000 + SKIP) % total + total) % total, i = 0;
-  while (t >= list[i][1]) { t -= list[i][1]; i += 1; }
-  const name = PIN || list[i][0];
-  if (name !== shown) {
-    shown = name;
-    $('main').classList.toggle('off', name !== 'live');
-    for (const n of ['moments', 'video']) $(`sc-${n}`).classList.toggle('off', name !== n);
-    const calm = name.startsWith('calm:') && calmSlides(WALL).find((x) => `calm:${x.id}` === name);
-    if (calm) renderCalm(calm);
-    $('sc-calm').classList.toggle('off', !calm);
-    const card = name.startsWith('card:');
-    if (card) renderCard(Number(name.slice(5)));
-    $('sc-cards').classList.toggle('off', !card);
-    const board = name.startsWith('board:') && boardSlides(WALL).find((x) => `board:${x.id}` === name);
-    if (board) $('sc-board').innerHTML = board.html;
-    $('sc-board').classList.toggle('off', !board);
-    document.querySelector('footer').style.visibility = calm || card || board ? 'hidden' : '';
-    // A scene that comes back plays its entrance again.
-    if (WALL && name === 'moments') renderMoments(WALL);
-    const vid = $('vi');
-    if (name === 'video' && vid.src) { vid.currentTime = 0; vid.play().catch(() => {}); } else vid.pause();
-  }
-  $('scenes').innerHTML = list.length < 2 || PIN ? '' : list.map(([n], k) => `<i class="${k === i ? 'on' : k < i ? 'done' : ''}" style="--p:${k === i ? Math.round((t / list[i][1]) * 100) : 0}%" title="${n}"><b></b></i>`).join('');
-}
+function render(w) { WALL = w; PLAN = plan(w); shown = null; rotate(); }
 
-function render(w) {
-  WALL = w;
-  renderVideo(w.video);
-  if (shown === 'moments') renderMoments(w);
-  renderReleases(w.releases);
-  renderGrowth(w.growth);
-  const t = w.today;
-  renderRings(w.live.rows); renderHero(w); renderThreads(w.live, t); renderTicker(t.feed, w.mrs.merged);
-  count($('b-runs'), t.conversations ?? t.runs); $('b-runs-s').innerHTML = `today<br>with ${t.people} ${t.people === 1 ? 'person' : 'people'}`;
-  const ms = w.mrs.merged, last = ms[0], product = ms.filter((m) => m.product !== false).length;
-  count($('b-merged'), ms.length); $('b-merged-s').innerHTML = last ? `${product} in the product<br>last${last.by ? ` by ${esc(last.by)}` : ''} ${ilTime.format(new Date(last.at))}` : 'none yet today';
-  count($('b-waiting'), w.mrs.waiting.length); $('b-waiting-s').innerHTML = `on a person${w.mrs.people[0] ? `<br>most on ${esc(w.mrs.people[0].name)}` : ''}`;
-  // A merge since the last poll gets the party. The first load only learns what was there.
-  // The public copy reloads for each new snapshot, so it keeps what it saw in localStorage, and a
-  // first visit there celebrates what merged in the last snapshot window.
-  if (!SNAP) {
-    if (seenMerged) { const fresh = w.mrs.merged.find((m) => !seenMerged.has(m.ref)); if (fresh) party(fresh); }
-    seenMerged = new Set(w.mrs.merged.map((m) => m.ref));
-    return;
-  }
-  if (!seenMerged) {
-    let kept = null;
-    try { kept = JSON.parse(localStorage.getItem('wall-merged')); } catch { /* first load */ }
-    seenMerged = new Set(Array.isArray(kept) ? kept : w.mrs.merged.filter((m) => Date.parse(m.at) <= Date.parse(SNAP.at) - SNAP.every).map((m) => m.ref));
-  }
-  celebrate(w.mrs.merged);
-}
-// The public copy (viewer/lib/wall-public.js) carries its numbers and never calls the box.
+// ---------- data ----------
+// The public copy (viewer/lib/wall-public.js) carries its numbers and never calls the box; the box's /wall polls its API.
 let SNAP = window.WALL_SNAPSHOT || null;
 // Until snapshot.json answers, the public copy reloads two minutes after its next snapshot is due.
 let RELOAD_AT = SNAP ? Math.max(Date.now() + 60000, Date.parse(SNAP.at) + SNAP.every + 120000) : Date.now() + 4 * 3600 * 1000;
 async function poll() {
-  if (SNAP) { lastOk = Date.parse(SNAP.at); render(SNAP.data); document.fonts.ready.then(() => renderThreads(SNAP.data.live, SNAP.data.today)); return; }
+  if (SNAP) { render({ at: SNAP.at, ...SNAP.data }); document.fonts.ready.then(() => { shown = null; rotate(); }); return; }
   try {
     const r = await fetch(`/api/wall${location.search}`, { credentials: 'same-origin' });
     if (r.status === 401 || r.status === 403) { $('gate').style.display = 'grid'; return; }
     $('gate').style.display = 'none';
     if (!r.ok) throw new Error(r.status);
-    const w = await r.json(); lastOk = Date.now();
+    const w = await r.json();
+    // Archie's own scenes reach the box's /wall only; the public copy never carries them.
+    try { const t = await fetch('/api/tv', { credentials: 'same-origin' }); if (t.ok) w.tv = await t.json(); } catch { /* the wall shows without them */ }
     render(w);
-    // The web font swaps in after the first fit and makes the rows taller, so fit them again.
-    document.fonts.ready.then(() => renderThreads(w.live, w.today));
-  } catch { /* the dot turns red below */ }
-}
-function tick() {
-  const now = Date.now();
-  rotate();
-  $('clock').textContent = ilSec.format(new Date(now));
-  for (const el of document.querySelectorAll('.th')) {
-    const usual = Number(el.dataset.usual) * 60000 || SPAN, ms = now - Date.parse(el.dataset.since), pct = Math.min(100, (ms / usual) * 100);
-    el.classList.toggle('over', ms > usual);
-    el.querySelector('.t span').textContent = dur(ms);
-    el.querySelector('.line i').style.width = `${pct}%`;
-    el.querySelector('.line b').style.left = `${pct}%`;
-  }
-  const s = Math.round((now - lastOk) / 1000), stale = !lastOk || s > (SNAP ? 3 * SNAP.every / 1000 : 120);
-  $('dot').classList.toggle('stale', stale);
-  $('fresh').textContent = !lastOk ? 'connecting' : stale ? `no data for ${Math.round(s / 60)} min` : SNAP ? `updated ${ilTime.format(new Date(lastOk))} · next ${ilTime.format(new Date(lastOk + SNAP.every))} · Israel time` : 'live · Israel time';
-}
-function celebrate(list) {
-  const fresh = (list || []).filter((m) => !seenMerged.has(m.ref));
-  for (const m of list || []) seenMerged.add(m.ref);
-  try { localStorage.setItem('wall-merged', JSON.stringify([...seenMerged])); } catch { /* private mode */ }
-  fresh.slice(0, 5).forEach((m, i) => setTimeout(() => party(m), i * 7000));
+    // The web font swaps in after the first fit and changes how lines wrap, so fit again.
+    document.fonts.ready.then(() => { shown = null; rotate(); });
+  } catch { /* the next poll tries again; the TV keeps the last good screen */ }
 }
 // The public copy asks GitHub for snapshot.json each minute. New numbers render in place, with no reload.
 // A new page id means a new design: the page fades to its background and reloads, so the TV never flashes.
@@ -951,121 +468,7 @@ function quietReload() {
   document.body.style.opacity = '0';
   setTimeout(() => location.replace(`${location.pathname}?t=${Date.now()}`), 900);
 }
-function party(mr) {
-  const toast = $('toast');
-  toast.querySelector('.ref').textContent = mr.repo ? `${repoName(mr.repo)} · ${mr.ref}` : mr.ref;
-  toast.querySelector('.ti').textContent = mr.title;
-  toast.querySelector('.by').textContent = mr.by ? `merged by ${mr.by}` : '';
-  toast.classList.add('on');
-  setTimeout(() => toast.classList.remove('on'), 6000);
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const c = $('party'), x = c.getContext('2d');
-  c.width = innerWidth; c.height = innerHeight;
-  const css = getComputedStyle(document.documentElement);
-  const colors = Object.keys(KINDS).map((k) => css.getPropertyValue(`--${k}`).trim());
-  const bits = Array.from({ length: 220 }, () => ({ x: c.width / 2, y: c.height * .45, vx: (Math.random() - .5) * 26, vy: -Math.random() * 22 - 6, r: Math.random() * 6 + 4, c: colors[Math.floor(Math.random() * colors.length)], a: Math.random() * 6, s: (Math.random() - .5) * .4 }));
-  const t0 = performance.now();
-  const frame = (t) => {
-    x.clearRect(0, 0, c.width, c.height);
-    for (const b of bits) { b.vy += .55; b.vx *= .99; b.x += b.vx; b.y += b.vy; b.a += b.s; x.save(); x.translate(b.x, b.y); x.rotate(b.a); x.fillStyle = b.c; x.fillRect(-b.r, -b.r / 2, b.r * 2, b.r); x.restore(); }
-    if (t - t0 < 4500) requestAnimationFrame(frame); else x.clearRect(0, 0, c.width, c.height);
-  };
-  requestAnimationFrame(frame);
-}
-if (new URLSearchParams(location.search).get('party')) setTimeout(() => party({ ref: 'archie-core !908', title: 'the wall gets one live presence' }), 2500);
-// ---------- Arc ----------
-// Every few seconds Arc hops onto a tile of the scene on screen, circles it and writes a note. The
-// ink is its own layer and fades, so a TV running for days keeps nothing. Only ?arc=1 shows it.
-const ARC_NOTES = [
-  ['.big', ['counted twice', 'checked ✓', 'adds up']], ['.th', ['on it', 'almost there', 'looking good']],
-  ['.train.qa .card', ["QA's turn", 'on track']], ['.train.next .card', ['next up', 'coming soon']],
-  ['.train.shipped .card', ['shipped ✓', 'done']], ['.train.live .card', ['live ✓', 'shipped ✓']], ['#g-chart', ['up and to the right', 'nice bars']],
-  ['.mult .m', ['noted', 'checked ✓']], ['#say', ['well said', 'noted']],
-  ['.who-row', ['thank you!', 'busy day']], ['.dayfact', ['true story', 'checked ✓']], ['#vi', ['I made this', 'watch this']], ['#cd .head', ['heads up', 'noted']],
-];
-const ARC_INK = ['--review', '--accent', '--question', '--verify'];
-const pick = (a) => a[Math.floor(Math.random() * a.length)];
-const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-const SVGNS = 'http://www.w3.org/2000/svg';
-let arcAt = null, arcLast = null;
-function arcTargets() {
-  const root = !shown || shown === 'live' ? $('main') : shown.startsWith('card:') ? $('sc-cards') : shown.startsWith('calm:') ? $('sc-calm') : $(`sc-${shown}`);
-  const out = [];
-  for (const [sel, notes] of ARC_NOTES) for (const el of root.querySelectorAll(sel)) {
-    const r = el.getBoundingClientRect();
-    if (el !== arcLast && r.width > 30 && r.height > 16 && r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth) out.push({ el, notes });
-  }
-  return out;
-}
-function arcHop(x, y) {
-  const arc = $('arc');
-  if (!arcAt) { arcAt = { x, y }; arc.style.transform = `translate(${x}px, ${y}px)`; return Promise.resolve(); }
-  const { x: x0, y: y0 } = arcAt, d = Math.hypot(x - x0, y - y0), h = Math.min(innerHeight * .3, 40 + d * .35), dir = Math.sign(x - x0) || 1, n = 24;
-  const frames = Array.from({ length: n + 1 }, (_, i) => { const t = i / n; return { transform: `translate(${x0 + (x - x0) * t}px, ${y0 + (y - y0) * t - h * 4 * t * (1 - t)}px) rotate(${dir * 14 * Math.sin(Math.PI * t)}deg)` }; });
-  arcAt = { x, y };
-  arc.style.transform = frames[n].transform;
-  return arc.animate(frames, { duration: 650 + d * .5, easing: 'ease-in-out' }).finished
-    .then(() => arc.querySelector('.bob').animate([{ transform: 'scale(1.1, .84)' }, { transform: 'scale(1)' }], { duration: 280, easing: 'ease-out' }).finished);
-}
-function arcLook(x, y) {
-  const arc = $('arc'), W = arc.offsetWidth, dx = x - (arcAt ? arcAt.x : 0) - W * .5, dy = y - (arcAt ? arcAt.y : 0), n = Math.hypot(dx, dy) || 1;
-  $('arc-look').setAttribute('transform', `translate(${(4 * dx / n).toFixed(1)} ${(4 * dy / n).toFixed(1)})`);
-}
-// A hand-drawn loop round a small tile, a wavy underline and a tick under a big one.
-function arcStroke(r) {
-  const big = r.height > innerHeight * .4 || r.width > innerWidth * .45, j = () => (Math.random() - .5) * 3, pts = [];
-  if (big) {
-    const y = r.bottom + 6, x0 = r.left + r.width * .1, x1 = r.right - r.width * .25;
-    for (let i = 0; i <= 40; i++) { const x = x0 + (x1 - x0) * (i / 40); pts.push([x, y + Math.sin(i / 2.2) * 4 + j()]); }
-    pts.push([x1 + 14, y + 10], [x1 + 44, y - 26]);
-  } else {
-    const cx = r.left + r.width / 2, cy = r.top + r.height / 2, rx = r.width / 2 + 14, ry = r.height / 2 + 12, a0 = -2.3 + Math.random() * .4;
-    for (let i = 0; i <= 72; i++) { const a = a0 + (i / 72) * Math.PI * 2.2, k = 1 + i * .0012; pts.push([cx + Math.cos(a) * rx * k + j(), cy + Math.sin(a) * ry * k + j()]); }
-  }
-  return `M${pts.map((p) => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' L')}`;
-}
-async function arcFix({ el, notes }, scene) {
-  const left = () => shown !== scene, ink = $('arc-ink'), r = el.getBoundingClientRect(), color = `var(${pick(ARC_INK)})`;
-  ink.setAttribute('viewBox', `0 0 ${innerWidth} ${innerHeight}`);
-  const g = document.createElementNS(SVGNS, 'g'), path = document.createElementNS(SVGNS, 'path'), text = document.createElementNS(SVGNS, 'text');
-  path.setAttribute('d', arcStroke(r)); path.setAttribute('pathLength', '1'); path.style.stroke = color; path.style.strokeDasharray = '1';
-  const fs = innerWidth * .02, above = r.top > fs * 2.2, note = pick(notes);
-  text.setAttribute('x', Math.max(arcAt.x - 4, fs * note.length * .5)); text.setAttribute('text-anchor', 'end'); text.setAttribute('y', above ? r.top - 8 : r.bottom + fs * 1.6);
-  text.setAttribute('font-size', fs); text.style.fill = color;
-  g.append(path, text); ink.append(g);
-  $('arc-draw').beginElement();
-  await path.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 1100, easing: 'ease-in-out', fill: 'forwards' }).finished;
-  for (const c of note) { if (left()) break; text.textContent += c; await wait(70); }
-  if (left()) { g.remove(); return; }
-  el.animate([{ transform: 'none' }, { transform: 'rotate(-1.2deg) scale(1.02)' }, { transform: 'rotate(1deg) scale(1.02)' }, { transform: 'none' }], { duration: 500 });
-  for (let i = 0; i < 5; i++) {
-    const s = document.createElementNS(SVGNS, 'path'), x = r.left + Math.random() * r.width, y = r.top + (Math.random() < .5 ? 0 : r.height), k = 6 + Math.random() * 6;
-    s.setAttribute('d', `M${x} ${y - k} L${x} ${y + k} M${x - k} ${y} L${x + k} ${y}`); s.style.stroke = color; s.style.transformOrigin = `${x}px ${y}px`;
-    g.append(s);
-    s.animate([{ opacity: 0, transform: 'scale(0)' }, { opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(.4) rotate(45deg)' }], { duration: 900, delay: i * 90, fill: 'both' });
-  }
-  (async () => { for (let t = 0; t < 3200 && !left(); t += 200) await wait(200); await g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: left() ? 300 : 900 }).finished; g.remove(); })();
-  await wait(1200);
-}
-async function arcLife() {
-  const arc = $('arc'), W = arc.offsetWidth, H = arc.offsetHeight;
-  await arcHop(innerWidth * .02, innerHeight - H - innerHeight * .06).catch(() => {});
-  for (;;) {
-    const t = pick(arcTargets()), scene = shown;
-    if (t) {
-      arcLast = t.el;
-      const r = t.el.getBoundingClientRect(), x = Math.min(Math.max(r.right - W * .8, 8), innerWidth - W - 8), y = Math.min(Math.max(r.top - H * .7, 8), innerHeight - H - 8);
-      arcLook(x + W / 2, y); await wait(250);
-      await arcHop(x, y).catch(() => {}); arcLook(r.left + r.width / 2, r.top + r.height / 2);
-      // The wall moved on mid-hop: the tile is gone, so draw nothing.
-      if (shown === scene) await arcFix(t, scene).catch(() => {}); // a TV runs for days: one bad draw must not end Arc
-    }
-    await wait(3000 + Math.random() * 2500);
-  }
-}
-if (new URLSearchParams(location.search).get('arc') !== '1' || matchMedia('(prefers-reduced-motion: reduce)').matches) { $('arc').remove(); $('arc-ink').remove(); } else document.fonts.ready.then(arcLife);
-pollBoards(); setInterval(pollBoards, 10 * 60000);
-poll(); if (!SNAP) setInterval(poll, 15000); else setInterval(pollSnapshot, 60000); setInterval(tick, 1000);
+poll(); if (!SNAP) setInterval(poll, 15000); else setInterval(pollSnapshot, 60000); setInterval(rotate, 1000);
 // A TV runs for days: reload every few hours so a new deploy of this page reaches it.
 // A fresh query string gets past the 10-minute cache GitHub Pages puts on the page.
 setInterval(() => { if (Date.now() >= RELOAD_AT) (SNAP ? quietReload() : location.reload()); }, 15000);
