@@ -274,22 +274,13 @@ function sceneGrowth(w) {
   return { id: 'growth', layout: 'bars', kicker: 'Growth', context: 'MRs merged per week', window: `last ${weeks.length} weeks`,
     title: 'MRs merged each week', line: b > a ? `From ${fmt(a)} to ${fmt(b)} a week` : '', highlightLast: 2, series: weeks.map((x) => ({ label: dayMonth(x.start), value: x.merged })) };
 }
-// The people Archie merged most for: the box's 30-day ranks, else this week's, counted here.
-function sceneFans(w) {
-  let ranks, line, win;
-  const fans = (w.wins || {}).fans;
-  if (fans && (fans.ranks || []).length >= 3) {
-    ranks = fans.ranks; win = `last ${fans.days || 30} days`;
-    line = `${plural(fans.total, 'MR')} for ${plural(fans.people, 'person', 'people')} in ${fans.days || 30} days`;
-  } else {
-    const by = new Map();
-    for (const m of (w.mrs && w.mrs.week) || []) if (m.for) by.set(m.for, (by.get(m.for) || 0) + 1);
-    ranks = [...by].map(([name, n]) => ({ name, n })).sort((x, y) => y.n - x.n);
-    if (ranks.length < 3) return null;
-    win = 'this week';
-    line = `${plural([...by.values()].reduce((n, v) => n + v, 0), 'MR')} for ${plural(by.size, 'person', 'people')} this week`;
-  }
-  return { id: 'fans', layout: 'podium', kicker: 'Biggest fans', context: 'MRs Archie merged for them', window: win, line, ranks: ranks.slice(0, 6).map((r) => ({ name: r.name, value: r.n ?? r.value })) };
+// Who talked to Archie most today (Aviv, 2026-11-01): the asks each person sent, not the MRs merged for them.
+function sceneTalk(w) {
+  const m = w.moments;
+  const ranks = ((m && m.top) || []).filter((r) => r.name && r.n > 0);
+  if (ranks.length < 2) return null;
+  return { id: 'talk', layout: 'podium', kicker: 'Talked to Archie most', context: 'asks today', asOf: asOfAt(w),
+    line: `${plural(m.asks, 'ask')} from ${plural(m.people, 'person', 'people')} today`, ranks: ranks.slice(0, 6).map((r) => ({ name: r.name, value: r.n })) };
 }
 // Celebrations jump into the loop with confetti: firsts, a record day, milestones, a release that reached Prod today, and Archie's "now" scenes.
 const MERGED_MARKS = (n) => { const out = [350, 400, 500]; for (let m = 750; m <= n + 250; m += 250) out.push(m); return out; };
@@ -335,7 +326,7 @@ function sceneVideo(w) {
   if (!v || !v.name) return null;
   return { id: 'video', layout: 'video', kicker: 'Now showing', context: v.title || '', window: 'from the team', src: SNAP ? `video.mp4?v=${encodeURIComponent(v.name)}` : `/api/wall/video?v=${encodeURIComponent(v.name)}` };
 }
-const SCREENS = [['today', 20, sceneToday], ['highlight', 12, sceneHighlight], ['live', 12, sceneLive], ['shipped', 12, sceneShipped], ['numbers', 12, sceneNumbers], ['growth', 12, sceneGrowth], ['fans', 12, sceneFans], ['video', 15, sceneVideo]];
+const SCREENS = [['today', 20, sceneToday], ['highlight', 12, sceneHighlight], ['live', 12, sceneLive], ['shipped', 12, sceneShipped], ['numbers', 12, sceneNumbers], ['growth', 12, sceneGrowth], ['talk', 12, sceneTalk], ['video', 15, sceneVideo]];
 function plan(w) {
   if (!w) return [];
   const out = [];
@@ -368,6 +359,7 @@ function draw(sc) {
       // A dropped line is counted, so "And N more" stays the real number.
       if (!s.total) { const m = /^And (\d[\d,]*) (.*)$/.exec(s.more || ''); s.more = m ? `And ${fmt(Number(m[1].replace(/,/g, '')) + 1)} ${m[2]}` : 'And 1 more'; }
     }
+    // Groups sit two to a row, so they go a row at a time and the grid never ends on a hole.
     else if (s.groups && s.groups.length > 2) s.groups.splice(s.groups.length - 2);
     else break;
   }
