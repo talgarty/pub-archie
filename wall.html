@@ -7,7 +7,7 @@
 <link rel="icon" href="/archie-favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@700&display=swap" rel="stylesheet">
-<script>if (new URLSearchParams(location.search).get('theme') !== 'light') document.documentElement.classList.add('dark');</script>
+<script>if (new URLSearchParams(location.search).get('theme') === 'dark') document.documentElement.classList.add('dark');</script>
 <style>
 /* Pastel: lavender mesh, Bricolage Grotesque. */
 :root { --bg: #f6f3ff; --ink: #1e1b3a; --mute: #6a6690; --line: rgba(30,27,58,.1); --accent: #6d5dfc;
@@ -15,7 +15,7 @@
   --people: #00a6a6; --merged: #f0569b; --hours: #ff8a3d; --done: #00a6a6; --inqa: #6d5dfc; --indev: #ffb27a;
   --pane: rgba(255,255,255,.6); --tile: rgba(255,255,255,.6); --hi: #fff; --soft: rgba(30,27,58,.07);
   --font: 'Bricolage Grotesque', sans-serif; --r: 1.6vw; --track: .45vw; }
-/* Dark: the same mesh at night, so a TV in a dim room glows instead of glaring. ?theme=light brings the pastel back. */
+/* Dark: the same mesh at night, so a TV in a dim room glows instead of glaring. Off by default; ?theme=dark turns it on. */
 :root.dark { color-scheme: dark; --bg: #0c0a1d; --ink: #efedff; --mute: #9b96c8; --line: rgba(255,255,255,.1); --accent: #8f82ff;
   --coding: #8f82ff; --verify: #2fd6cc; --review: #ff6fae; --question: #ffa35f; --machine: #7d78a8;
   --people: #2fd6cc; --merged: #ff6fae; --hours: #ffa35f; --done: #2fd6cc; --inqa: #8f82ff; --indev: #ffc08f;
