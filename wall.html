@@ -182,6 +182,43 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
 .scene .chap { font-size: 1.3vw; }
 .scene .title { font-weight: 800; font-size: 4.6vw; letter-spacing: -.045em; line-height: .95; }
 .scene .title em { font-style: normal; color: var(--accent); }
+/* Boards (Aviv, 2026-11-01): fixed boards that each answer one question managers ask me, and the cards as fuller scenes between them. */
+.scene.board { align-content: start; gap: 1.5vw; padding: .6vw 0 0; }
+.board .kick { letter-spacing: .3em; font-weight: 600; color: var(--mute); font-size: 1.3vw; text-transform: uppercase; }
+.board h1 { font-weight: 800; font-size: 3.4vw; letter-spacing: -.035em; line-height: 1.04; }
+.board h1 em { font-style: normal; color: var(--accent); } .board h1 em.g { color: var(--done); } .board h1 em.r { color: var(--merged); }
+.board h1.xl { font-size: 4.8vw; }
+.board .sub { font-size: 1.7vw; color: var(--mute); margin-top: -.6vw; }
+.board h2 { font-size: 1.4vw; font-weight: 600; color: var(--mute); margin-bottom: 1.1vw; }
+.board .pn { background: var(--pane); border: 1px solid var(--line); border-radius: 1.4vw; padding: 1.6vw 1.8vw; flex: 1; min-width: 0; }
+.board .pn.alert { border-color: var(--merged); }
+.board .cols { display: flex; gap: 1.4vw; min-height: 0; }
+.board .stk { display: flex; height: 6vw; border-radius: 1.1vw; overflow: hidden; background: var(--line); }
+.board .stk.thin { height: 2.4vw; border-radius: .6vw; }
+.board .stk i { background: var(--k); display: flex; align-items: center; gap: .7vw; padding: 0 1.1vw; overflow: hidden; color: #0c0a1d; white-space: nowrap; transition: width 1s; }
+.board .stk b { font-size: 3vw; font-weight: 800; } .board .stk span { font-size: 1.4vw; font-weight: 600; }
+.board .stk.thin b { font-size: 1.8vw; } .board .stk.thin span { font-size: 1.1vw; }
+.board .lg { display: flex; gap: 1.8vw; font-size: 1.4vw; color: var(--mute); }
+.board .lg span::before { content: ''; display: inline-block; width: 1vw; height: 1vw; border-radius: .3vw; background: var(--k); margin-right: .6vw; vertical-align: -.1vw; }
+.board .lg .cmp { margin-left: auto; color: var(--ink); } .board .lg .cmp::before { display: none; }
+.board table { width: 100%; border-collapse: collapse; font-size: 1.6vw; }
+.board td { padding: .45vw 0; border-bottom: 1px solid var(--line); } .board td + td { text-align: right; color: var(--mute); } .board tr:last-child td { border: 0; }
+.board td i { display: inline-block; width: .8vw; height: .8vw; border-radius: 50%; margin-right: .6vw; background: var(--k); }
+.board .num { font-size: 7.4vw; font-weight: 800; color: var(--indev); line-height: 1; letter-spacing: -.04em; }
+.board .num.g { color: var(--done); } .board .num.r { color: var(--merged); } .board .num small { font-size: 2.2vw; color: var(--mute); font-weight: 600; letter-spacing: 0; }
+.board .pn p { font-size: 1.6vw; margin-top: .7vw; } .board .mute { color: var(--mute); }
+.board .hb { display: flex; align-items: center; gap: .8vw; font-size: 1.5vw; margin-bottom: 1.2vw; }
+.board .hb span { width: 11vw; flex: none; } .board .hb i { height: 2vw; border-radius: .4vw; background: var(--k, var(--merged)); min-width: .3vw; } .board .hb b { font-size: 1.7vw; }
+.board .feed { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.1vw; }
+.board .feed li { font-size: 1.5vw; line-height: 1.2; } .board .feed small { display: block; font-size: 1.1vw; color: var(--mute); margin-bottom: .2vw; }
+.board .days { display: flex; gap: .9vw; height: 18vw; align-items: flex-end; }
+.board .days div { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .4vw; height: 100%; justify-content: flex-end; }
+.board .days i { width: 100%; background: var(--inqa); border-radius: .4vw .4vw 0 0; display: block; }
+.board .days b { font-size: 1.5vw; } .board .days span { font-size: 1.2vw; color: var(--mute); }
+.board .pill { align-self: start; justify-self: start; background: var(--k); color: #0c0a1d; font-weight: 800; font-size: 1.4vw; letter-spacing: .12em; padding: .5vw 1.4vw; border-radius: 999px; text-transform: uppercase; }
+.board .joke { font-size: 1.5vw; color: var(--mute); font-style: italic; }
+.board .asof { font-size: 1.1vw; color: var(--mute); }
+.scene.board:not(.off) > * { animation: pop .7s both; }
 /* Calm slides (Aviv, 2026-11-01): one number and one line each, in place of the board. */
 .scene.calm { align-content: center; gap: 2vw; padding: 0 4vw; }
 .calm .value { font-weight: 800; font-size: 16vw; line-height: .9; letter-spacing: -.05em; color: var(--accent); }
@@ -317,6 +354,7 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
     <div class="chap"><b>Right now</b><span id="cd-n"></span></div>
     <div class="tv" id="cd"><div class="src"></div><div class="head" dir="auto"></div><div class="line" dir="auto"></div><div class="joke"></div></div>
   </section>
+  <section class="scene board off" id="sc-board"></section>
   <section class="scene moments off" id="sc-moments">
     <div class="head">
       <div><div class="chap"><b>Today</b><span id="mo-span"></span></div><div class="title">Who kept me<br>busy <em>today</em></div></div>
@@ -604,6 +642,120 @@ function renderVideo(v) {
   const src = SNAP ? `video.mp4?v=${encodeURIComponent(v.name)}` : `/api/wall/video?v=${encodeURIComponent(v.name)}`;
   if (el.dataset.src !== src) { el.dataset.src = src; el.src = src; }
 }
+// ---------- boards ----------
+// Fixed boards (Aviv, 2026-11-01), each the answer to a question managers and PMs send me: the release, the Q4
+// commitments, and the field's questions. The release is live from the snapshot. Q4 and the field come from
+// boards.json beside this page, with the day they were read, and drop off the wall once that file expires.
+// The cards play between them as fuller scenes, each with the numbers behind its headline.
+let BOARDS = null;
+async function pollBoards() {
+  try { const r = await fetch(`boards.json?t=${Date.now()}`, { cache: 'no-store' }); if (r.ok) { BOARDS = await r.json(); shown = null; } } catch { /* no fixed boards from the file */ }
+}
+const freshBoards = () => (BOARDS && Date.parse(BOARDS.expires) > Date.now() ? BOARDS : null);
+const pc = (n, of) => (of ? (n / of) * 100 : 0);
+const shortDay = (iso) => relDate(String(iso).slice(0, 10));
+const asOf = (iso) => `<div class="asof">read ${esc(shortDay(iso))}</div>`;
+const stk = (parts, cls = '') => `<div class="stk ${cls}">${parts.filter((p) => p.n > 0).map((p) => `<i style="width:${p.w}%;--k:var(--${p.k})">${p.w > 9 ? `<b>${fmt(p.n)}</b>${p.w > 16 && p.l ? `<span>${esc(p.l)}</span>` : ''}` : ''}</i>`).join('')}</div>`;
+const agoH = (h) => (h < 24 ? `${Math.max(1, Math.round(h))} h` : `${Math.round(h / 24)} days`);
+const qaTrain = (r) => r && (r.trains || []).find((t) => (t.on || []).includes('QA') && t.tickets && t.tickets.total);
+const runsWhere = (r) => {
+  const rel = (name) => { if (name === 'next') return 'next release'; const t = (r.trains || []).find((x) => x.name === name); return t && t.date ? `${relDate(t.date)} release` : 'an older build'; };
+  const color = (e) => (e.env === 'dev2' ? 'indev' : e.env === 'qa' ? 'inqa' : 'done');
+  const prod = (r.envs || []).filter((e) => /prod/.test(e.env)), rest = (r.envs || []).filter((e) => !/prod/.test(e.env));
+  const sap = (r.dcs || []).map((d) => ({ label: d.label, release: d.release, k: 'machine' }));
+  return [...prod.map((e) => ({ label: e.label, release: e.release, k: color(e) })), ...sap, ...rest.map((e) => ({ label: e.label, release: e.release, k: color(e) }))]
+    .map((e) => `<tr style="--k:var(--${e.k})"><td><i></i>${esc(e.label)}</td><td>${esc(e.release ? rel(e.release) : 'an older build')}</td></tr>`).join('');
+};
+function boardRelease(w) {
+  const r = w.releases, t = qaTrain(r);
+  if (!t) return null;
+  const k = t.tickets, done = Math.round(pc(k.done, k.total));
+  const last = (r.trains || []).filter((x) => x.shipped && !x.hotfix && x.tickets && x.tickets.total > 20).pop();
+  const next = (r.trains || []).find((x) => x.next);
+  return `<div class="kick">Release · ${esc(relDate(t.date))} · ${esc(relWhen(t).text)}</div>
+  <h1><em class="g">${fmt(k.done)}</em> of ${fmt(k.total)} tickets passed QA. ${fmt(k.qa)} are in QA now.</h1>
+  ${stk([{ n: k.done, w: pc(k.done, k.total), k: 'done', l: 'passed QA' }, { n: k.qa, w: pc(k.qa, k.total), k: 'inqa', l: 'in QA' }, { n: k.dev, w: pc(k.dev, k.total), k: 'indev', l: 'in dev' }])}
+  <div class="lg"><span style="--k:var(--done)">passed QA</span><span style="--k:var(--inqa)">in QA now</span><span style="--k:var(--indev)">${fmt(k.dev)} still in dev</span><span class="cmp">${done}% done${last ? ` · ${esc(relDate(last.date))} shipped ${fmt(last.tickets.total)} tickets` : ''}</span></div>
+  <div class="cols">
+    <div class="pn"><h2>Where each place runs today</h2><table>${runsWhere(r)}</table></div>
+    ${last ? `<div class="pn" style="flex:.8"><h2>Size against the last one</h2><div class="num g">${(k.total / last.tickets.total).toFixed(1)}×</div><p>${fmt(k.total)} tickets against ${fmt(last.tickets.total)} on ${esc(relDate(last.date))}.</p></div>` : ''}
+    ${next ? `<div class="pn" style="flex:.7"><h2>Up next</h2><div class="num">${fmt(next.tickets.total)}</div><p>tickets wait for the release after this one.</p></div>` : ''}
+  </div>`;
+}
+function boardQ4(b) {
+  const q = b && b.q4;
+  if (!q) return null;
+  const p = q.promised, lateMax = Math.max(q.lateTesting, q.lateDev, 1);
+  return `<div class="kick">Q4 commitments · the planning sheet</div>
+  <h1><em class="g">${fmt(q.done)}</em> of ${fmt(q.total)} Q4 commitments done. <em class="r">${fmt(q.late)}</em> past their end date.</h1>
+  ${stk([{ n: q.done, w: pc(q.done, q.total), k: 'done', l: 'done' }, { n: q.testing, w: pc(q.testing, q.total), k: 'inqa', l: 'in testing' }, { n: q.dev, w: pc(q.dev, q.total), k: 'indev', l: 'in dev' }, { n: q.hold, w: pc(q.hold, q.total), k: 'machine' }])}
+  <div class="lg"><span style="--k:var(--done)">done</span><span style="--k:var(--inqa)">in testing</span><span style="--k:var(--indev)">in development</span>${q.hold ? `<span style="--k:var(--machine)">${fmt(q.hold)} on hold</span>` : ''}${q.was ? `<span class="cmp">On ${esc(q.was.day)} only ${fmt(q.was.done)} were done.</span>` : ''}</div>
+  <div class="cols">
+    <div class="pn"><h2>Past end date, by stage</h2>
+      <div class="hb" style="--k:var(--inqa)"><span>in testing</span><i style="width:${pc(q.lateTesting, lateMax) * .5}%"></i><b>${fmt(q.lateTesting)}</b></div>
+      <div class="hb" style="--k:var(--indev)"><span>in dev</span><i style="width:${pc(q.lateDev, lateMax) * .5}%"></i><b>${fmt(q.lateDev)}</b></div>
+      <p class="mute">${q.lateTesting > q.lateDev ? 'Most late work is built and waits for testing.' : 'Most late work is still in development.'}</p></div>
+    ${p ? `<div class="pn"><h2>Promised to customers</h2><div class="num g">${fmt(p.done)}<small> of ${fmt(p.of)}</small></div><p>done. ${fmt(p.testing)} in testing, ${fmt(p.dev)} still in development.</p></div>` : ''}
+    <div class="pn" style="flex:1.5"><h2>Longest past due</h2><ul class="feed">${(q.oldest || []).map((x) => `<li><small>due ${esc(shortDay(x.due))} · ${esc(x.stage)}</small>${esc(x.title)}</li>`).join('')}</ul></div>
+  </div>${asOf(b.at)}`;
+}
+function boardField(b) {
+  const f = b && b.field;
+  if (!f) return null;
+  const top = Math.max(...f.days.map((d) => d[1]), 1), speed = Math.max(f.within4h, f.withinDay, f.overDay, 1);
+  const open = f.open || [];
+  return `<div class="kick">Questions from the field · ${esc(f.channel)} · last 7 days</div>
+  <h1><em>${fmt(f.asked)}</em> questions from CSMs, SEs and Support. <em class="g">${fmt(f.answered)}</em> got an answer, half of them within ${esc(f.medianHours)} hours.</h1>
+  <div class="cols">
+    <div class="pn"><h2>Questions per day</h2><div class="days">${f.days.map(([d, n]) => `<div><b>${fmt(n)}</b><i style="height:${pc(n, top) * .8}%"></i><span>${esc(d)}</span></div>`).join('')}</div></div>
+    <div class="pn"><h2>How fast we answer</h2>
+      <div class="hb" style="--k:var(--done)"><span>within 4 hours</span><i style="width:${pc(f.within4h, speed) * .5}%"></i><b>${fmt(f.within4h)}</b></div>
+      <div class="hb" style="--k:var(--indev)"><span>4 to 24 hours</span><i style="width:${pc(f.withinDay, speed) * .5}%"></i><b>${fmt(f.withinDay)}</b></div>
+      <div class="hb" style="--k:var(--merged)"><span>over a day</span><i style="width:${pc(f.overDay, speed) * .5}%"></i><b>${fmt(f.overDay)}</b></div>
+      <p class="mute">Who asked: ${fmt(f.support)} support forms, ${fmt(f.field)} CSMs and SEs.</p></div>
+    <div class="pn ${open.length ? 'alert' : ''}"><h2>Still waiting</h2><div class="num ${open.length ? 'r' : 'g'}">${fmt(open.length)}</div>${open.slice(0, 2).map((o) => `<p>${esc(o.who)}, since ${esc(new Date(o.since).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jerusalem' }))}.</p>`).join('')}</div>
+  </div>${asOf(b.at)}`;
+}
+// A card's scene: the card's own headline, then the numbers the box already sends about it.
+const PILL = { broke: 'merged', release: 'done', landed: 'done', waits: 'indev', moving: 'inqa' };
+function cardBoard(w, c) {
+  const head = `<div class="pill" style="--k:var(--${c.level === 'yellow' ? 'indev' : c.level === 'red' ? 'merged' : PILL[c.kind] || 'accent'})">${esc(c.source)}</div><h1 class="xl">${esc(c.head)}</h1>${c.line ? `<p class="sub">${esc(c.line)}</p>` : ''}`;
+  const joke = c.joke ? `<div class="joke">${esc(c.joke)}</div>` : '';
+  if (c.kind === 'landed' && w.mrs.merged.length) {
+    const ms = w.mrs.merged.filter((m) => m.product !== false), by = new Map();
+    for (const m of ms) by.set(repoName(m.repo), (by.get(repoName(m.repo)) || 0) + 1);
+    const repos = [...by].sort((a, b) => b[1] - a[1]).slice(0, 5), top = Math.max(...repos.map((x) => x[1]), 1);
+    return `${head}<div class="cols"><div class="pn" style="flex:1.6"><h2>The last ones in</h2><ul class="feed">${ms.slice(0, 5).map((m) => `<li><small>${esc(repoName(m.repo))} · ${esc(m.ref.replace(/^.* /, ''))}${m.by ? ` · ${esc(m.by)}` : ''} · ${esc(ilTime.format(new Date(m.at)))}</small>${esc(m.title)}</li>`).join('')}</ul></div>
+      <div class="pn"><h2>By repo, today</h2>${repos.map(([n, k]) => `<div class="hb" style="--k:var(--done)"><span>${esc(n)}</span><i style="width:${pc(k, top) * .35}%"></i><b>${fmt(k)}</b></div>`).join('')}</div></div>${joke}`;
+  }
+  if (c.kind === 'waits' && w.mrs.waiting.length) {
+    const ws = w.mrs.waiting, band = (a, b) => ws.filter((m) => m.hours >= a && m.hours < b).length;
+    const bands = [['today', band(0, 24), 'done'], ['1 to 3 days', band(24, 72), 'inqa'], ['3 to 7 days', band(72, 168), 'indev'], ['over a week', band(168, 1e9), 'merged']], top = Math.max(...bands.map((x) => x[1]), 1);
+    const ready = ws.filter((m) => m.approved), old = [...ws].sort((a, b) => b.hours - a.hours).slice(0, 4);
+    return `${head}<div class="cols"><div class="pn"><h2>All ${fmt(ws.length)} open, by age</h2>${bands.map(([l, n, k]) => `<div class="hb" style="--k:var(--${k})"><span>${l}</span><i style="width:${pc(n, top) * .45}%"></i><b>${fmt(n)}</b></div>`).join('')}<p class="mute">${fmt(ready.length)} approved and ready to merge. ${fmt(ws.filter((m) => m.conflicts).length)} have conflicts.</p></div>
+      <div class="pn" style="flex:1.5"><h2>Waiting longest</h2><ul class="feed">${old.map((m) => `<li><small>${esc(m.ref)}${m.key ? ` · ${esc(m.key)}` : ''} · open ${esc(agoH(m.hours))}</small>${esc(m.title)}</li>`).join('')}</ul></div></div>${joke}`;
+  }
+  if (c.kind === 'moving' && (w.features || []).length) {
+    const fs = [...w.features].sort((a, b) => (b.moved || 0) - (a.moved || 0)).slice(0, 4);
+    return `${head}<div class="pn"><h2>Features moving most</h2>${fs.map((f) => `<div style="margin-bottom:.8vw"><div style="display:flex;justify-content:space-between;font-size:1.4vw;margin-bottom:.3vw"><span>${esc(f.title)}</span><b>${fmt(f.done)} of ${fmt(f.total)}</b></div>${stk([{ n: f.done, w: pc(f.done, f.total), k: 'done' }, { n: f.building, w: pc(f.building, f.total), k: 'inqa' }, { n: f.waiting, w: pc(f.waiting, f.total), k: 'indev' }, { n: f.blocked, w: pc(f.blocked, f.total), k: 'merged' }], 'thin')}</div>`).join('')}</div>${joke}`;
+  }
+  if (c.kind === 'release' && w.releases && (w.releases.envs || []).length) {
+    const t = qaTrain(w.releases);
+    return `${head}<div class="cols"><div class="pn"><h2>Where each place runs today</h2><table>${runsWhere(w.releases)}</table></div>
+      ${t ? `<div class="pn"><h2>Next in line, ${esc(relDate(t.date))}</h2><div class="num g">${Math.round(pc(t.tickets.done, t.tickets.total))}%</div><p>of ${fmt(t.tickets.total)} tickets passed QA.</p></div>` : ''}</div>${joke}`;
+  }
+  return `${head}${joke}`;
+}
+function boardSlides(w) {
+  if (!w) return [];
+  const b = freshBoards();
+  const fixed = [['release', boardRelease(w)], ['q4', boardQ4(b)], ['field', boardField(b)]].filter((x) => x[1]).map(([id, html]) => ({ id, html, s: 25 }));
+  const cards = (w.cards || []).map((c, k) => ({ id: `card${k}`, html: cardBoard(w, c), s: 15 }));
+  // A card plays after each fixed board, so the live news never waits a whole loop.
+  const out = [];
+  fixed.forEach((x, i) => { out.push(x); if (cards[i]) out.push(cards[i]); });
+  return [...out, ...cards.slice(fixed.length)];
+}
 // The rotation runs on the wall clock, so every screen in the office shows the same scene at the same moment.
 // A scene with nothing to show drops out; ?scene=<name> pins one.
 const PIN = new URLSearchParams(location.search).get('scene');
@@ -630,11 +782,16 @@ function renderCalm(x) {
 // One card plays after each calm slide, so the cards take turns; outside live hours there are none.
 const CARD_S = 12;
 function plan(w) {
-  const cards = (w && w.cards) || [], calm = calmSlides(w).map((x) => [`calm:${x.id}`, 20]);
+  // The boards lead (Aviv, 2026-11-01), each card a full scene between them; without a board the calm slides and the short cards take turns.
+  const boards = boardSlides(w).map((x) => [`board:${x.id}`, x.s]);
   const all = [];
-  for (let k = 0; k < Math.max(calm.length, cards.length); k += 1) {
-    if (calm.length) all.push(calm[k % calm.length]);
-    if (cards.length) all.push([`card:${k % cards.length}`, CARD_S]);
+  if (boards.length) all.push(...boards);
+  else {
+    const cards = (w && w.cards) || [], calm = calmSlides(w).map((x) => [`calm:${x.id}`, 20]);
+    for (let k = 0; k < Math.max(calm.length, cards.length); k += 1) {
+      if (calm.length) all.push(calm[k % calm.length]);
+      if (cards.length) all.push([`card:${k % cards.length}`, CARD_S]);
+    }
   }
   if (w && w.video) all.push(['video', 45]);
   return all.length ? all : [['live', 60]];
@@ -696,7 +853,10 @@ function rotate() {
     const card = name.startsWith('card:');
     if (card) renderCard(Number(name.slice(5)));
     $('sc-cards').classList.toggle('off', !card);
-    document.querySelector('footer').style.visibility = calm || card ? 'hidden' : '';
+    const board = name.startsWith('board:') && boardSlides(WALL).find((x) => `board:${x.id}` === name);
+    if (board) $('sc-board').innerHTML = board.html;
+    $('sc-board').classList.toggle('off', !board);
+    document.querySelector('footer').style.visibility = calm || card || board ? 'hidden' : '';
     // A scene that comes back plays its entrance again.
     if (WALL && name === 'moments') renderMoments(WALL);
     const vid = $('vi');
@@ -900,6 +1060,7 @@ async function arcLife() {
   }
 }
 if (new URLSearchParams(location.search).get('arc') !== '1' || matchMedia('(prefers-reduced-motion: reduce)').matches) { $('arc').remove(); $('arc-ink').remove(); } else document.fonts.ready.then(arcLife);
+pollBoards(); setInterval(pollBoards, 10 * 60000);
 poll(); if (!SNAP) setInterval(poll, 15000); else setInterval(pollSnapshot, 60000); setInterval(tick, 1000);
 // A TV runs for days: reload every few hours so a new deploy of this page reaches it.
 // A fresh query string gets past the 10-minute cache GitHub Pages puts on the page.

@@ -1,0 +1,93 @@
+{
+ "at": "2026-11-01T13:28:00Z",
+ "expires": "2026-11-08T23:59:00Z",
+ "q4": {
+  "total": 59,
+  "done": 22,
+  "testing": 24,
+  "dev": 12,
+  "hold": 1,
+  "late": 23,
+  "lateTesting": 18,
+  "lateDev": 5,
+  "promised": {
+   "of": 33,
+   "done": 14,
+   "testing": 14,
+   "dev": 5
+  },
+  "was": {
+   "day": "21 Oct",
+   "done": 9
+  },
+  "oldest": [
+   {
+    "title": "Faster asset library paging",
+    "due": "2026-09-20",
+    "stage": "testing"
+   },
+   {
+    "title": "Create microlearning with AI",
+    "due": "2026-09-24",
+    "stage": "testing"
+   },
+   {
+    "title": "Learner-experience quality score",
+    "due": "2026-09-24",
+    "stage": "in dev"
+   },
+   {
+    "title": "Desktop recording improvements",
+    "due": "2026-10-01",
+    "stage": "testing"
+   }
+  ]
+ },
+ "field": {
+  "channel": "#ask-learning-arc",
+  "asked": 22,
+  "answered": 21,
+  "medianHours": 1.2,
+  "within4h": 15,
+  "withinDay": 5,
+  "overDay": 1,
+  "support": 7,
+  "field": 15,
+  "days": [
+   [
+    "Sun",
+    1
+   ],
+   [
+    "Mon",
+    4
+   ],
+   [
+    "Tue",
+    7
+   ],
+   [
+    "Wed",
+    2
+   ],
+   [
+    "Thu",
+    4
+   ],
+   [
+    "Fri",
+    4
+   ],
+   [
+    "Sat",
+    0
+   ]
+  ],
+  "open": [
+   {
+    "who": "Support form",
+    "since": "2026-10-30T08:44:00Z"
+   }
+  ]
+ }
+}
