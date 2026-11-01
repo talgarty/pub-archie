@@ -54,7 +54,11 @@ body { font-family: var(--font); font-size: 1.05vw; -webkit-font-smoothing: anti
 .screen { position: relative; height: 100vh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding: 2vw 2.6vw 0; gap: 1.3vw; }
 header { display: flex; align-items: baseline; justify-content: space-between; font-size: 1.1vw; color: var(--mute); }
 header .me { font-size: 1.7vw; color: var(--ink); letter-spacing: -.01em; }
-header .me b { font-weight: inherit; color: var(--accent); }
+header .me { display: inline-flex; align-items: center; gap: 1.1vw; }
+header .me .brand { display: inline-flex; align-items: center; font-size: 2.3vw; font-weight: 700; letter-spacing: -.02em; }
+header .me .brand b { font-weight: inherit; color: var(--accent); }
+header .me .brand i { font-style: normal; font-size: .62em; font-weight: 800; letter-spacing: .06em; margin-left: .45vw; padding: .15vw .55vw; border-radius: .45vw; background: var(--accent); color: var(--bg); }
+header .me .for { color: var(--mute); }
 header .clock { font-size: 1.7vw; color: var(--ink); }
 header .live { display: inline-flex; align-items: center; gap: .5vw; margin-right: 1.4vw; }
 .dot { width: .6vw; height: .6vw; border-radius: 50%; background: var(--accent); animation: breathe 2s infinite; }
@@ -317,7 +321,7 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
 <canvas id="party"></canvas>
 <div class="screen">
   <header>
-    <div class="me"><b>Archie</b> at work for Learning Arc</div>
+    <div class="me"><span class="brand"><b>Archie</b><i>TV</i></span><span class="for">for Learning Arc</span></div>
     <div><span class="scenes" id="scenes"></span><span class="live"><i class="dot" id="dot"></i><span id="fresh">connecting</span></span><span class="clock" id="clock">--:--</span></div>
   </header>
   <main id="main">
