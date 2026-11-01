@@ -282,6 +282,49 @@ function sceneTalk(w) {
   return { id: 'talk', layout: 'podium', kicker: 'Talked to Archie most', context: 'asks today', asOf: asOfAt(w),
     line: `${plural(m.asks, 'ask')} from ${plural(m.people, 'person', 'people')} today`, ranks: ranks.slice(0, 6).map((r) => ({ name: r.name, value: r.n })) };
 }
+// Fun breaks (Aviv, 2026-11-01): a joke, a quote or a fun fact after every few screens, a new one each loop.
+// They laugh at code, the machine or Archie, never at a person, and pass the same success-first check.
+const JOKES = [
+  ['There are 10 kinds of people.', 'Those who read binary, and those who do not.'],
+  ['A SQL query walks into a bar.', 'It walks up to two tables and asks: may I join you?'],
+  ['How many developers to change a light bulb?', 'None. That is a hardware problem.'],
+  ['Why do developers love dark mode?', 'Because light attracts the six-legged kind.'],
+  ['To understand recursion,', 'you must first understand recursion.'],
+  ['Why do developers mix up Halloween and Christmas?', 'Because Oct 31 equals Dec 25.'],
+  ['Archie\'s favourite workout?', 'Push-ups. Straight to origin.'],
+  ['git commit -m "final"', 'Then "final final". Then "final final v2".'],
+  ['Why did the JavaScript developer feel lonely?', 'They did not Node how to Express themselves.'],
+  ['The cloud is just', 'someone else\'s computer.'],
+  ['Archie never sleeps.', 'It just rests between merges.'],
+  ['Why do Java developers wear glasses?', 'Because they cannot C#.'],
+  ['Input: coffee.', 'Output: code. The original continuous integration.'],
+  ['!false', 'Funny, because it is true.'],
+  ['Archie\'s weekend plans?', 'Rebase, review, repeat.'],
+];
+const QUOTES = [
+  ['Talk is cheap. Show me the code.', 'Linus Torvalds'],
+  ['Make it work, make it right, make it fast.', 'Kent Beck'],
+  ['Simplicity is prerequisite for reliability.', 'Edsger Dijkstra'],
+  ['Programs must be written for people to read.', 'Harold Abelson'],
+  ['The best way to predict the future is to invent it.', 'Alan Kay'],
+  ['First, solve the problem. Then, write the code.', 'John Johnson'],
+  ['Tell me and I forget. Teach me and I remember. Involve me and I learn.', 'Benjamin Franklin'],
+  ['The more that you read, the more things you will know.', 'Dr. Seuss'],
+  ['Working together is success.', 'Henry Ford'],
+  ['Learn as if you were to live forever.', 'Mahatma Gandhi'],
+];
+function funScenes(w) {
+  const out = [], m = w && w.moments;
+  if (m && m.early && m.early.who) out.push({ id: 'early', layout: 'moment', kicker: '🐦 Early bird', title: m.early.who, em: `at ${ilTime.format(new Date(m.early.at))}`, line: 'The first to ask Archie today.' });
+  if (m && m.busiestHour && m.busiestHour.n > 1) out.push({ id: 'rush', layout: 'moment', kicker: '⚡ Rush hour', title: `${m.busiestHour.hour}:00 was`, em: 'the busiest hour', line: `${plural(m.busiestHour.n, 'ask')} for Archie in one hour. Coffee helped.` });
+  // Jokes and quotes take turns, so two jokes never play back to back.
+  for (let k = 0; k < Math.max(JOKES.length, QUOTES.length); k += 1) {
+    if (JOKES[k]) out.push({ id: `joke${k}`, layout: 'moment', kicker: '😄 Joke break', title: JOKES[k][0], line: JOKES[k][1] });
+    if (QUOTES[k]) out.push({ id: `quote${k}`, layout: 'moment', kicker: '💬 Words to code by', title: `“${QUOTES[k][0]}”`, line: `— ${QUOTES[k][1]}` });
+  }
+  return out.filter(passes);
+}
+const FUN_EVERY = 3;
 // Celebrations jump into the loop with confetti: firsts, a record day, milestones, a release that reached Prod today, and Archie's "now" scenes.
 const MERGED_MARKS = (n) => { const out = [350, 400, 500]; for (let m = 750; m <= n + 250; m += 250) out.push(m); return out; };
 function celebrations(w) {
@@ -335,6 +378,14 @@ function plan(w) {
   celebrations(w).forEach((sc, k) => out.splice(lead + k, 0, { name: k ? `celebrate:${k}` : 'celebrate', s: 10, make: () => sc }));
   cardScenes(w).filter(passes).forEach((sc, k) => out.push({ name: `card:${k}`, s: 12, make: () => sc }));
   tvScenes(w).filter((sc) => sc.priority !== 'now' && passes(sc)).forEach((sc, k) => out.push({ name: `tv:${k}`, s: sc.seconds || 12, make: () => sc }));
+  // A fun break after every FUN_EVERY screens; each slot moves on through the bank every loop, so the jokes do not repeat soon.
+  const fun = funScenes(w);
+  if (!fun.length || out.length < FUN_EVERY) return out;
+  const slots = Math.floor(out.length / FUN_EVERY);
+  for (let k = slots - 1; k >= 0; k -= 1) {
+    const at = (k + 1) * FUN_EVERY;
+    out.splice(at, 0, { name: `fun:${k}`, s: 10, make: (_, loop = 0) => fun[(k + (loop || 0) * slots) % fun.length] });
+  }
   return out;
 }
 
@@ -396,7 +447,7 @@ function rotate() {
   if (!WALL || !PLAN.length) return;
   const { list, t, i, loop } = at();
   const entry = (PIN && list.find((x) => x.name === PIN)) || list[i];
-  const key = `${entry.name}:${entry.name === 'highlight' ? loop : ''}:${WALL.at || ''}`;
+  const key = `${entry.name}:${entry.name === 'highlight' || entry.name.startsWith('fun:') ? loop : ''}:${WALL.at || ''}`;
   if (key !== shown) {
     shown = key;
     const sc = entry.make(WALL, loop);
