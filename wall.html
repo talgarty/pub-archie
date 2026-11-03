@@ -233,6 +233,16 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
 .idle-day .quiet { color: var(--mute); font-size: 1.3vw; padding: 2vw 0; text-align: center; }
 .showing { grid-template-rows: auto minmax(0, 1fr); gap: 1.2vw; justify-items: center; }
 .showing video { max-width: 100%; max-height: 100%; min-height: 0; border-radius: 1.6vw; box-shadow: 0 2vw 6vw rgba(0,0,0,.5); background: #000; }
+.wins { grid-template-rows: auto minmax(0, 1fr); gap: 2vw; }
+.wins .hl-head { display: flex; align-items: center; gap: 2.4vw; }
+.wins .hl-brand { font-weight: 800; font-size: 6.4vw; letter-spacing: -.04em; line-height: 1; color: var(--verify); }
+.wins .hl-sub { display: flex; flex-direction: column; gap: .6vw; }
+.wins .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 1.4vw; min-height: 0; }
+.win { background: var(--tile); border: 1px solid var(--line); border-radius: 1.8vw; padding: 1.5vw 1.7vw; display: flex; flex-direction: column; justify-content: center; gap: .9vw; min-width: 0; min-height: 0; }
+.scene:not(.off) .win { animation: pop .7s both; }
+.win .n { font-weight: 800; font-size: 3.4vw; letter-spacing: -.04em; line-height: 1; color: var(--k); white-space: nowrap; }
+.win .h { font-weight: 700; font-size: 1.6vw; line-height: 1.2; }
+.win .j { font-size: 1.15vw; color: var(--mute); line-height: 1.35; }
 .gate { position: fixed; inset: 0; display: none; place-items: center; z-index: 9; background: var(--bg); text-align: center; font-size: 1.6vw; color: var(--mute); }
 .gate b { display: block; color: var(--ink); font-size: 2.6vw; margin-bottom: 1vw; }
 /* Arc: the compass from my profile picture walks the wall, hops onto something on the showing scene,
@@ -307,6 +317,10 @@ main, .scene { grid-area: 2 / 1; transition: opacity .9s ease, transform .9s eas
       <div class="card2"><div class="lbl">Asked me most</div><div class="who-list" id="mo-who"></div></div>
       <div class="card2"><div class="lbl">My day, hour by hour</div><div class="hours" id="mo-hours"></div><div class="kinds" id="mo-kinds"></div><div class="dayfacts" id="mo-facts"></div></div>
     </div>
+  </section>
+  <section class="scene wins off" id="sc-wins">
+    <div class="hl-head"><div class="hl-brand">HealthLens</div><div class="hl-sub"><div class="title">Caught <em>early</em>, fixed fast</div><div class="chap"><span>the last weeks, every number measured</span></div></div></div>
+    <div class="grid" id="wi-grid"></div>
   </section>
   <section class="scene showing off" id="sc-video">
     <div class="chap"><b>Now showing</b><span id="vi-title"></span></div>
@@ -577,6 +591,20 @@ function renderMoments(w) {
   ].filter(Boolean);
   $('mo-facts').innerHTML = facts.map((f, i) => `<div class="dayfact" style="--k: var(--${f.k});animation-delay:${300 + i * 90}ms"><div class="n">${esc(f.n)}</div><div class="l" dir="auto">${esc(f.l)}</div></div>`).join('');
 }
+// HealthLens stories, picked by Shimon on 2026-11-03 (he asked not to call them wins on screen). Fact first, joke second, and no customer names on a public page.
+const WINS = [
+  { k: 'verify', n: '21,005 → <10', h: 'Portal retry loop gone', j: 'Failed calls a day on prod. The portal finally learned to take no for an answer.' },
+  { k: 'accent', n: '5 → 1,323', h: 'SAP Enable Now copy unstuck', j: 'Items an hour for one customer. From a drip to a firehose.' },
+  { k: 'review', n: '−83%', h: 'Prod log volume removed', j: '4 million noisy lines a week down to 0. Datadog sends its regards.' },
+  { k: 'coding', n: '∞ → 3', h: 'Toolbox retry loop capped', j: 'Retries on a failing document. It used to resubmit every hour forever, and was failing almost half the prod jobs.' },
+  { k: 'question', n: '3 and 7 days', h: 'Problems caught before the customer', j: 'Days before one customer filed a ticket and another escalated. Spoilers, the useful kind.' },
+  { k: 'merged', n: '0 → 16', h: 'Toolbox monitors', j: 'In each Datadog org. Someone is finally watching.' },
+  { k: 'verify', n: '~1 min', h: 'Server killer found by a monitor', j: 'One oversized export took down 3 of 5 servers. The new out-of-memory monitor flagged all 3, and once caught it at 01:27 at night.' },
+  { k: 'accent', n: '3 of 13', h: 'Silent bug caught by the evals', j: 'Lessons came out with no questions while every step said success. The nightly AI evals caught it, not a customer.' },
+];
+function renderWins() {
+  $('wi-grid').innerHTML = WINS.map((x, i) => `<div class="win" style="--k: var(--${x.k});animation-delay:${i * 110}ms"><div class="n">${esc(x.n)}</div><div class="h">${esc(x.h)}</div><div class="j">${esc(x.j)}</div></div>`).join('');
+}
 function renderVideo(v) {
   const el = $('vi');
   if (!v) { el.removeAttribute('src'); return; }
@@ -590,8 +618,8 @@ function renderVideo(v) {
 const PIN = new URLSearchParams(location.search).get('scene');
 let WALL = null, shown = null;
 function plan(w) {
-  const has = { moments: !!(w && (dayMoments(w) || (w.today && w.today.conversations))), video: !!(w && w.video) };
-  const all = [['live', 60], ['moments', 30], ['live', 60], ['video', 45]].filter(([n]) => n === 'live' || has[n]);
+  const has = { wins: true, moments: !!(w && (dayMoments(w) || (w.today && w.today.conversations))), video: !!(w && w.video) };
+  const all = [['live', 60], ['moments', 30], ['live', 60], ['wins', 30], ['live', 60], ['video', 45]].filter(([n]) => n === 'live' || has[n]);
   const out = all.filter(([n], i) => !(n === 'live' && all[i - 1] && all[i - 1][0] === 'live'));
   return out.length > 1 && out[out.length - 1][0] === 'live' ? out.slice(0, -1) : out;
 }
@@ -631,9 +659,10 @@ function rotate() {
   if (name !== shown) {
     shown = name;
     $('main').classList.toggle('off', name !== 'live');
-    for (const n of ['moments', 'video']) $(`sc-${n}`).classList.toggle('off', name !== n);
+    for (const n of ['moments', 'wins', 'video']) $(`sc-${n}`).classList.toggle('off', name !== n);
     // A scene that comes back plays its entrance again.
     if (WALL && name === 'moments') renderMoments(WALL);
+    if (name === 'wins') renderWins();
     const vid = $('vi');
     if (name === 'video' && vid.src) { vid.currentTime = 0; vid.play().catch(() => {}); } else vid.pause();
   }
