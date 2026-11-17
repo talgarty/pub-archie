@@ -678,7 +678,7 @@ function plan(w) {
     merges: !!(w && w.mrs && w.mrs.merged.length),
     releases: !!(r && r.trains && r.trains.some((t) => t.shipped)),
     league: !!(w && w.wins && w.wins.fans && w.wins.fans.ranks && w.wins.fans.ranks.length >= 3),
-    building: !!(w && (w.features || []).some((f) => f.total > 1 && f.done > 0 && f.done < f.total)),
+    building: false, // "Almost there" is off the rotation (Aviv, 2026-11-17).
     video: !!(w && w.video),
   };
   return [['work', 45], ['busy', 25], ['merges', 25], ['work', 45], ['releases', 30], ['league', 25], ['work', 45], ['health', 25], ['building', 25], ['video', 45]]
