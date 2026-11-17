@@ -511,7 +511,7 @@ function renderWork(w) {
   const jobs = [...rows].sort((a, b) => Date.parse(a.since) - Date.parse(b.since));
   if (jobs.length) {
     const top = jobs.slice(0, 4), rest = jobs.slice(4), names = [...new Set(rest.map((r) => r.who).filter(Boolean))];
-    $('jobs').innerHTML = top.map((r) => `<div class="job" data-since="${esc(r.since)}"><span class="w">${esc(r.who || 'Archie')}</span><span class="k">${esc(r.key || '')}</span><span class="d">${esc(((s) => (upbeat(s) && readable(s) ? slackClean(s) : 'On it'))(String(r.title || r.doing || r.what || '').replace(/^WML-\d+\s*/, '')))}</span><span class="s">${dur(Date.now() - Date.parse(r.since))}</span></div>`).join('');
+    $('jobs').innerHTML = top.map((r) => `<div class="job" data-since="${esc(r.since)}"><span class="w">${esc(r.who || 'Archie')}</span><span class="k">${esc(r.key || '')}</span><span class="d">${esc(((s) => (s.trim() && upbeat(s) && readable(s) ? slackClean(s) : 'On it'))(String(r.title || r.doing || r.what || '').replace(/^WML-\d+\s*/, '')))}</span><span class="s">${dur(Date.now() - Date.parse(r.since))}</span></div>`).join('');
     $('jobs-more').textContent = rest.length ? `and ${rest.length} more${names.length ? ` for ${names.slice(0, 3).join(', ')}${names.length > 3 ? ` and ${names.length - 3} other${names.length - 3 === 1 ? '' : 's'}` : ''}` : ''}` : '';
   } else {
     $('jobs').innerHTML = merged.slice(0, 4).map((m) => `<div class="job mg"><span class="w">${esc(m.for || m.by || '')}</span><span class="k">Merged</span><span class="d">${esc(m.title)}</span><span class="s">${ilTime.format(new Date(m.at))}</span></div>`).join('');
