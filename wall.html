@@ -372,7 +372,7 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
         <div class="bars" id="g-bars"></div><div class="ax"><span id="g-from"></span><span>this week</span></div>
         <div class="m3">
           <div><span>people asking</span><b id="g-people">0</b><em id="g-people-d"></em></div>
-          <div><span>MRs merged</span><b id="g-merged">0</b><em id="g-merged-d"></em></div>
+          <div><span>product MRs</span><b id="g-merged">0</b><em id="g-merged-d"></em></div>
           <div><span>hours of work</span><b id="g-hours">0</b><em id="g-hours-d"></em></div>
         </div>
       </div>
@@ -471,7 +471,23 @@ const KIND_ORDER = ['coding', 'verify', 'review', 'question', 'machine'];
 const KCOL = { coding: 'var(--signal)', verify: 'var(--sea)', review: 'var(--heart)', question: 'var(--sun)', machine: '#6d6996' };
 const REPOS = { 'learning-management-client': 'Management', 'learning-portal-client': 'Portal', 'learning-service': 'Learning service', 'wm-learning-player': 'Player', 'learning-player-client': 'Player', 'archie-core': 'Archie', 'archie-setup': 'Archie' };
 const repoName = (r) => REPOS[r] || String(r || '').replace(/^(?:wm-)?learning-/, '').replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());
-const isProduct = (m) => m.product !== false;
+// Product MRs only (Aviv, 2026-11-17): Archie's own MRs (its repos, and its chart and kv changes) count nowhere on the wall.
+const isProduct = (m) => !!m && m.product !== false && !/^archie|^learning-workspace$|^signal$/i.test(m.repo || '') && !/\barchie\b/i.test(m.title || '');
+function productOnly(w) {
+  if (!w || !w.mrs) return w;
+  w.mrs.merged = (w.mrs.merged || []).filter(isProduct);
+  w.mrs.week = (w.mrs.week || []).filter(isProduct);
+  const week = w.mrs.week, day = (t) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date(t));
+  if (w.growth && w.growth.last) { w.growth.last.merged = week.length; if (w.growth.prev) w.growth.prev.merged = null; }
+  // The best day and the podium come from the product merges of the last 7 days, the only product list the wall gets.
+  const per = new Map(); for (const m of week) per.set(day(m.at), (per.get(day(m.at)) || 0) + 1);
+  const best = [...per].map(([d, n]) => ({ day: d, n })).sort((a, b) => b.n - a.n || a.day.localeCompare(b.day))[0] || null;
+  const fans = new Map(); for (const m of week) if (m.for && !/[-_]|^mapper$/i.test(m.for)) fans.set(m.for, (fans.get(m.for) || 0) + 1);
+  const ranks = [...fans].map(([name, n]) => ({ name, n })).sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
+  w.wins = { ...(w.wins || {}), records: best ? { best, today: per.get(day(Date.now())) || 0 } : null,
+    fans: ranks.length ? { days: 7, total: ranks.reduce((n, x) => n + x.n, 0), people: ranks.length, ranks: ranks.slice(0, 6) } : null };
+  return w;
+}
 // Only a rise gets a chip; a quieter week is just a number.
 const up = (now, was, { count = false } = {}) => {
   if (!was) return now ? 'new this week' : '';
@@ -493,7 +509,7 @@ function renderWork(w) {
     $('g-from').textContent = dayMonth(wk[0].start);
     $('g-people').textContent = fmt(g.last.people);
     $('g-people-d').textContent = [up(g.last.people, g.prev.people, { count: true }), g.last.newPeople ? `${g.last.newPeople} new` : ''].filter(Boolean).join(' · ');
-    $('g-merged').textContent = fmt(g.last.merged); $('g-merged-d').textContent = up(g.last.merged, g.prev.merged);
+    $('g-merged').textContent = fmt(g.last.merged); $('g-merged-d').textContent = g.prev.merged == null ? '' : up(g.last.merged, g.prev.merged);
     $('g-hours').textContent = fmt(g.last.hours); $('g-hours-d').textContent = up(g.last.hours, g.prev.hours);
   }
   const people = new Set(rows.map((r) => r.who).filter(Boolean)).size;
@@ -505,7 +521,7 @@ function renderWork(w) {
   const merged = (w.mrs && w.mrs.merged) || [];
   $('t-conv').textContent = fmt(t.conversations ?? t.runs);
   $('t-merged').textContent = fmt(merged.length);
-  $('t-merged-l').textContent = `MRs merged today${merged.length ? `, ${merged.filter(isProduct).length} product` : ''}`;
+  $('t-merged-l').textContent = 'product MRs merged today';
   $('t-hours').textContent = fmt(Math.round(t.hours || 0));
   // The longest running jobs first. With nothing running, today's latest merges take the room.
   const jobs = [...rows].sort((a, b) => Date.parse(a.since) - Date.parse(b.since));
@@ -551,10 +567,10 @@ function renderBusy(w) {
 // ---------- Merge wall ----------
 function renderMerges(w) {
   const ms = (w.mrs && w.mrs.merged) || [], rec = (w.wins && w.wins.records) || {}, best = rec.best && rec.best.n;
-  $('mw-n').innerHTML = `${fmt(ms.length)}<small>MR${ms.length === 1 ? '' : 's'}, ${fmt(ms.filter(isProduct).length)} product</small>`;
+  $('mw-n').innerHTML = `${fmt(ms.length)}<small>product MR${ms.length === 1 ? '' : 's'}</small>`;
   $('mw-today').textContent = fmt(ms.length);
   const beat = best && ms.length >= best;
-  $('mw-best').innerHTML = beat ? '<b>a new record</b>' : best ? `record <b>${fmt(best)}</b> · ${dayMonth(rec.best.day)}` : '';
+  $('mw-best').innerHTML = beat ? '<b>best day this week</b>' : best ? `best this week <b>${fmt(best)}</b> · ${dayMonth(rec.best.day)}` : '';
   $('mw-bar').style.width = `${best ? Math.min(100, (ms.length / best) * 100) : 100}%`;
   const per = new Map();
   for (const m of [...ms].reverse()) { const k = m.for || m.by || 'Archie'; if (!per.has(k)) per.set(k, []); per.get(k).push(m); }
@@ -609,10 +625,10 @@ function renderLeague(w) {
   if (f && f.ranks && f.ranks.length) {
     const r = f.ranks, order = [r[1], r[0], r[2]];
     $('lg-days').textContent = `LAST ${f.days} DAYS`;
-    $('lg-podium').innerHTML = order.map((x, i) => (x ? `<div class="step p${[2, 1, 3][i]}"><div class="nm">${esc(x.name)}</div><div class="n">${plural(x.n, 'merge')}</div><div class="blk">${[2, 1, 3][i]}</div></div>` : '<div></div>')).join('');
+    $('lg-podium').innerHTML = order.map((x, i) => (x ? `<div class="step p${[2, 1, 3][i]}"><div class="nm">${esc(x.name)}</div><div class="n">${plural(x.n, 'product MR')}</div><div class="blk">${[2, 1, 3][i]}</div></div>` : '<div></div>')).join('');
     $('lg-rest').innerHTML = r.slice(3, 6).map((x, i) => `<div><span><b>${i + 4}</b>${esc(x.name)}</span><span>${fmt(x.n)}</span></div>`).join('');
     // wins.fans counts merged MRs per requester, not asks (data check, Aviv, 2026-11-17).
-    $('lg-boss').innerHTML = `<b>${fmt(f.total)}</b> MRs merged for <b>${fmt(f.people)}</b> people in ${f.days} days`;
+    $('lg-boss').innerHTML = `<b>${fmt(f.total)}</b> product MRs merged for <b>${fmt(f.people)}</b> people in ${f.days} days`;
   }
   if (m && m.top.length) {
     const top = m.top.slice(0, 7), max = Math.max(1, ...top.map((x) => x.n));
@@ -654,7 +670,7 @@ function renderVideo(v) {
 
 // ---------- The ticker: merges and work done, never a failure ----------
 function renderTicker(w) {
-  const feed = ((w.today && w.today.feed) || []).filter((f) => f.doing && f.verdict !== 'FAIL' && f.verdict !== 'BLOCKED' && upbeat(f.doing) && readable(f.doing));
+  const feed = ((w.today && w.today.feed) || []).filter((f) => f.doing && f.verdict !== 'FAIL' && f.verdict !== 'BLOCKED' && upbeat(f.doing) && readable(f.doing) && !/archie/i.test(f.doing));
   const items = [
     ...feed.map((f) => ({ at: f.at, c: KCOL[f.kind] || 'var(--signal)', text: `${f.who ? `${f.who} · ` : ''}${slackClean(f.doing)}` })),
     ...((w.mrs && w.mrs.merged) || []).filter((m) => upbeat(m.title)).map((m) => ({ at: m.at, c: 'var(--win)', text: `${m.for || m.by ? `${m.for || m.by} merged · ` : 'Merged · '}${m.title}` })),
@@ -732,7 +748,7 @@ function rotate() {
 
 // ---------- Data ----------
 function render(w) {
-  WALL = w;
+  WALL = w = productOnly(w);
   renderVideo(w.video);
   renderTicker(w);
   if (shown) show(shown);
