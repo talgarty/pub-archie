@@ -665,8 +665,8 @@ function renderTicker(w) {
   lane.dataset.key = key;
   const html = items.map((x) => `<span class="it"><i style="background:${x.c}"></i>${esc(x.text)} <span>${ilTime.format(new Date(x.at))}</span></span><span class="sep"></span>`).join('');
   lane.innerHTML = html + html;
-  // Speed set by length, 240 canvas px a second (Aviv, 2026-11-17: twice the old pace, it read as slow).
-  lane.style.setProperty('--dur', `${Math.max(20, Math.round(lane.scrollWidth / 2 / 240))}s`);
+  // Speed set by length, 400 canvas px a second (Aviv, 2026-11-17: the old 120 read as very slow).
+  lane.style.setProperty('--dur', `${Math.max(20, Math.round(lane.scrollWidth / 2 / 400))}s`);
 }
 
 // ---------- Rotation ----------
