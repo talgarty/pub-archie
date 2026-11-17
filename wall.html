@@ -475,7 +475,9 @@ const repoName = (r) => REPOS[r] || String(r || '').replace(/^(?:wm-)?learning-/
 const isProduct = (m) => !!m && m.product !== false && !/^archie|^learning-workspace$|^signal$/i.test(m.repo || '') && !/\barchie\b/i.test(m.title || '');
 function productOnly(w) {
   if (!w || !w.mrs) return w;
-  w.mrs.merged = (w.mrs.merged || []).filter(isProduct);
+  // Archie's own merges still celebrate (a band, a ticker line) but count nowhere (Aviv, 2026-11-17).
+  if (!w.mrs.all) w.mrs.all = w.mrs.merged || [];
+  w.mrs.merged = w.mrs.all.filter(isProduct);
   w.mrs.week = (w.mrs.week || []).filter(isProduct);
   const week = w.mrs.week, day = (t) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date(t));
   if (w.growth && w.growth.last) { w.growth.last.merged = week.length; if (w.growth.prev) w.growth.prev.merged = null; }
@@ -670,10 +672,10 @@ function renderVideo(v) {
 
 // ---------- The ticker: merges and work done, never a failure ----------
 function renderTicker(w) {
-  const feed = ((w.today && w.today.feed) || []).filter((f) => f.doing && f.verdict !== 'FAIL' && f.verdict !== 'BLOCKED' && upbeat(f.doing) && readable(f.doing) && !/archie/i.test(f.doing));
+  const feed = ((w.today && w.today.feed) || []).filter((f) => f.doing && f.verdict !== 'FAIL' && f.verdict !== 'BLOCKED' && upbeat(f.doing) && readable(f.doing));
   const items = [
     ...feed.map((f) => ({ at: f.at, c: KCOL[f.kind] || 'var(--signal)', text: `${f.who ? `${f.who} · ` : ''}${slackClean(f.doing)}` })),
-    ...((w.mrs && w.mrs.merged) || []).filter((m) => upbeat(m.title)).map((m) => ({ at: m.at, c: 'var(--win)', text: `${m.for || m.by ? `${m.for || m.by} merged · ` : 'Merged · '}${m.title}` })),
+    ...((w.mrs && (w.mrs.all || w.mrs.merged)) || []).filter((m) => upbeat(m.title)).map((m) => ({ at: m.at, c: 'var(--win)', text: `${m.for || m.by ? `${m.for || m.by} merged · ` : 'Merged · '}${m.title}` })),
   ].sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 24);
   const key = items.map((x) => x.at + x.text).join();
   const lane = $('lane');
@@ -753,8 +755,8 @@ function render(w) {
   renderTicker(w);
   if (shown) show(shown);
   if (!SNAP) {
-    if (seenMerged) { const fresh = w.mrs.merged.filter((m) => !seenMerged.has(m.ref)); fresh.slice(0, 5).reverse().forEach((m, i) => setTimeout(() => celebrate1(m), i * 12000)); }
-    seenMerged = new Set(w.mrs.merged.map((m) => m.ref));
+    if (seenMerged) { const fresh = w.mrs.all.filter((m) => !seenMerged.has(m.ref)); fresh.slice(0, 5).reverse().forEach((m, i) => setTimeout(() => celebrate1(m), i * 12000)); }
+    seenMerged = new Set(w.mrs.all.map((m) => m.ref));
     return;
   }
   // The public copy reloads for each new snapshot, so it keeps what it saw in localStorage, and a
@@ -762,10 +764,10 @@ function render(w) {
   if (!seenMerged) {
     let kept = null;
     try { kept = JSON.parse(localStorage.getItem('wall-merged')); } catch { /* first load */ }
-    seenMerged = new Set(Array.isArray(kept) ? kept : w.mrs.merged.filter((m) => Date.parse(m.at) <= Date.parse(SNAP.at) - SNAP.every).map((m) => m.ref));
+    seenMerged = new Set(Array.isArray(kept) ? kept : w.mrs.all.filter((m) => Date.parse(m.at) <= Date.parse(SNAP.at) - SNAP.every).map((m) => m.ref));
   }
-  const fresh = w.mrs.merged.filter((m) => !seenMerged.has(m.ref));
-  for (const m of w.mrs.merged) seenMerged.add(m.ref);
+  const fresh = w.mrs.all.filter((m) => !seenMerged.has(m.ref));
+  for (const m of w.mrs.all) seenMerged.add(m.ref);
   try { localStorage.setItem('wall-merged', JSON.stringify([...seenMerged])); } catch { /* private mode */ }
   fresh.slice(0, 5).reverse().forEach((m, i) => setTimeout(() => celebrate1(m), i * 12000));
 }
@@ -849,7 +851,7 @@ function confetti() {
   requestAnimationFrame(frame);
 }
 const qs = new URLSearchParams(location.search);
-if (qs.get('party') || qs.get('band')) setTimeout(() => { const m = WALL && WALL.mrs.merged.find((x) => (qs.get('band') ? !isProduct(x) : isProduct(x))); if (m) (qs.get('band') ? band : party)(m); }, 1500);
+if (qs.get('party') || qs.get('band')) setTimeout(() => { const m = WALL && (WALL.mrs.all || WALL.mrs.merged).find((x) => (qs.get('band') ? !isProduct(x) : isProduct(x))); if (m) (qs.get('band') ? band : party)(m); }, 1500);
 
 function fit() { const k = Math.min(innerWidth / 1920, innerHeight / 1080); const s = $('tv').style; s.webkitTransform = s.transform = `scale(${k})`; }
 addEventListener('resize', fit); fit();
