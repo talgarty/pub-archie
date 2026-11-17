@@ -275,7 +275,9 @@ canvas.confetti { position: absolute; inset: 0; pointer-events: none; z-index: 0
 .updated { font-family: var(--mono); font-size: 22px; color: var(--faint); }
 .live.quiet { color: var(--faint); }
 .live.quiet i { background: var(--faint); box-shadow: none; animation: none; }
-.tick .lane { display: flex; gap: 28px; align-items: center; flex: none; animation: roll var(--dur, 120s) linear infinite; }
+/* width: max-content, so translateX(-50%) is half the text. Without it the lane was as wide as the bar,
+   -50% was ~700 px, and the bar crawled at 9 px a second and never reached the older items (2026-11-17). */
+.tick .lane { display: flex; gap: 28px; align-items: center; flex: none; width: max-content; padding-right: 28px; animation: roll var(--dur, 120s) linear infinite; }
 @keyframes roll { to { transform: translateX(-50%); } }
 .tick .wrap { flex: 1; min-width: 0; overflow: hidden; margin-right: 260px; }
 .dots b.done { background: var(--faint); }
@@ -416,7 +418,6 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
     </div>
     <div class="stacks" id="mw-stacks"></div>
     <div class="lastline" id="mw-last"></div>
-    <div class="legend"><span><i style="background:var(--win)"></i>product</span><span><i style="background:var(--signal)"></i>Archie</span></div>
   </section>
 
   <section class="screen rel" id="sc-releases" data-seg="RELEASES">
@@ -593,7 +594,7 @@ function renderMerges(w) {
   const lastRef = ms[0] && ms[0].ref;
   $('mw-stacks').innerHTML = cols.map(([name, list]) => {
     const shown = Math.max(1, Math.round(list.length * scale));
-    const blocks = list.slice(-shown).map((m) => `<i class="${isProduct(m) ? 'p' : ''} ${m.ref === lastRef ? 'last' : ''}"></i>`).join('');
+    const blocks = list.slice(-shown).map((m) => `<i class="p ${m.ref === lastRef ? 'last' : ''}"></i>`).join('');
     return `<div class="stk"><div class="blocks">${blocks}</div><div class="nm">${esc(name)}</div><div class="n">${fmt(list.length)}</div></div>`;
   }).join('');
   const l = ms[0];
@@ -706,7 +707,9 @@ function renderTicker(w) {
   const html = items.map((x) => `<span class="it"><i style="background:${x.c}"></i>${esc(x.text)} <span>${ilTime.format(new Date(x.at))}</span></span><span class="sep"></span>`).join('');
   lane.innerHTML = html + html;
   // Speed set by length, 400 canvas px a second (Aviv, 2026-11-17: the old 120 read as very slow).
-  lane.style.setProperty('--dur', `${Math.max(20, Math.round(lane.scrollWidth / 2 / 400))}s`);
+  const dur = `${Math.max(20, Math.round(lane.offsetWidth / 2 / 400))}s`;
+  lane.style.setProperty('--dur', dur);
+  lane.style.animationDuration = dur;
 }
 
 // ---------- Rotation ----------
@@ -777,7 +780,7 @@ function render(w) {
   renderTicker(w);
   if (shown) show(shown);
   if (!SNAP) {
-    if (seenMerged) { const fresh = w.mrs.all.filter((m) => !seenMerged.has(m.ref)); fresh.slice(0, 5).reverse().forEach((m, i) => setTimeout(() => celebrate1(m), i * 12000)); }
+    if (seenMerged) { const fresh = w.mrs.all.filter((m) => !seenMerged.has(m.ref)); fresh.slice(0, 5).reverse().forEach((m) => celebrate1(m)); }
     seenMerged = new Set(w.mrs.all.map((m) => m.ref));
     return;
   }
@@ -791,7 +794,7 @@ function render(w) {
   const fresh = w.mrs.all.filter((m) => !seenMerged.has(m.ref));
   for (const m of w.mrs.all) seenMerged.add(m.ref);
   try { localStorage.setItem('wall-merged', JSON.stringify([...seenMerged])); } catch { /* private mode */ }
-  fresh.slice(0, 5).reverse().forEach((m, i) => setTimeout(() => celebrate1(m), i * 12000));
+  fresh.slice(0, 5).reverse().forEach((m) => celebrate1(m));
 }
 // The public copy (viewer/lib/wall-public.js) carries its numbers and never calls the box.
 let SNAP = window.WALL_SNAPSHOT || null;
@@ -834,11 +837,14 @@ function tick() {
 }
 
 // ---------- Merge moments ----------
-// Every merge, Archie's too, gets the full screen and confetti, then a band (Aviv, 2026-11-17). Only product MRs count.
+// Every merge, Archie's too, gets the full screen and confetti, once, and no band after it (Aviv, 2026-11-17). Only product MRs count.
 let busyUntil = 0;
+const partied = new Set();
 function celebrate1(m) {
+  if (partied.has(m.ref)) return;
+  partied.add(m.ref);
   const wait = Math.max(0, busyUntil - Date.now());
-  busyUntil = Math.max(Date.now(), busyUntil) + 16000;
+  busyUntil = Math.max(Date.now(), busyUntil) + 8000;
   setTimeout(() => party(m), wait);
 }
 function band(m) {
@@ -860,7 +866,7 @@ function party(m) {
   $('mparty').classList.add('on');
   confetti([[960, 520, -90, 360], [0, 1080, -60, 30], [1920, 1080, -120, 30]]);
   setTimeout(() => confetti([[0, 1080, -55, 30], [1920, 1080, -125, 30]]), 2200);
-  setTimeout(() => { $('mparty').classList.remove('on'); band(m); }, 7000);
+  setTimeout(() => $('mparty').classList.remove('on'), 7000);
 }
 // Confetti from one or more cannons: [x, y, aim] where aim is the launch angle's center in degrees (-90 is straight up).
 // Bits from a cannon that fires again keep falling: each call adds to the pile and the one loop draws them all.
