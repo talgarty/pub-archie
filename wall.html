@@ -460,6 +460,9 @@ const dayMonth = (d) => { const t = new Date(`${String(d).slice(0, 10)}T12:00:00
 const dur = (ms) => { const m = Math.max(0, Math.floor(ms / 60000)); return m >= 60 ? `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m` : `${m}m`; };
 const hh = (h) => `${String(h).padStart(2, '0')}:00`;
 const plural = (n, one, many = `${one}s`) => `${fmt(n)} ${n === 1 ? one : many}`;
+// A run's own words can name a failure ("why the pipeline is red"). Those words never reach the wall.
+const GLOOM = /\b(red|fail\w*|broke\w*|break\w*|error\w*|crash\w*|bugs?|block\w*|revert\w*|regress\w*|outage|incident|wrong|stuck|flak\w*|down|missing|lost|timeout|timed out|rollback|rolled back|debug\w*|diagnos\w*|not work\w*|doesn'?t work|isn'?t|can'?t|cannot)\b/i;
+const upbeat = (s) => !GLOOM.test(String(s || ''));
 const KINDS = { coding: 'coding', verify: 'testing', review: 'reviewing', question: 'answering', machine: 'on my own' };
 const KIND_ORDER = ['coding', 'verify', 'review', 'question', 'machine'];
 const KCOL = { coding: 'var(--signal)', verify: 'var(--sea)', review: 'var(--heart)', question: 'var(--sun)', machine: '#6d6996' };
@@ -505,7 +508,7 @@ function renderWork(w) {
   const jobs = [...rows].sort((a, b) => Date.parse(a.since) - Date.parse(b.since));
   if (jobs.length) {
     const top = jobs.slice(0, 4), rest = jobs.slice(4), names = [...new Set(rest.map((r) => r.who).filter(Boolean))];
-    $('jobs').innerHTML = top.map((r) => `<div class="job" data-since="${esc(r.since)}"><span class="w">${esc(r.who || 'Archie')}</span><span class="k">${esc(r.key || '')}</span><span class="d">${esc(String(r.title || r.doing || r.what || '').replace(/^WML-\d+\s*/, ''))}</span><span class="s">${dur(Date.now() - Date.parse(r.since))}</span></div>`).join('');
+    $('jobs').innerHTML = top.map((r) => `<div class="job" data-since="${esc(r.since)}"><span class="w">${esc(r.who || 'Archie')}</span><span class="k">${esc(r.key || '')}</span><span class="d">${esc(((s) => (upbeat(s) ? s : 'On it'))(String(r.title || r.doing || r.what || '').replace(/^WML-\d+\s*/, '')))}</span><span class="s">${dur(Date.now() - Date.parse(r.since))}</span></div>`).join('');
     $('jobs-more').textContent = rest.length ? `and ${rest.length} more${names.length ? ` for ${names.slice(0, 3).join(', ')}${names.length > 3 ? ` and ${names.length - 3} other${names.length - 3 === 1 ? '' : 's'}` : ''}` : ''}` : '';
   } else {
     $('jobs').innerHTML = merged.slice(0, 4).map((m) => `<div class="job mg"><span class="w">${esc(m.for || m.by || '')}</span><span class="k">Merged</span><span class="d">${esc(m.title)}</span><span class="s">${ilTime.format(new Date(m.at))}</span></div>`).join('');
@@ -647,10 +650,10 @@ function renderVideo(v) {
 
 // ---------- The ticker: merges and work done, never a failure ----------
 function renderTicker(w) {
-  const feed = ((w.today && w.today.feed) || []).filter((f) => f.doing && f.verdict !== 'FAIL' && f.verdict !== 'BLOCKED');
+  const feed = ((w.today && w.today.feed) || []).filter((f) => f.doing && f.verdict !== 'FAIL' && f.verdict !== 'BLOCKED' && upbeat(f.doing));
   const items = [
     ...feed.map((f) => ({ at: f.at, c: KCOL[f.kind] || 'var(--signal)', text: `${f.who ? `${f.who} · ` : ''}${f.doing}` })),
-    ...((w.mrs && w.mrs.merged) || []).map((m) => ({ at: m.at, c: 'var(--win)', text: `${m.for || m.by ? `${m.for || m.by} merged · ` : 'Merged · '}${m.title}` })),
+    ...((w.mrs && w.mrs.merged) || []).filter((m) => upbeat(m.title)).map((m) => ({ at: m.at, c: 'var(--win)', text: `${m.for || m.by ? `${m.for || m.by} merged · ` : 'Merged · '}${m.title}` })),
   ].sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 24);
   const key = items.map((x) => x.at + x.text).join();
   const lane = $('lane');
