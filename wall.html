@@ -368,6 +368,17 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
 .rel .dc span { padding: 8px 12px; }
 .hl h3 { font-size: 30px; margin-top: 14px; }
 .hl p { font-size: 22px; -webkit-line-clamp: 3; }
+
+/* Made today: what customers made and finished in Learning today, every region and PLG (Aviv, 2026-11-17, option a). Wins only. */
+.mt .big { font-size: 230px; font-weight: 800; line-height: .86; letter-spacing: -9px; color: var(--win); margin-top: 22px; text-shadow: 0 0 90px rgba(198,255,77,.25); }
+.mt .lbl { font-size: 64px; font-weight: 700; letter-spacing: -1px; margin-top: 18px; color: var(--ink); }
+.mt .pills { display: flex; gap: 16px; margin-top: 30px; }
+.mt .pills span { font-family: var(--mono); font-size: 26px; font-weight: 700; letter-spacing: 1px; padding: 12px 20px; border-radius: 14px; background: var(--panel2); color: var(--ink); }
+.mt .pills b { color: var(--win); margin-left: 12px; }
+.mt .w3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 46px; }
+.mt .w3 .card { padding: 34px 40px; height: 196px; }
+.mt .w3 b { display: block; font-size: 96px; font-weight: 800; letter-spacing: -3px; line-height: 1; }
+.mt .w3 span { display: block; font-size: 32px; color: var(--mute); margin-top: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 </style>
 </head>
 <body>
@@ -425,6 +436,18 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
     <div class="g">
       <div class="card"><div class="lbl2">Live in production</div><div class="hero2"><b id="rl-n">0</b><span id="rl-name"></span></div><div class="pills" id="rl-pills"></div><div class="themes" id="rl-themes"></div></div>
       <div class="card"><div class="lbl2">On the way</div><div class="way" id="rl-way"></div><div class="dc" id="rl-dc"></div></div>
+    </div>
+  </section>
+
+  <section class="screen mt" id="sc-usage" data-seg="MADE TODAY">
+    <div class="kick" id="mt-k">Customers, all regions and PLG, since 00:00 UTC</div>
+    <div class="big" id="mt-n">0</div>
+    <div class="lbl">courses created today</div>
+    <div class="pills" id="mt-pills"></div>
+    <div class="w3">
+      <div class="card"><b id="mt-f" style="color:var(--ink)">0</b><span>courses finished by learners</span></div>
+      <div class="card"><b id="mt-s" style="color:var(--ink)">0</b><span>simulations recorded</span></div>
+      <div class="card"><b id="mt-a" style="color:var(--ink)">0</b><span>customer accounts building</span></div>
     </div>
   </section>
 
@@ -684,6 +707,18 @@ function renderBuilding(w) {
   return fs.length;
 }
 
+// ---------- Made today ----------
+// Counts only, summed over every region the box could read this morning; a region it could not read drops out, and the kick says so.
+function renderUsage(u) {
+  if (!u) return;
+  $('mt-n').textContent = fmt(u.courses);
+  $('mt-f').textContent = fmt(u.finished);
+  $('mt-s').textContent = fmt(u.sims);
+  $('mt-a').textContent = fmt(u.accounts);
+  $('mt-pills').innerHTML = (u.regions || []).map((r) => `<span>${esc(r.label)}<b>${fmt(r.courses)}</b></span>`).join('');
+  $('mt-k').textContent = (u.missing || []).length ? `Customers in ${(u.regions || []).map((r) => r.label).join(', ')}, since 00:00 UTC` : 'Customers, all regions and PLG, since 00:00 UTC';
+}
+
 // ---------- Now showing ----------
 function renderVideo(v) {
   const el = $('vi');
@@ -716,7 +751,7 @@ function renderTicker(w) {
 // The rotation runs on the wall clock, so every screen in the office shows the same scene at the same moment.
 // A scene with nothing to show drops out; ?scene=<name> pins one.
 const PIN = new URLSearchParams(location.search).get('scene');
-const SCENES = ['work', 'busy', 'merges', 'releases', 'league', 'health', 'building', 'video'];
+const SCENES = ['work', 'busy', 'merges', 'usage', 'releases', 'league', 'health', 'building', 'video'];
 function plan(w) {
   const r = w && w.releases;
   const has = {
@@ -726,9 +761,10 @@ function plan(w) {
     releases: !!(r && r.trains && r.trains.some((t) => t.shipped)),
     league: !!(w && w.wins && w.wins.fans && w.wins.fans.ranks && w.wins.fans.ranks.length >= 3),
     building: false, // "Almost there" is off the rotation (Aviv, 2026-11-17).
+    usage: !!(w && w.usage && w.usage.courses > 0),
     video: !!(w && w.video),
   };
-  return [['work', 45], ['busy', 25], ['merges', 25], ['work', 45], ['releases', 30], ['league', 25], ['work', 45], ['health', 25], ['building', 25], ['video', 45]]
+  return [['work', 45], ['busy', 25], ['merges', 25], ['usage', 25], ['work', 45], ['releases', 30], ['league', 25], ['work', 45], ['health', 25], ['building', 25], ['video', 45]]
     .filter(([n]) => has[n]).filter(([n], i, a) => !(n === 'work' && a[i - 1] && a[i - 1][0] === 'work'));
 }
 let SKIP = 0;
@@ -759,6 +795,7 @@ function show(name) {
     if (name === 'releases') renderReleases(WALL.releases);
     if (name === 'league') renderLeague(WALL);
     if (name === 'building') renderBuilding(WALL);
+    if (name === 'usage') renderUsage(WALL.usage);
   }
   if (name === 'health') renderHealth();
   for (const n of SCENES) $(`sc-${n}`).classList.toggle('on', n === name);
