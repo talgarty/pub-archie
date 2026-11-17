@@ -818,12 +818,12 @@ function tick() {
 }
 
 // ---------- Merge moments ----------
-// Every merge gets a band along the bottom; a product merge gets the full screen and confetti first.
+// Every merge, Archie's too, gets the full screen and confetti, then a band (Aviv, 2026-11-17). Only product MRs count.
 let busyUntil = 0;
 function celebrate1(m) {
   const wait = Math.max(0, busyUntil - Date.now());
-  busyUntil = Math.max(Date.now(), busyUntil) + (isProduct(m) ? 16000 : 9000);
-  setTimeout(() => (isProduct(m) ? party(m) : band(m)), wait);
+  busyUntil = Math.max(Date.now(), busyUntil) + 16000;
+  setTimeout(() => party(m), wait);
 }
 function band(m) {
   const ms = (WALL && WALL.mrs.merged) || [], nth = ms.length - ms.findIndex((x) => x.ref === m.ref);
@@ -876,7 +876,7 @@ function confetti(cannons = [[960, 480, -90, 360]], ms = 6000) {
   requestAnimationFrame(frame);
 }
 const qs = new URLSearchParams(location.search);
-if (qs.get('party') || qs.get('band')) setTimeout(() => { const m = WALL && (WALL.mrs.all || WALL.mrs.merged).find((x) => (qs.get('band') ? !isProduct(x) : isProduct(x))); if (m) (qs.get('band') ? band : party)(m); }, 1500);
+if (qs.get('party') || qs.get('band')) setTimeout(() => { const archie = qs.get('band') || qs.get('party') === 'archie'; const m = WALL && (WALL.mrs.all || WALL.mrs.merged).find((x) => (archie ? !isProduct(x) : isProduct(x))); if (m) (qs.get('band') ? band : party)(m); }, 1500);
 
 function fit() { const k = Math.min(innerWidth / 1920, innerHeight / 1080); const s = $('tv').style; s.webkitTransform = s.transform = `scale(${k})`; }
 addEventListener('resize', fit); fit();
