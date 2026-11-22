@@ -379,6 +379,17 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
 .mt .w3 .card { padding: 34px 40px; height: 196px; }
 .mt .w3 b { display: block; font-size: 96px; font-weight: 800; letter-spacing: -3px; line-height: 1; }
 .mt .w3 span { display: block; font-size: 32px; color: var(--mute); margin-top: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Trends: what grew, as running totals that can only climb (Aviv, 2026-11-22, option J). Wins only.
+   Each showing picks 3 Learning Arc and 3 Archie tiles from a larger pool, so the screen changes. */
+.tn .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 14px; }
+.tn .tag { font-family: var(--mono); font-size: 24px; font-weight: 700; letter-spacing: 5px; text-transform: uppercase; margin-top: 26px; }
+.tn .tag:first-child { margin-top: 0; }
+.tn .card { padding: 30px 36px 18px; height: 318px; border-top: 8px solid var(--k); display: flex; flex-direction: column; }
+.tn .hd { font-size: 46px; font-weight: 800; line-height: 1.08; letter-spacing: -1px; }
+.tn .hd em { font-style: normal; color: var(--k); }
+.tn .nt { font-size: 28px; color: var(--k); margin-top: 10px; }
+.tn svg { margin-top: auto; width: 100%; height: 110px; overflow: visible; }
 </style>
 </head>
 <body>
@@ -451,6 +462,10 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
     </div>
   </section>
 
+  <section class="screen tn" id="sc-trends" data-seg="TRENDS">
+    <div class="tag" style="color:var(--sea)" id="tn-l1">Learning Arc</div><div class="row" id="tn-lms"></div>
+    <div class="tag" style="color:var(--signal)" id="tn-l2">Archie</div><div class="row" id="tn-archie"></div>
+  </section>
   <section class="screen league" id="sc-league" data-seg="THE LEAGUE">
     <div class="kick">The league</div><h1>Who talks to Archie <em>most</em></h1>
     <div class="cols">
@@ -719,6 +734,51 @@ function renderUsage(u) {
   $('mt-k').textContent = (u.missing || []).length ? `Customers in ${(u.regions || []).map((r) => r.label).join(', ')}, since 00:00 UTC` : 'Customers, all regions and PLG, since 00:00 UTC';
 }
 
+// ---------- Trends ----------
+// What grew: running totals, so every line climbs. The box can send w.trends in the same shape; until it does,
+// the page carries the numbers read on TRENDS.at. A tile shows only when its line never went down and grew
+// in its window (success only, Aviv, 2026-11-22). Each loop picks 3 + 3 tiles from the pool with the loop
+// number as the seed, so every TV shows the same tiles and the next loop shows other ones.
+const TRENDS = {"at":"2026-11-22","lms":{"label":"Learning Arc · last 12 months","from":"Dec","metrics":[{"id":"languages","head":"Courses now speak {n} languages","n":121,"series":[0,0,1003,1984,3263,5412,7086,9862,12938,23762,37125,63995],"note":"{last} translations, {x} since Aug","back":3},{"id":"sims","head":"{n} simulations to practice on","series":[863,1131,1473,1812,2178,2615,3136,3829,4918,6515,8621,9923],"note":"{x} since Aug","back":3},{"id":"certs","head":"{n} certificates earned","series":[0,0,21,103,249,390,469,591,701,805,1349,1759],"note":"{x} since Aug","back":3},{"id":"quiz","head":"{n} quizzes passed","series":[997,1138,1268,1497,1767,2012,2257,2522,2996,3355,5711,8246],"note":"{x} since Aug","back":3},{"id":"finished","head":"{n} courses finished by learners","series":[6351,13990,21885,29486,37758,44807,51801,58813,65681,75163,86258,97401],"note":"in 12 months, {x} since Aug","back":3}]},"archie":{"label":"Archie · since 30 Aug","metrics":[{"id":"qa","head":"{n} QA checks passed","series":[9,73,78,92,129,172,288,471,659,815,978,1058],"note":"{x} in 4 weeks","back":4},{"id":"reviews","head":"{n} MRs reviewed","series":[14,55,69,91,219,479,954,1566,2312,3310,4156,5069],"note":"+{week} last week"},{"id":"fixes","head":"{n} fixes shipped, each with a repro","series":[0,0,0,0,0,0,0,3,132,298,477,645],"note":"+{week} last week"},{"id":"asks","head":"{n} asks answered","series":[61,428,474,655,1597,2894,4939,7888,11300,15046,18851,22275],"note":"+{week} last week"},{"id":"hours","head":"{n} hours of work done","series":[15,137,147,186,311,511,858,1541,2258,2890,3452,4031],"note":"+{week} last week"}]}};
+const short = (n) => (n >= 10000 ? `${(n / 1000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, '')}k` : fmt(n));
+function grows(m) {
+  const v = m && m.series;
+  if (!Array.isArray(v) || v.length < 3 || !v.every((x) => Number.isFinite(x))) return false;
+  return v.every((x, i) => !i || x >= v[i - 1]) && v[v.length - 1] > v[0] && upbeat(m.head) && upbeat(m.note);
+}
+function trendText(m) {
+  const v = m.series, last = v[v.length - 1], b = m.back ? v[v.length - 1 - m.back] : 0, x = b ? last / b : 0, week = last - v[v.length - 2];
+  // A multiple under 1.2 reads as no news, and a quiet week reads as nothing, so that tile does not play this loop.
+  if ((/\{x\}/.test(m.note) && x < 1.2) || (/\{week\}/.test(m.note) && week <= 0)) return null;
+  const n = m.n != null ? m.n : last;
+  return { head: esc(m.head).replace('{n}', `<em>${short(n)}</em>`), note: esc(m.note).replace('{last}', short(last)).replace('{x}', `×${x.toFixed(1)}`).replace('{week}', fmt(week)) };
+}
+function seeded(list, seed, k) {
+  const a = [...list]; let r = (seed * 2654435761) >>> 0;
+  for (let i = a.length - 1; i > 0; i -= 1) { r = (r * 1103515245 + 12345) >>> 0; const j = r % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+  return a.slice(0, k);
+}
+function spark(v, color) {
+  const W = 500, H = 100, lo = v[0], hi = v[v.length - 1], pts = v.map((y, i) => [i * W / (v.length - 1), H - ((y - lo) / (hi - lo || 1)) * H * .92]);
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length; i += 1) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], mx = (x0 + x1) / 2; d += ` C${mx},${y0} ${mx},${y1} ${x1},${y1}`; }
+  const [ex, ey] = pts[pts.length - 1], id = `tg${Math.random().toString(36).slice(2, 8)}`;
+  return `<svg viewBox="-8 -18 ${W + 28} ${H + 22}" preserveAspectRatio="none"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".42"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><path d="${d} L${W},${H} L0,${H} Z" fill="url(#${id})"/><path d="${d}" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke"/><circle cx="${ex}" cy="${ey}" r="9" fill="${color}"/><circle cx="${ex}" cy="${ey}" r="18" fill="${color}" opacity=".25"/></svg>`;
+}
+const trendsOf = (w) => (w && w.trends && w.trends.lms && w.trends.archie ? w.trends : TRENDS);
+const trendPool = (g) => ((g && g.metrics) || []).filter(grows).map((m) => ({ m, t: trendText(m) })).filter((x) => x.t);
+function hasTrends(w) { const t = trendsOf(w); return trendPool(t.lms).length >= 3 || trendPool(t.archie).length >= 3; }
+function renderTrends(w, seed) {
+  const t = trendsOf(w);
+  const row = (g, el, tag, color) => {
+    const pick = trendPool(g).length >= 3 ? seeded(trendPool(g), seed, 3) : [];
+    $(el).innerHTML = pick.map(({ m, t: x }) => `<div class="card" style="--k:${color}"><div class="hd">${x.head}</div><div class="nt">${x.note}</div>${spark(m.series, color)}</div>`).join('');
+    $(tag).textContent = g.label || ''; $(tag).style.display = $(el).style.display = pick.length ? '' : 'none';
+  };
+  row(t.lms, 'tn-lms', 'tn-l1', '#2fd6cc');
+  row(t.archie, 'tn-archie', 'tn-l2', '#8f82ff');
+}
+
 // ---------- Now showing ----------
 function renderVideo(v) {
   const el = $('vi');
@@ -751,7 +811,7 @@ function renderTicker(w) {
 // The rotation runs on the wall clock, so every screen in the office shows the same scene at the same moment.
 // A scene with nothing to show drops out; ?scene=<name> pins one.
 const PIN = new URLSearchParams(location.search).get('scene');
-const SCENES = ['work', 'busy', 'merges', 'usage', 'releases', 'league', 'health', 'building', 'video'];
+const SCENES = ['work', 'busy', 'merges', 'usage', 'trends', 'releases', 'league', 'health', 'building', 'video'];
 function plan(w) {
   const r = w && w.releases;
   const has = {
@@ -761,10 +821,11 @@ function plan(w) {
     releases: !!(r && r.trains && r.trains.some((t) => t.shipped)),
     league: !!(w && w.wins && w.wins.fans && w.wins.fans.ranks && w.wins.fans.ranks.length >= 3),
     building: false, // "Almost there" is off the rotation (Aviv, 2026-11-17).
-    usage: !!(w && w.usage && w.usage.courses > 0),
+    usage: false, // Made today is off the rotation: too empty on the wall (Aviv, 2026-11-22). Trends took its slot.
+    trends: hasTrends(w),
     video: !!(w && w.video),
   };
-  return [['work', 45], ['busy', 25], ['merges', 25], ['usage', 25], ['work', 45], ['releases', 30], ['league', 25], ['work', 45], ['health', 25], ['building', 25], ['video', 45]]
+  return [['work', 45], ['busy', 25], ['merges', 25], ['usage', 25], ['trends', 25], ['work', 45], ['releases', 30], ['league', 25], ['work', 45], ['health', 25], ['building', 25], ['video', 45]]
     .filter(([n]) => has[n]).filter(([n], i, a) => !(n === 'work' && a[i - 1] && a[i - 1][0] === 'work'));
 }
 let SKIP = 0;
@@ -796,6 +857,7 @@ function show(name) {
     if (name === 'league') renderLeague(WALL);
     if (name === 'building') renderBuilding(WALL);
     if (name === 'usage') renderUsage(WALL.usage);
+    if (name === 'trends') { const { total } = at(); renderTrends(WALL, Math.floor((Date.now() / 1000 + SKIP) / total)); }
   }
   if (name === 'health') renderHealth();
   for (const n of SCENES) $(`sc-${n}`).classList.toggle('on', n === name);
