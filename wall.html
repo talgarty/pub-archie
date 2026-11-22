@@ -390,6 +390,46 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
 .tn .hd em { font-style: normal; color: var(--k); }
 .tn .nt { font-size: 28px; color: var(--k); margin-top: 10px; }
 .tn svg { margin-top: auto; width: 100%; height: 110px; overflow: visible; }
+
+/* MRS and ASKS: one competition layout, today's champion left, the week's podium right (Aviv, 2026-11-22, option 1).
+   Praise only: a podium may rank and count people. Product MRs only; Archie's own MRs celebrate but never count. */
+.lb { --c: var(--win); }
+.lb.ask { --c: var(--signal); }
+.lb h1 { font-size: 84px; margin-top: 10px; } .lb h1 em { color: var(--c); }
+.lb .halves { display: grid; grid-template-columns: 1fr 1.12fr; gap: 36px; height: 690px; margin-top: 26px; }
+.lb .halves.one { grid-template-columns: 1fr; }
+.lb .half { background: var(--panel); border: 1px solid var(--line); border-radius: 30px; padding: 26px 30px 24px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.lb .half.lbwk { background: color-mix(in srgb, var(--c) 7%, rgba(255,255,255,.04)); }
+.lb .hh { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; }
+.lb .hh .tg { font-family: var(--mono); font-weight: 700; font-size: 26px; letter-spacing: 5px; padding: 8px 16px; border-radius: 10px; background: var(--panel2); }
+.lb .half.dy .hh .tg { background: var(--c); color: var(--night); }
+.lb .hh .ht { font-size: 26px; color: var(--mute); } .lb .hh .ht b { font-size: 44px; color: var(--ink); font-weight: 800; margin-right: 8px; }
+.lb .lbb { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.lb .foot { font-size: 26px; color: var(--mute); margin-top: 14px; } .lb .foot b { color: var(--ink); }
+.lb .lbav { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 800; color: var(--night); flex: none; }
+.lb .g1 { --m: #ffd25e; } .lb .g2 { --m: #d9d6f5; } .lb .g3 { --m: #f2a46b; }
+.lb .champ { border-radius: 24px; padding: 24px 30px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--c) 30%, var(--night)) 0%, rgba(255,255,255,.04) 80%); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
+.lb .champ .crown { font-family: var(--mono); font-size: 20px; letter-spacing: 5px; color: var(--c); font-weight: 700; }
+.lb .champ .lbw b { display: block; font-size: 64px; font-weight: 800; letter-spacing: -2px; line-height: 1.05; }
+.lb .champ .lbn { font-size: 140px; font-weight: 800; letter-spacing: -6px; line-height: .8; color: var(--c); text-align: right; }
+.lb .champ .lbn small { display: block; font-size: 26px; letter-spacing: 0; color: var(--mute); font-weight: 600; margin-top: 8px; }
+.lb .champ.open { background: none; border: 3px dashed var(--line); grid-template-columns: 1fr; padding: 40px 30px; }
+.lb .champ.open .lbw b { color: var(--mute); font-size: 52px; }
+.lb .chl { flex: 1; display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.lb .chl .cr { flex: 1; display: grid; grid-template-columns: 60px 52px 1fr 110px; align-items: center; gap: 16px; padding: 0 22px; border-radius: 18px; background: var(--panel); border: 1px solid var(--line); font-size: 32px; font-weight: 800; }
+.lb .chl .rk { font-family: var(--mono); font-size: 24px; color: var(--faint); } .lb .chl .lbv { text-align: right; }
+.lb .chl .emp { border-style: dashed; color: var(--faint); font-weight: 600; font-size: 26px; background: none; }
+.lb .pod { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 16px; align-items: end; flex: 1; min-height: 0; }
+.lb .pod > div { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.lb .pod .lbm { font-size: 36px; font-weight: 800; margin-top: 10px; } .lb .pod .lbc { font-size: 24px; color: var(--mute); margin-bottom: 12px; }
+.lb .pod .lbk { width: 100%; border-radius: 20px 20px 6px 6px; display: flex; align-items: flex-start; justify-content: center; padding-top: 14px; font-size: 72px; font-weight: 800; color: var(--night); background: linear-gradient(180deg, var(--m), color-mix(in srgb, var(--m) 50%, var(--night))); flex: none; }
+.lb .pod .open .lbk { background: none; border: 3px dashed var(--line); color: var(--faint); }
+.lb .pod .open .lbm { color: var(--faint); font-size: 26px; font-weight: 600; text-align: center; }
+.lb .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+.lb .strip .sr { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); font-size: 28px; font-weight: 800; }
+.lb .strip .rk { font-family: var(--mono); font-size: 22px; color: var(--faint); } .lb .strip .lbv { margin-left: auto; color: var(--c); }
+.lb .strip .emp { border-style: dashed; background: none; color: var(--faint); font-size: 24px; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -473,6 +513,9 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
       <div class="card"><div class="board-h"><h2>Today</h2><span id="lg-today">ASKS</span></div><div class="rows" id="lg-rows"></div><div class="boss" id="lg-boss"></div></div>
     </div>
   </section>
+
+  <section class="screen lb" id="sc-mrs" data-seg="MRS"><div class="kick">Product MRs merged · today and the last 7 days</div><h1>Who merges <em>the most</em></h1><div class="halves" id="mr-b"></div></section>
+  <section class="screen lb ask" id="sc-asks" data-seg="ASKS"><div class="kick" id="as-k">Asks to Archie · today and the last 7 days</div><h1>Who asks Archie <em>the most</em></h1><div class="halves" id="as-b"></div></section>
 
   <section class="screen hl" id="sc-health" data-seg="HEALTHLENS">
     <div class="top"><span class="bd">HealthLens</span><h2>Fixed for customers · <em>faster, quieter, sooner</em></h2></div>
@@ -689,6 +732,63 @@ function renderLeague(w) {
   }
 }
 
+// ---------- MRS and ASKS ----------
+// Today's champion on the left, the week's podium on the right, one layout for both (Aviv, 2026-11-22, option 1).
+// A few names still fill the screen: an empty place reads as an open spot the next MR or ask takes.
+const LB_PAL = ['#c6ff4d', '#2fd6cc', '#8f82ff', '#ff6fae', '#ffb547', '#7fd4ff'];
+const lbPerson = (n) => !!n && !/[-_]|^mapper$|^qodo$|^tag$/i.test(n);
+function lbBoards(kind, w) {
+  if (kind === 'mrs') {
+    const day = (t) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date(t)), today = day(Date.now());
+    const since = Date.now() - 7 * 24 * 3600 * 1000, wk = new Map(), dy = new Map();
+    for (const m of (w.mrs && w.mrs.week) || []) {
+      if (!lbPerson(m.for) || Date.parse(m.at) < since) continue;
+      wk.set(m.for, (wk.get(m.for) || 0) + 1);
+      if (day(m.at) === today) dy.set(m.for, (dy.get(m.for) || 0) + 1);
+    }
+    const list = (mp) => [...mp].map(([name, n]) => ({ name, n })).sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
+    const W = list(wk), D = list(dy);
+    return { unit: 'MRs', one: 'MR', today: { L: D, total: D.reduce((n, x) => n + x.n, 0), people: D.length }, week: W.length ? { L: W, total: W.reduce((n, x) => n + x.n, 0), people: W.length } : null };
+  }
+  const m = dayMoments(w), a = w.asks7;
+  const D = m ? m.top.filter((x) => lbPerson(x.name)) : [];
+  const W = a && a.top ? a.top.filter((x) => lbPerson(x.name)) : [];
+  return { unit: 'asks', one: 'ask', today: { L: D, total: m ? m.asks : 0, people: m ? m.people : 0 }, week: W.length ? { L: W, total: a.asks, people: a.people } : null };
+}
+function hasBoard(kind, w) {
+  if (!w) return false;
+  const b = lbBoards(kind, w);
+  return !!(b.week || b.today.L.length);
+}
+function renderBoard(kind, w) {
+  const B = lbBoards(kind, w), el = $(kind === 'mrs' ? 'mr-b' : 'as-b');
+  const colorOf = {};
+  [...(B.week ? B.week.L : []), ...B.today.L].forEach((x) => { if (!(x.name in colorOf)) colorOf[x.name] = LB_PAL[Object.keys(colorOf).length % LB_PAL.length]; });
+  const av = (x, s) => `<span class="lbav" style="width:${s}px;height:${s}px;font-size:${Math.round(s * 0.45)}px;background:${colorOf[x.name]}">${esc(x.name[0])}</span>`;
+  const chase = (L) => (L.length > 1 ? (L[1].n === L[0].n ? `<b>${esc(L[1].name)}</b> ties <b>${esc(L[0].name)}</b> at ${fmt(L[0].n)}` : `<b>${esc(L[1].name)}</b> needs ${fmt(L[0].n - L[1].n + 1)} to pass <b>${esc(L[0].name)}</b>`) : L.length ? `<b>${esc(L[0].name)}</b> leads, the next ${B.one} can catch up` : `The first ${B.one} of the day takes the lead`);
+  const frame = (wk, g, body) => `<div class="half ${wk ? 'lbwk' : 'dy'}"><div class="hh"><span class="tg">${wk ? 'THIS WEEK' : 'TODAY'}</span>${g.total ? `<span class="ht"><b>${fmt(g.total)}</b>${B.unit} · ${plural(g.people, 'person', 'people')}</span>` : ''}</div><div class="lbb">${body}</div><div class="foot">${chase(g.L)}</div></div>`;
+  const dayHalf = () => {
+    const L = B.today.L, c = L[0];
+    const champ = c ? `<div class="champ">${av(c, 110)}<div class="lbw"><div class="crown">♛ LEADING TODAY</div><b>${esc(c.name)}</b></div><div class="lbn">${fmt(c.n)}<small>${B.unit}</small></div></div>`
+      : `<div class="champ open"><div class="lbw"><div class="crown">♛ TODAY'S CROWN</div><b>Open, the first ${B.one} takes it</b></div></div>`;
+    const rows = L.slice(1, 5).map((x, i) => `<div class="cr"><span class="rk">#${i + 2}</span>${av(x, 50)}<span>${esc(x.name)}</span><span class="lbv">${fmt(x.n)}</span></div>`);
+    while (rows.length < 4) rows.push(`<div class="cr emp"><span class="rk">#${rows.length + 2}</span><span></span><span>Open, next ${B.one} takes it</span><span></span></div>`);
+    return frame(false, B.today, `${champ}<div class="chl">${rows.join('')}</div>`);
+  };
+  const weekHalf = () => {
+    const L = B.week.L, p = [L[1], L[0], L[2]], hts = [170, 230, 120], gi = [2, 1, 3];
+    const pod = p.map((x, j) => (x ? `<div class="g${gi[j]}">${av(x, j === 1 ? 96 : 78)}<div class="lbm">${esc(x.name)}</div><div class="lbc">${plural(x.n, B.one, B.unit)}</div><div class="lbk" style="height:${hts[j]}px">${gi[j]}</div></div>`
+      : `<div class="open g${gi[j]}"><div class="lbm">Next ${B.one}<br>takes it</div><div class="lbk" style="height:${hts[j]}px">${gi[j]}</div></div>`)).join('');
+    const side = L.slice(3, 6).map((x, i) => `<div class="sr"><span class="rk">${i + 4}</span><span>${esc(x.name)}</span><span class="lbv">${fmt(x.n)}</span></div>`);
+    while (side.length < 3) side.push(`<div class="sr emp"><span class="rk">${side.length + 4}</span><span>Open spot</span></div>`);
+    return frame(true, B.week, `<div class="pod">${pod}</div><div class="strip">${side.join('')}</div>`);
+  };
+  // ASKS shows its today half alone until the box bakes asks per person over 7 days (w.asks7).
+  el.classList.toggle('one', !B.week);
+  if (kind === 'asks') $('as-k').textContent = B.week ? 'Asks to Archie · today and the last 7 days' : 'Asks to Archie · today';
+  el.innerHTML = dayHalf() + (B.week ? weekHalf() : '');
+}
+
 // ---------- HealthLens ----------
 // Stories picked by Shimon on 2026-11-03 (he asked not to call them wins on screen). No customer names on a public page.
 const WINS = [
@@ -811,21 +911,22 @@ function renderTicker(w) {
 // The rotation runs on the wall clock, so every screen in the office shows the same scene at the same moment.
 // A scene with nothing to show drops out; ?scene=<name> pins one.
 const PIN = new URLSearchParams(location.search).get('scene');
-const SCENES = ['work', 'busy', 'merges', 'usage', 'trends', 'releases', 'league', 'health', 'building', 'video'];
+const SCENES = ['work', 'busy', 'merges', 'mrs', 'usage', 'trends', 'asks', 'releases', 'league', 'health', 'building', 'video'];
 function plan(w) {
   const r = w && w.releases;
   const has = {
     work: true, health: true,
-    busy: !!(w && (dayMoments(w) || (w.today && w.today.conversations))),
-    merges: !!(w && w.mrs && w.mrs.merged.length),
+    // MRS and ASKS replace Today, the merge wall and the league (Aviv, 2026-11-22). Their sections stay for ?scene=.
+    busy: false, merges: false, league: false,
+    mrs: hasBoard('mrs', w),
+    asks: hasBoard('asks', w),
     releases: !!(r && r.trains && r.trains.some((t) => t.shipped)),
-    league: !!(w && w.wins && w.wins.fans && w.wins.fans.ranks && w.wins.fans.ranks.length >= 3),
     building: false, // "Almost there" is off the rotation (Aviv, 2026-11-17).
     usage: false, // Made today is off the rotation: too empty on the wall (Aviv, 2026-11-22). Trends took its slot.
     trends: hasTrends(w),
     video: !!(w && w.video),
   };
-  return [['work', 45], ['busy', 25], ['merges', 25], ['usage', 25], ['trends', 25], ['work', 45], ['releases', 30], ['league', 25], ['work', 45], ['health', 25], ['building', 25], ['video', 45]]
+  return [['work', 45], ['busy', 25], ['merges', 25], ['mrs', 25], ['usage', 25], ['trends', 25], ['work', 45], ['asks', 25], ['releases', 30], ['league', 25], ['work', 45], ['health', 25], ['building', 25], ['video', 45]]
     .filter(([n]) => has[n]).filter(([n], i, a) => !(n === 'work' && a[i - 1] && a[i - 1][0] === 'work'));
 }
 let SKIP = 0;
@@ -855,6 +956,7 @@ function show(name) {
     if (name === 'merges') renderMerges(WALL);
     if (name === 'releases') renderReleases(WALL.releases);
     if (name === 'league') renderLeague(WALL);
+    if (name === 'mrs' || name === 'asks') renderBoard(name, WALL);
     if (name === 'building') renderBuilding(WALL);
     if (name === 'usage') renderUsage(WALL.usage);
     if (name === 'trends') { const { total } = at(); renderTrends(WALL, Math.floor((Date.now() / 1000 + SKIP) / total)); }
