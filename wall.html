@@ -236,15 +236,6 @@ canvas.confetti { position: absolute; inset: 0; pointer-events: none; z-index: 0
 .show .frame .pl { font-size: 40px; color: var(--mute); }
 .show .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 30px 40px; background: linear-gradient(transparent, rgba(8,7,26,.9)); font-size: 40px; font-weight: 800; }
 
-/* Merged: a band over the ticker, the screen stays readable. */
-.mband { position: absolute; left: 80px; right: 80px; bottom: 120px; height: 150px; display: flex; align-items: center; gap: 34px; padding: 0 44px; border-radius: 30px; background: rgba(18,15,46,.96); border: 3px solid var(--win); box-shadow: 0 30px 90px rgba(0,0,0,.6), 0 0 70px rgba(198,255,77,.25); z-index: 5; }
-.mband .st { font-size: 72px; font-weight: 800; color: var(--win); letter-spacing: -2px; transform: rotate(-3deg); flex: none; }
-.mband .t { font-size: 36px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mband .s { font-size: 26px; color: var(--mute); margin-top: 6px; font-family: var(--mono); }
-.mband .by { margin-left: auto; text-align: right; flex: none; font-size: 30px; }
-.mband .by b { display: block; font-size: 40px; }
-.dim > *:not(.mband) { opacity: .55; }
-
 /* Building (new): features near done. */
 .bld .rows2 { margin-top: 40px; display: grid; gap: 20px; }
 .br { display: grid; grid-template-columns: 1fr 520px 150px 200px; gap: 28px; align-items: center; height: 92px; padding: 0 34px; border-radius: 22px; background: var(--panel); }
@@ -316,16 +307,7 @@ canvas.confetti { position: absolute; inset: 0; pointer-events: none; z-index: 0
 .rel .dc { margin-top: auto; padding-top: 22px; display: flex; flex-wrap: wrap; gap: 12px; font-family: var(--mono); font-size: 22px; color: var(--mute); }
 .rel .dc span { background: var(--panel); border-radius: 12px; padding: 8px 14px; }
 .rel .dc b { color: var(--ink); margin-right: 8px; }
-/* The merge band and the full party sit over every screen. */
-.mband { display: none; }
-.mband.on { display: flex; animation: pop .8s cubic-bezier(.2,1.5,.4,1), glow 1.6s ease-in-out .8s infinite; }
-.mband { height: 210px; bottom: 140px; left: 120px; right: 120px; border-width: 4px; z-index: 6; }
-.mband .st { font-size: 96px; animation: wobble 1.2s ease-in-out .8s infinite; }
-.mband .t { font-size: 42px; }
-@keyframes pop { 0% { transform: translateY(260px) scale(.6); opacity: 0; } 60% { transform: translateY(-14px) scale(1.04); opacity: 1; } 100% { transform: none; } }
-@keyframes glow { 50% { box-shadow: 0 30px 90px rgba(0,0,0,.6), 0 0 140px rgba(198,255,77,.75); } }
-@keyframes wobble { 0%, 100% { transform: rotate(-3deg) scale(1); } 50% { transform: rotate(2deg) scale(1.08); } }
-.mband > div { min-width: 0; }
+/* The full-screen party sits over every screen; there is no merge band (Aviv, 2026-11-17, 2026-11-24). */
 .mparty { position: absolute; inset: 0; z-index: 6; display: none; background: radial-gradient(900px 600px at 50% 45%, rgba(198,255,77,.22), transparent 70%), rgba(8,7,26,.94); }
 .mparty.on { display: block; animation: fadein .5s both; }
 .mparty .ti { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
@@ -387,7 +369,7 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
 .lb .lbav { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 800; color: var(--night); flex: none; position: relative; overflow: hidden; }
 /* A person's Slack photo covers the initial; a photo that fails to load removes itself and the initial shows (Aviv, 2026-11-24). */
 .lbav .face, .av .face { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-/* Every other spot that names a person carries the same avatar: AT WORK, the merge band, the league, the merge wall, Who kept me busy (Aviv, 2026-11-24). */
+/* Every other spot that names a person carries the same avatar: AT WORK, the league, the merge wall, Who kept me busy (Aviv, 2026-11-24). */
 .pav { display: inline-grid; vertical-align: middle; margin-right: 12px; }
 .pav + .t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .job .w, .lr .nm, .row .nm, .rest div span { display: flex; align-items: center; min-width: 0; }
@@ -395,8 +377,6 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
 .step .nm { display: flex; align-items: center; justify-content: center; min-width: 0; }
 .step .nm .pav { flex: none; }
 .stk .pav { display: grid; margin: 6px 0 0; }
-.mband .by { display: flex; align-items: center; gap: 22px; }
-.mband .by .pav { margin: 0; }
 .lb .g1 { --m: #ffd25e; } .lb .g2 { --m: #d9d6f5; } .lb .g3 { --m: #f2a46b; }
 .lb .champ { border-radius: 24px; padding: 24px 30px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px;
   background: linear-gradient(160deg, color-mix(in srgb, var(--c) 30%, var(--night)) 0%, rgba(255,255,255,.04) 80%); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
@@ -518,7 +498,6 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
   </section>
 
   <div class="tick"><span class="now">LATEST</span><div class="wrap"><div class="lane" id="lane"></div></div><span class="dots" id="dots"></span></div>
-  <div class="mband" id="mband"><div class="st">Merged!</div><div><div class="t" id="mb-t"></div><div class="s" id="mb-s"></div></div><div class="by" id="mb-by"></div></div>
   <div class="mparty party" id="mparty"><div><div class="stamp">Merged!</div><div class="who" id="mp-who"></div><div class="ti" id="mp-ti"></div><div class="chips" id="mp-chips"></div></div></div>
   <canvas class="confetti" id="confetti" width="1920" height="1080"></canvas>
   <div class="gate" id="gate"><div><b>Sign in once on this screen</b>Open archie.walkmernd.com, sign in, then come back to /wall.</div></div>
@@ -532,7 +511,7 @@ const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 // Every avatar shows the person's Slack photo when the box baked one (w.faces, viewer/lib/wall-faces.js), over the initial.
 const face = (name) => { const u = WALL && WALL.faces && WALL.faces[name]; return u && /^https:\/\/avatars\.slack-edge\.com\//.test(u) ? `<img class="face" src="${esc(u)}" alt="" onerror="this.remove()">` : ''; };
-// A small avatar in front of a name in a row, a podium or a band: the photo over the initial, like the boards' own.
+// A small avatar in front of a name in a row or a podium: the photo over the initial, like the boards' own.
 const pav = (name, s, bg = 'var(--signal)') => (name ? `<span class="av pav" style="width:${s}px;height:${s}px;font-size:${Math.round(s * 0.45)}px;background:${bg}">${esc(name[0])}${face(name)}</span>` : '');
 const fmt = (n) => Number(n || 0).toLocaleString('en-US');
 const ilTime = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
@@ -558,7 +537,7 @@ const repoName = (r) => REPOS[r] || String(r || '').replace(/^(?:wm-)?learning-/
 const isProduct = (m) => !!m && m.product !== false && !/^archie|^learning-workspace$|^signal$/i.test(m.repo || '') && !/\barchie\b/i.test(m.title || '');
 function productOnly(w) {
   if (!w || !w.mrs) return w;
-  // Archie's own merges still celebrate (a band, a ticker line) but count nowhere (Aviv, 2026-11-17).
+  // Archie's own merges still celebrate (the party, a ticker line) but count nowhere (Aviv, 2026-11-17).
   if (!w.mrs.all) w.mrs.all = w.mrs.merged || [];
   w.mrs.merged = w.mrs.all.filter(isProduct);
   w.mrs.week = (w.mrs.week || []).filter(isProduct);
@@ -1011,16 +990,6 @@ function celebrate1(m) {
   busyUntil = Math.max(Date.now(), busyUntil) + 8000;
   setTimeout(() => party(m), wait);
 }
-function band(m) {
-  const ms = (WALL && WALL.mrs.merged) || [], nth = ms.length - ms.findIndex((x) => x.ref === m.ref);
-  $('mb-t').textContent = m.title;
-  $('mb-s').textContent = `${repoName(m.repo)} · ${m.ref}${nth > 0 && nth <= ms.length ? ` · merge #${nth} today` : ''}`;
-  $('mb-by').innerHTML = m.for || m.by ? `${pav(m.for || m.by, 110, 'var(--win)')}<div>for<b>${esc(m.for || m.by)}</b></div>` : '';
-  $('mband').classList.add('on');
-  // A merge is a moment, not a status bar (Aviv, 2026-11-17): the card pops and two cannons fire.
-  confetti([[60, 1080, -65, 28], [1860, 1080, -115, 28]], 5000);
-  setTimeout(() => $('mband').classList.remove('on'), 9000);
-}
 function party(m) {
   const who = m.for || m.by;
   $('mp-who').innerHTML = who ? `<span class="av" style="background:var(--win)">${esc(who[0])}${face(who)}</span>${esc(who)}` : '';
@@ -1062,7 +1031,7 @@ function confetti(cannons = [[960, 480, -90, 360]], ms = 6000) {
   requestAnimationFrame(frame);
 }
 const qs = new URLSearchParams(location.search);
-if (qs.get('party') || qs.get('band')) setTimeout(() => { const archie = qs.get('band') || qs.get('party') === 'archie'; const m = WALL && (WALL.mrs.all || WALL.mrs.merged).find((x) => (archie ? !isProduct(x) : isProduct(x))); if (m) (qs.get('band') ? band : party)(m); }, 1500);
+if (qs.get('party')) setTimeout(() => { const archie = qs.get('party') === 'archie'; const m = WALL && (WALL.mrs.all || WALL.mrs.merged).find((x) => (archie ? !isProduct(x) : isProduct(x))); if (m) party(m); }, 1500);
 
 function fit() { const k = Math.min(innerWidth / 1920, innerHeight / 1080); const s = $('tv').style; s.webkitTransform = s.transform = `scale(${k})`; }
 addEventListener('resize', fit); fit();
