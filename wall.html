@@ -53,7 +53,7 @@ h2 { font-size: 64px; line-height: 1.05; font-weight: 800; letter-spacing: -2px;
 .now3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 76px; }
 .now3 .card { padding: 40px 44px; min-height: 250px; }
 .now3 .who { display: flex; align-items: center; gap: 18px; font-size: 40px; font-weight: 800; }
-.av { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 30px; font-weight: 800; color: var(--night); flex: none; }
+.av { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 30px; font-weight: 800; color: var(--night); flex: none; position: relative; overflow: hidden; }
 .now3 .what { margin-top: 22px; font-size: 32px; line-height: 1.3; color: var(--ink); }
 .now3 .k { margin-top: 18px; font-family: var(--mono); font-size: 24px; color: var(--mute); }
 
@@ -384,7 +384,9 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
 .lb .hh .ht { font-size: 26px; color: var(--mute); } .lb .hh .ht b { font-size: 44px; color: var(--ink); font-weight: 800; margin-right: 8px; }
 .lb .lbb { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .lb .foot { font-size: 26px; color: var(--mute); margin-top: 14px; } .lb .foot b { color: var(--ink); }
-.lb .lbav { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 800; color: var(--night); flex: none; }
+.lb .lbav { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 800; color: var(--night); flex: none; position: relative; overflow: hidden; }
+/* A person's Slack photo covers the initial; a photo that fails to load removes itself and the initial shows (Aviv, 2026-11-24). */
+.lbav .face, .av .face { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .lb .g1 { --m: #ffd25e; } .lb .g2 { --m: #d9d6f5; } .lb .g3 { --m: #f2a46b; }
 .lb .champ { border-radius: 24px; padding: 24px 30px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px;
   background: linear-gradient(160deg, color-mix(in srgb, var(--c) 30%, var(--night)) 0%, rgba(255,255,255,.04) 80%); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
@@ -518,6 +520,8 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
 // red verdicts, no blocked work, no "waiting on" names, and a number that went down shows no arrow.
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+// Every avatar shows the person's Slack photo when the box baked one (w.faces, viewer/lib/wall-faces.js), over the initial.
+const face = (name) => { const u = WALL && WALL.faces && WALL.faces[name]; return u && /^https:\/\/avatars\.slack-edge\.com\//.test(u) ? `<img class="face" src="${esc(u)}" alt="" onerror="this.remove()">` : ''; };
 const fmt = (n) => Number(n || 0).toLocaleString('en-US');
 const ilTime = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 const ilHour = () => Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', hourCycle: 'h23' }).format(new Date())) % 24;
@@ -737,7 +741,7 @@ function renderBoard(kind, w) {
   const B = lbBoards(kind, w), el = $(kind === 'mrs' ? 'mr-b' : 'as-b');
   const colorOf = {};
   [...(B.week ? B.week.L : []), ...B.today.L].forEach((x) => { if (!(x.name in colorOf)) colorOf[x.name] = LB_PAL[Object.keys(colorOf).length % LB_PAL.length]; });
-  const av = (x, s) => `<span class="lbav" style="width:${s}px;height:${s}px;font-size:${Math.round(s * 0.45)}px;background:${colorOf[x.name]}">${esc(x.name[0])}</span>`;
+  const av = (x, s) => `<span class="lbav" style="width:${s}px;height:${s}px;font-size:${Math.round(s * 0.45)}px;background:${colorOf[x.name]}">${esc(x.name[0])}${face(x.name)}</span>`;
   const chase = (L) => (L.length > 1 ? (L[1].n === L[0].n ? `<b>${esc(L[1].name)}</b> ties <b>${esc(L[0].name)}</b> at ${fmt(L[0].n)}` : `<b>${esc(L[1].name)}</b> needs ${fmt(L[0].n - L[1].n + 1)} to pass <b>${esc(L[0].name)}</b>`) : L.length ? `<b>${esc(L[0].name)}</b> leads, the next ${B.one} can catch up` : `The first ${B.one} of the day takes the lead`);
   const frame = (wk, g, body) => `<div class="half ${wk ? 'lbwk' : 'dy'}"><div class="hh"><span class="tg">${wk ? 'THIS WEEK' : 'TODAY'}</span>${g.total ? `<span class="ht"><b>${fmt(g.total)}</b>${B.unit} · ${plural(g.people, 'person', 'people')}</span>` : ''}</div><div class="lbb">${body}</div><div class="foot">${chase(g.L)}</div></div>`;
   const dayHalf = () => {
@@ -1007,7 +1011,7 @@ function band(m) {
 }
 function party(m) {
   const who = m.for || m.by;
-  $('mp-who').innerHTML = who ? `<span class="av" style="background:var(--win)">${esc(who[0])}</span>${esc(who)}` : '';
+  $('mp-who').innerHTML = who ? `<span class="av" style="background:var(--win)">${esc(who[0])}${face(who)}</span>${esc(who)}` : '';
   $('mp-ti').textContent = m.title;
   const nth = WALL ? WALL.mrs.merged.filter(isProduct).length : 0;
   $('mp-chips').innerHTML = `<span class="chip">${esc(repoName(m.repo))}</span><span class="chip">${esc(m.ref)}</span>${m.key ? `<span class="chip">${esc(m.key)}</span>` : ''}${nth ? `<span class="chip w">${fmt(nth)} product MRs today</span>` : ''}`;
