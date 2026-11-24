@@ -291,8 +291,9 @@ canvas.confetti { position: absolute; inset: 0; pointer-events: none; z-index: 0
 .rel .pill { font-family: var(--mono); font-size: 24px; font-weight: 700; padding: 10px 18px; border-radius: 14px; background: rgba(198,255,77,.12); color: var(--win); }
 .rel .pill small { color: var(--mute); font-weight: 500; margin-left: 10px; }
 .rel .themes { margin-top: 30px; display: grid; gap: 14px; min-height: 0; overflow: hidden; }
-.rel .th2 { display: grid; grid-template-columns: 70px 1fr; gap: 18px; align-items: center; font-size: 30px; }
-.rel .th2 b { font-family: var(--mono); font-size: 26px; color: var(--sea); text-align: right; }
+/* A topic shows what went in, with no ticket count next to it; the big number above keeps the count (Aviv, 2026-11-24). */
+.rel .th2 { display: grid; grid-template-columns: 14px 1fr; gap: 22px; align-items: center; font-size: 30px; }
+.rel .th2 b { width: 14px; height: 14px; border-radius: 50%; background: var(--sea); }
 .rel .th2 span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rel .tot { text-align: right; }
 .rel .tot b { font-size: 120px; font-weight: 800; letter-spacing: -4px; line-height: .9; color: var(--signal); }
@@ -683,11 +684,11 @@ function renderReleases(r) {
     $('rl-n').textContent = fmt(lead.tickets.done);
     $('rl-name').textContent = `tickets in ${relKind(lead.name)}, ${dayMonth(lead.date)}`;
     $('rl-pills').innerHTML = pillsOf(lead);
-    $('rl-themes').innerHTML = (lead.themes || []).slice(0, side ? 4 : 5).map((x) => `<div class="th2"><b>${fmt(x.n)}</b><span>${esc(x.theme.trim())}</span></div>`).join('');
+    $('rl-themes').innerHTML = (lead.themes || []).slice(0, side ? 4 : 5).map((x) => `<div class="th2"><b></b><span>${esc(x.theme.trim())}</span></div>`).join('');
   }
   $('rl-also').classList.toggle('on', !!side);
   $('rl-also').innerHTML = side ? `<div class="lbl2">${side === cur ? 'Live in production now' : 'Previous big release'}</div>
-    <div class="h"><span>${esc(relKind(side.name))}, ${esc(dayMonth(side.date))}</span><small><b>${fmt(side.tickets.done)}</b> tickets</small></div>${side === cur ? `<div class="pills">${pillsOf(side)}</div>` : ''}` : '';
+    <div class="h"><span>${esc(relKind(side.name))}, ${esc(dayMonth(side.date))}</span></div>${side === cur ? `<div class="pills">${pillsOf(side)}</div>` : ''}` : '';
   // What comes next, by how far along it is. Only the progress shows, never what is stuck.
   const way = r.trains.filter((t) => !t.shipped || t.next).slice(0, 3);
   $('rl-way').innerHTML = way.map((t) => {
