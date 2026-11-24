@@ -75,7 +75,7 @@ h2 { font-size: 64px; line-height: 1.05; font-weight: 800; letter-spacing: -2px;
 .rest div { background: var(--panel); border-radius: 18px; padding: 18px 22px; font-size: 30px; display: flex; justify-content: space-between; }
 .rest b { color: var(--mute); font-weight: 600; margin-right: 10px; }
 .rows { margin-top: 30px; display: grid; gap: 16px; }
-.row { display: grid; grid-template-columns: 60px 200px 1fr 90px; align-items: center; gap: 20px; font-size: 36px; }
+.row { display: grid; grid-template-columns: 60px 260px 1fr 90px; align-items: center; gap: 20px; font-size: 36px; }
 .row .r { font-weight: 800; color: var(--mute); }
 .row .nm { font-weight: 800; }
 .row .track { height: 30px; border-radius: 15px; background: var(--panel2); overflow: hidden; }
@@ -195,7 +195,7 @@ canvas.confetti { position: absolute; inset: 0; pointer-events: none; z-index: 0
 .rn .t3 span { display: block; font-size: 24px; color: var(--mute); }
 .rn .t3 .w b { color: var(--win); }
 .jobs { margin-top: 28px; display: grid; gap: 12px; }
-.job { display: grid; grid-template-columns: 130px 180px 1fr 90px; gap: 18px; align-items: center; height: 58px; padding: 0 22px; border-radius: 16px; background: var(--panel); font-size: 28px; }
+.job { display: grid; grid-template-columns: 200px 180px 1fr 90px; gap: 18px; align-items: center; height: 58px; padding: 0 22px; border-radius: 16px; background: var(--panel); font-size: 28px; }
 .job .w { font-weight: 800; }
 .job .k { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--signal); }
 .job .d { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); }
@@ -271,7 +271,7 @@ canvas.confetti { position: absolute; inset: 0; pointer-events: none; z-index: 0
 .work .rn h2 { font-size: 54px; }
 .jobs .job .w { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .job.mg .k { color: var(--win); }
-.lr { grid-template-columns: 50px 200px 1fr 80px; }
+.lr { grid-template-columns: 50px 250px 1fr 80px; }
 .lr .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hb div { height: 100%; justify-content: flex-start; }
 .hb div.now i { outline: 2px solid rgba(255,255,255,.25); }
@@ -387,6 +387,16 @@ canvas.confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; p
 .lb .lbav { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 800; color: var(--night); flex: none; position: relative; overflow: hidden; }
 /* A person's Slack photo covers the initial; a photo that fails to load removes itself and the initial shows (Aviv, 2026-11-24). */
 .lbav .face, .av .face { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+/* Every other spot that names a person carries the same avatar: AT WORK, the merge band, the league, the merge wall, Who kept me busy (Aviv, 2026-11-24). */
+.pav { display: inline-grid; vertical-align: middle; margin-right: 12px; }
+.pav + .t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.job .w, .lr .nm, .row .nm, .rest div span { display: flex; align-items: center; min-width: 0; }
+.job .w .pav, .lr .nm .pav, .row .nm .pav, .rest div span .pav { flex: none; }
+.step .nm { display: flex; align-items: center; justify-content: center; min-width: 0; }
+.step .nm .pav { flex: none; }
+.stk .pav { display: grid; margin: 6px 0 0; }
+.mband .by { display: flex; align-items: center; gap: 22px; }
+.mband .by .pav { margin: 0; }
 .lb .g1 { --m: #ffd25e; } .lb .g2 { --m: #d9d6f5; } .lb .g3 { --m: #f2a46b; }
 .lb .champ { border-radius: 24px; padding: 24px 30px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px;
   background: linear-gradient(160deg, color-mix(in srgb, var(--c) 30%, var(--night)) 0%, rgba(255,255,255,.04) 80%); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
@@ -522,6 +532,8 @@ const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 // Every avatar shows the person's Slack photo when the box baked one (w.faces, viewer/lib/wall-faces.js), over the initial.
 const face = (name) => { const u = WALL && WALL.faces && WALL.faces[name]; return u && /^https:\/\/avatars\.slack-edge\.com\//.test(u) ? `<img class="face" src="${esc(u)}" alt="" onerror="this.remove()">` : ''; };
+// A small avatar in front of a name in a row, a podium or a band: the photo over the initial, like the boards' own.
+const pav = (name, s, bg = 'var(--signal)') => (name ? `<span class="av pav" style="width:${s}px;height:${s}px;font-size:${Math.round(s * 0.45)}px;background:${bg}">${esc(name[0])}${face(name)}</span>` : '');
 const fmt = (n) => Number(n || 0).toLocaleString('en-US');
 const ilTime = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 const ilHour = () => Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', hourCycle: 'h23' }).format(new Date())) % 24;
@@ -600,10 +612,10 @@ function renderWork(w) {
   const jobs = [...rows].sort((a, b) => Date.parse(a.since) - Date.parse(b.since));
   if (jobs.length) {
     const top = jobs.slice(0, 4), rest = jobs.slice(4), names = [...new Set(rest.map((r) => r.who).filter(Boolean))];
-    $('jobs').innerHTML = top.map((r) => `<div class="job" data-since="${esc(r.since)}"><span class="w">${esc(r.who || 'Archie')}</span><span class="k">${esc(r.key || '')}</span><span class="d">${esc(((s) => (s.trim() && upbeat(s) && readable(s) ? slackClean(s) : 'On it'))(String(r.title || r.doing || r.what || '').replace(/^WML-\d+\s*/, '')))}</span><span class="s">${dur(Date.now() - Date.parse(r.since))}</span></div>`).join('');
+    $('jobs').innerHTML = top.map((r) => `<div class="job" data-since="${esc(r.since)}"><span class="w">${r.who ? pav(r.who, 40) : ''}<span class="t">${esc(r.who || 'Archie')}</span></span><span class="k">${esc(r.key || '')}</span><span class="d">${esc(((s) => (s.trim() && upbeat(s) && readable(s) ? slackClean(s) : 'On it'))(String(r.title || r.doing || r.what || '').replace(/^WML-\d+\s*/, '')))}</span><span class="s">${dur(Date.now() - Date.parse(r.since))}</span></div>`).join('');
     $('jobs-more').textContent = rest.length ? `and ${rest.length} more${names.length ? ` for ${names.slice(0, 3).join(', ')}${names.length > 3 ? ` and ${names.length - 3} other${names.length - 3 === 1 ? '' : 's'}` : ''}` : ''}` : '';
   } else {
-    $('jobs').innerHTML = merged.slice(0, 4).map((m) => `<div class="job mg"><span class="w">${esc(m.for || m.by || '')}</span><span class="k">Merged</span><span class="d">${esc(m.title)}</span><span class="s">${ilTime.format(new Date(m.at))}</span></div>`).join('');
+    $('jobs').innerHTML = merged.slice(0, 4).map((m) => `<div class="job mg"><span class="w">${pav(m.for || m.by, 40, 'var(--win)')}<span class="t">${esc(m.for || m.by || '')}</span></span><span class="k">Merged</span><span class="d">${esc(m.title)}</span><span class="s">${ilTime.format(new Date(m.at))}</span></div>`).join('');
     $('jobs-more').textContent = '';
   }
 }
@@ -616,7 +628,7 @@ function renderBusy(w) {
   $('mo-asks-l').textContent = `asks from ${plural(ppl || 0, 'person', 'people')}`;
   if (m && m.top.length) {
     const top = m.top.slice(0, 6), max = Math.max(1, ...top.map((x) => x.n)), rest = m.people - top.length;
-    $('mo-who').innerHTML = top.map((x, i) => `<div class="lr"><span class="r">${i + 1}</span><span class="nm">${esc(x.name)}</span><span class="tr"><b style="width:${(x.n / max) * 100}%"></b></span><span class="v">${fmt(x.n)}</span></div>`).join('');
+    $('mo-who').innerHTML = top.map((x, i) => `<div class="lr"><span class="r">${i + 1}</span><span class="nm">${pav(x.name, 48)}<span class="t">${esc(x.name)}</span></span><span class="tr"><b style="width:${(x.n / max) * 100}%"></b></span><span class="v">${fmt(x.n)}</span></div>`).join('');
     $('mo-rest').textContent = rest > 0 ? `and ${plural(rest, 'more person', 'more people')}` : '';
   } else { $('mo-who').innerHTML = `<div class="lr-more">${plural(t.people || 0, 'person', 'people')} asked me something today.</div>`; $('mo-rest').textContent = ''; }
   const by = t.byHour || [], sum = (x) => KIND_ORDER.reduce((n, k) => n + ((x && x[k]) || 0), 0), nowH = ilHour();
@@ -653,7 +665,7 @@ function renderMerges(w) {
   $('mw-stacks').innerHTML = cols.map(([name, list]) => {
     const shown = Math.max(1, Math.round(list.length * scale));
     const blocks = list.slice(-shown).map((m) => `<i class="p ${m.ref === lastRef ? 'last' : ''}"></i>`).join('');
-    return `<div class="stk"><div class="blocks">${blocks}</div><div class="nm">${esc(name)}</div><div class="n">${fmt(list.length)}</div></div>`;
+    return `<div class="stk"><div class="blocks">${blocks}</div>${pav(name === 'Archie' ? '' : name, 56, 'var(--win)')}<div class="nm">${esc(name)}</div><div class="n">${fmt(list.length)}</div></div>`;
   }).join('');
   const l = ms[0];
   $('mw-last').innerHTML = l ? `<b>Latest</b> · ${esc(l.title)} · ${esc(repoName(l.repo))} · ${ilTime.format(new Date(l.at))}` : '';
@@ -698,14 +710,14 @@ function renderLeague(w) {
   if (f && f.ranks && f.ranks.length) {
     const r = f.ranks, order = [r[1], r[0], r[2]];
     $('lg-days').textContent = `LAST ${f.days} DAYS`;
-    $('lg-podium').innerHTML = order.map((x, i) => (x ? `<div class="step p${[2, 1, 3][i]}"><div class="nm">${esc(x.name)}</div><div class="n">${plural(x.n, 'product MR')}</div><div class="blk">${[2, 1, 3][i]}</div></div>` : '<div></div>')).join('');
-    $('lg-rest').innerHTML = r.slice(3, 6).map((x, i) => `<div><span><b>${i + 4}</b>${esc(x.name)}</span><span>${fmt(x.n)}</span></div>`).join('');
+    $('lg-podium').innerHTML = order.map((x, i) => (x ? `<div class="step p${[2, 1, 3][i]}"><div class="nm">${pav(x.name, 56, 'var(--win)')}<span class="t">${esc(x.name)}</span></div><div class="n">${plural(x.n, 'product MR')}</div><div class="blk">${[2, 1, 3][i]}</div></div>` : '<div></div>')).join('');
+    $('lg-rest').innerHTML = r.slice(3, 6).map((x, i) => `<div><span><b>${i + 4}</b>${pav(x.name, 40)}<span class="t">${esc(x.name)}</span></span><span>${fmt(x.n)}</span></div>`).join('');
     // wins.fans counts merged MRs per requester, not asks (data check, Aviv, 2026-11-17).
     $('lg-boss').innerHTML = `<b>${fmt(f.total)}</b> product MRs merged for <b>${fmt(f.people)}</b> people in ${f.days} days`;
   }
   if (m && m.top.length) {
     const top = m.top.slice(0, 7), max = Math.max(1, ...top.map((x) => x.n));
-    $('lg-rows').innerHTML = top.map((x, i) => `<div class="row ${i === 0 ? 'lead' : ''}"><span class="r">${i + 1}</span><span class="nm">${esc(x.name)}</span><span class="track"><b style="width:${(x.n / max) * 100}%"></b></span><span class="v">${fmt(x.n)}</span></div>`).join('');
+    $('lg-rows').innerHTML = top.map((x, i) => `<div class="row ${i === 0 ? 'lead' : ''}"><span class="r">${i + 1}</span><span class="nm">${pav(x.name, 52)}<span class="t">${esc(x.name)}</span></span><span class="track"><b style="width:${(x.n / max) * 100}%"></b></span><span class="v">${fmt(x.n)}</span></div>`).join('');
   }
 }
 
@@ -1003,7 +1015,7 @@ function band(m) {
   const ms = (WALL && WALL.mrs.merged) || [], nth = ms.length - ms.findIndex((x) => x.ref === m.ref);
   $('mb-t').textContent = m.title;
   $('mb-s').textContent = `${repoName(m.repo)} · ${m.ref}${nth > 0 && nth <= ms.length ? ` · merge #${nth} today` : ''}`;
-  $('mb-by').innerHTML = m.for || m.by ? `for<b>${esc(m.for || m.by)}</b>` : '';
+  $('mb-by').innerHTML = m.for || m.by ? `${pav(m.for || m.by, 110, 'var(--win)')}<div>for<b>${esc(m.for || m.by)}</b></div>` : '';
   $('mband').classList.add('on');
   // A merge is a moment, not a status bar (Aviv, 2026-11-17): the card pops and two cannons fire.
   confetti([[60, 1080, -65, 28], [1860, 1080, -115, 28]], 5000);
