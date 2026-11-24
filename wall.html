@@ -520,7 +520,9 @@ const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': 
 // Every avatar shows the person's Slack photo when the box baked one (w.faces, viewer/lib/wall-faces.js), over the initial.
 const face = (name) => { const u = WALL && WALL.faces && WALL.faces[name]; return u && /^https:\/\/avatars\.slack-edge\.com\//.test(u) ? `<img class="face" src="${esc(u)}" alt="" onerror="this.remove()">` : ''; };
 // A small avatar in front of a name in a row or a podium: the photo over the initial, like the boards' own.
-const pav = (name, s, bg = 'var(--signal)') => (name ? `<span class="av pav" style="width:${s}px;height:${s}px;font-size:${Math.round(s * 0.45)}px;background:${bg}">${esc(name[0])}${face(name)}</span>` : '');
+// With no photo the initial sits on the person's own Slack avatar color (w.colors), else the board's color (Aviv, 2026-11-24).
+const tint = (name, bg) => { const c = WALL && WALL.colors && WALL.colors[name]; return c && /^#[0-9a-f]{6}$/.test(c) ? c : bg; };
+const pav = (name, s, bg = 'var(--signal)') => (name ? `<span class="av pav" style="width:${s}px;height:${s}px;font-size:${Math.round(s * 0.45)}px;background:${tint(name, bg)}">${esc(name[0])}${face(name)}</span>` : '');
 const fmt = (n) => Number(n || 0).toLocaleString('en-US');
 const ilTime = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 const ilHour = () => Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', hourCycle: 'h23' }).format(new Date())) % 24;
@@ -753,7 +755,7 @@ function renderBoard(kind, w) {
   const B = lbBoards(kind, w), el = $(kind === 'mrs' ? 'mr-b' : 'as-b');
   const colorOf = {};
   [...(B.week ? B.week.L : []), ...B.today.L].forEach((x) => { if (!(x.name in colorOf)) colorOf[x.name] = LB_PAL[Object.keys(colorOf).length % LB_PAL.length]; });
-  const av = (x, s) => `<span class="lbav" style="width:${s}px;height:${s}px;font-size:${Math.round(s * 0.45)}px;background:${colorOf[x.name]}">${esc(x.name[0])}${face(x.name)}</span>`;
+  const av = (x, s) => `<span class="lbav" style="width:${s}px;height:${s}px;font-size:${Math.round(s * 0.45)}px;background:${tint(x.name, colorOf[x.name])}">${esc(x.name[0])}${face(x.name)}</span>`;
   const chase = (L) => (L.length > 1 ? (L[1].n === L[0].n ? `<b>${esc(L[1].name)}</b> ties <b>${esc(L[0].name)}</b> at ${fmt(L[0].n)}` : `<b>${esc(L[1].name)}</b> needs ${fmt(L[0].n - L[1].n + 1)} to pass <b>${esc(L[0].name)}</b>`) : L.length ? `<b>${esc(L[0].name)}</b> leads, the next ${B.one} can catch up` : `The first ${B.one} of the day takes the lead`);
   const frame = (wk, g, body) => `<div class="half ${wk ? 'lbwk' : 'dy'}"><div class="hh"><span class="tg">${wk ? 'THIS WEEK' : 'TODAY'}</span>${g.total ? `<span class="ht"><b>${fmt(g.total)}</b>${B.unit} · ${plural(g.people, 'person', 'people')}</span>` : ''}</div><div class="lbb">${body}</div><div class="foot">${chase(g.L)}</div></div>`;
   const dayHalf = () => {
@@ -1013,7 +1015,7 @@ function celebrate1(m) {
 }
 function party(m) {
   const who = m.for || m.by;
-  $('mp-who').innerHTML = who ? `<span class="av" style="background:var(--win)">${esc(who[0])}${face(who)}</span>${esc(who)}` : '';
+  $('mp-who').innerHTML = who ? `<span class="av" style="background:${tint(who, 'var(--win)')}">${esc(who[0])}${face(who)}</span>${esc(who)}` : '';
   $('mp-ti').textContent = m.title;
   const nth = WALL ? WALL.mrs.merged.filter(isProduct).length : 0;
   $('mp-chips').innerHTML = `<span class="chip">${esc(repoName(m.repo))}</span><span class="chip">${esc(m.ref)}</span>${m.key ? `<span class="chip">${esc(m.key)}</span>` : ''}${nth ? `<span class="chip w">${fmt(nth)} product MRs today</span>` : ''}`;
